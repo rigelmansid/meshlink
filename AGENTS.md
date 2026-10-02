@@ -1,0 +1,172 @@
+# AGENTS.md
+
+Working rules for AI agents (Claude Code, Codex and others) and maintainers of
+this repository. `CLAUDE.md` is a symlink to this file; edit `AGENTS.md` only.
+
+This file says *how to work*. What the project is, its architecture, decisions,
+pitfalls (坑 1–21), todo list and roadmap live in
+[docs/project-notes.md](docs/project-notes.md); section numbers (§) below refer
+to that file. Do not copy project content into this file.
+
+## Getting started
+
+1. Read project-notes 当前状态 and the §7 todo list to decide whether the task is
+   development or restoring a working setup.
+2. Restoring a setup: check environment, config and startup against §2–§4, then
+   make one read-only Rhino tool call (see Verification).
+3. Before changing tunnel logic: read §5 (decisions) and §6 (pitfalls), and run
+   the existing tests.
+4. What exists: the `meshlink` command (`bin/meshlink`, subcommands `setup`,
+   `client codex`, `doctor`, `windows-script`, `tunnel`, `uninstall`,
+   `version`), which dispatches to the scripts under `scripts/`;
+   `install.sh` / `uninstall.sh`; `scripts/package.sh`; and
+   `scripts/prepare-windows.ps1`. Anything listed as planned in project-notes
+   (published releases, other clients, discovery and pairing) does not exist
+   yet; never describe it as existing or invent its interface.
+5. `setup`, `client codex`, `install.sh` and `uninstall.sh` write to the user's
+   `~/.ssh`, Codex config or `~/.local`; run them on the real machine only when
+   the user asks. Their tests use a temporary home.
+6. To check a working setup, run `meshlink doctor` (or `scripts/doctor.sh`)
+   first; it is read-only.
+
+## Commands
+
+```sh
+bash -n scripts/rhino-tunnel.sh      # syntax check
+bash -n tests/test-rhino-tunnel.sh
+tests/test-rhino-tunnel.sh           # ~40 s, expects "passed: 24  failed: 0"
+bash -n scripts/doctor.sh
+tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
+tests/test-setup.sh                  # ~4 s, expects "passed: 54  failed: 0"
+tests/test-install.sh                # ~10 s, expects "passed: 39  failed: 0"
+scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
+```
+
+The tests need `python3`, `lsof`, `pgrep`, `ps` and free local ports
+29931–29936 (tunnel) and 29941–29942 (doctor); check the ports are free before
+running. They use a fake `ssh` and `codex` and, where they write files, a
+temporary home; they never touch `~/.ssh`, `~/.local`, the Codex config, a real
+host or port 1999. A test that reads `$?` after a function must not run that
+function on the right of a pipe (it runs in a subshell; see `test-install.sh` I7). Assertion T4a is
+timing-sensitive and can flake on a busy machine; rerun before assuming a
+regression.
+
+`scripts/prepare-windows.ps1` has no automated test: run
+`tests/prepare-windows-checklist.md` by hand on Windows after every change. Keep
+the file ASCII only (Windows PowerShell 5.1 reads a file without a BOM in the
+system code page) and compatible with PowerShell 5.1. Never run it on the user's
+PC yourself; it changes system configuration.
+
+Probe any MCP stdio server end to end:
+
+```sh
+python3 experiments/mcp_stdio_probe.py --call get_document_summary -- <server command...>
+experiments/mcp_stdio_probe.sh get_document_summary -- <server command...>   # bash 3.2, no Python
+```
+
+There is no build step, package manifest or CI.
+
+## Changing `scripts/rhino-tunnel.sh`
+
+Each rule below prevents a real, silent failure. The reasons are in the script
+comments and in the pitfalls cited. Do not "simplify" them away.
+
+- Write both ends of `-L` as `127.0.0.1` (坑 10).
+- Keep `-o BatchMode=yes` and `-o ExitOnForwardFailure=yes`. The daemon must never
+  prompt; first host-key acceptance is a manual `ssh rhino-pc` (§5).
+- ssh and the backoff `sleep` run in the background and are awaited with
+  `wait`, under one `trap cleanup INT TERM HUP` (坑 12).
+- Detect a tunnel by port (`lsof -nP -iTCP:<port> -sTCP:LISTEN`), never by
+  process name (坑 9).
+- Classify backoff by whether the local port ever bound, not by duration
+  alone (坑 12).
+- Keep `LOCAL_PORT` and `REMOTE_PORT` separate; `PORT=` must keep failing with
+  exit code 2 (坑 11).
+- Host, user, key and keepalives come only from `~/.ssh/config`; do not restate
+  them in the script.
+- Stay compatible with macOS's system bash 3.2: no associative arrays,
+  `mapfile`, `${var,,}` and the like.
+- Add or update a scenario in `tests/test-rhino-tunnel.sh` with every
+  behaviour change. Add tests alongside the feature, not before a release.
+- After touching the `trap` line, tell the user a real terminal Ctrl-C must be
+  checked by hand: the harness cannot deliver SIGINT and uses a group SIGHUP.
+
+## Working with a live Rhino
+
+- **Do not start `rhino-tunnel.sh` yourself** (坑 13). If a tool call returns
+  `Could not connect to Rhino at 127.0.0.1:1999`, tell the user to run
+  `mcpstart` in Rhino and start the tunnel, or to use the SSH stdio option. In a
+  sandbox without network the script retries forever. If you did start one,
+  stop it with SIGTERM and confirm the port is free.
+- `codex exec` does not expose MCP tools (坑 15); use the interactive TUI or
+  `experiments/mcp_stdio_probe.py`.
+- Modeling safety:
+  - Delete only objects your task created, identified by layer or user string.
+    An "empty-looking" document is not permission to bulk-delete.
+  - Wrap each generated script in one undo record
+    (`BeginUndoRecord` / `EndUndoRecord`).
+  - Never overwrite an existing `.3dm` file; save under a new name.
+- Never write modeling scripts, generated models or scratch files into the
+  repository. Keep them outside the project directory.
+
+## Verification
+
+- A client showing the server as "connected", or a listening tunnel port,
+  proves nothing about Rhino (坑 8, 坑 11). The only end-to-end check is one
+  read-only tool call such as `get_document_summary`.
+- Passing simulated tests covers the fake `ssh` only. Never report a real
+  Windows/Rhino result unless it happened in this session.
+- Record every result with date and time, environment and versions, the
+  method, and its limits. Keep "verified now" separate from "historical" and
+  "not re-checked", and say which steps were skipped.
+- Versions change without notice (坑 14). Re-verify after upgrades instead of
+  reusing old compatibility claims.
+
+## Keeping project-notes current
+
+- After a unit of work, update project-notes: 当前状态 and 验证范围, the §7
+  todo list, and a new row in the §9 stage log. Do not write a separate handoff
+  file.
+- 当前状态 holds only the latest snapshot. Move outdated conclusions into the §9
+  log with their date.
+- Maintain each config and procedure in one place and link to it rather than
+  repeating it.
+- When a decision changes, record the new reason and mark the old decision as
+  superseded; keep troubleshooting knowledge that is still useful.
+- Append new pitfalls to §6 with the next number.
+- When splicing a file by line numbers (awk/sed/head/tail), check that every
+  number is set and numeric, write to a temporary file, and compare line counts
+  before replacing the original. An empty variable once made awk delete 867
+  lines of project-notes (2026-10-02; restored from `HEAD` before commit).
+- Planning: when an open item is settled, update its status in §8; move
+  actionable next steps into §7 and results into §9. If the plan grows to
+  multiple versions or outside contributors, move the forward-looking part of
+  §8 to `ROADMAP.md` and link to it instead of keeping two copies.
+- project-notes and the experiment notes stay in Chinese. User-facing docs are
+  English, with `README.zh-CN.md` kept in sync with `README.md`.
+  `docs/remote-setup.md` mirrors upstream PR #63; keep the two consistent.
+- Write plain, factual prose. Commit subjects are short imperative English.
+
+## Privacy and publishing
+
+- `private-notes.md` is git-ignored and holds real hosts, usernames and
+  personal config. Never copy its content into tracked files, commit messages
+  or PRs. Use the placeholders `<pc-address>`, `<windows-user>`, `<mac-user>`
+  and `<user>`.
+- Before any commit, check that no real IP, username or home path slipped in,
+  e.g. `git ls-files | xargs grep -nE "192\.168|/Users/[a-z]"`, and that no
+  U+FFFD replacement character was written into Chinese text (pitfall 20):
+  `git ls-files | xargs grep -nI $'\xef\xbf\xbd'` must print nothing.
+- Local `main` history contains personal data and must **never be pushed**. It
+  is kept as an archive. Why: early commits still contain a real IP and
+  usernames in their files, and every commit's author is the machine's default
+  identity; pushing sends the whole history, and pushed data cannot be reliably
+  taken back. The full reasoning is in project-notes §5. The same holds for
+  the local branch `public-presquash` (the `public` history before it was
+  squashed for going public).
+- Work continues on the `public` branch, which started as a fresh orphan commit
+  and tracks `origin/main` of the public repository `rigelmansid/meshlink`.
+  Push only `public`, and only on the user's explicit instruction. Everything
+  pushed is public: run the checks above on every commit being pushed.
+- Commits on `public` use the identity `Cheng Yuan` with the GitHub noreply
+  address (set in this repository's git config), never the machine's default.

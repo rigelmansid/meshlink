@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# meshlink: one command for the scripts in this project. It only dispatches;
+# each subcommand is a script under scripts/ that also runs on its own.
+#
+# Works from a checkout (bin/meshlink) and once installed (install.sh writes a
+# launcher in ~/.local/bin that execs this file by its real path).
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+VERSION=$(cat "$ROOT/VERSION" 2>/dev/null || echo unknown)
+# Lets the scripts name the next step as "meshlink ..." in their hints.
+export MESHLINK_CLI=1
+
+usage() {
+  cat <<EOF
+meshlink $VERSION: use RhinoMCP on a Windows PC from this Mac, over SSH
+
+usage: meshlink <command> [options]
+
+  setup            first-time setup: SSH key, ~/.ssh/config entry, the PC's host key
+  client codex     point Codex's MCP entry at rhinomcp on the PC
+  doctor           read-only check of the whole link, ending with one tool call
+  windows-script   print the path of prepare-windows.ps1, to copy to the PC
+  tunnel           Option 2 only: keep an SSH port forward open
+  uninstall        remove meshlink (asks before touching Codex's config)
+  version          print the version
+
+Run 'meshlink <command> --help' for a command's options.
+EOF
+}
+
+cmd=${1:-}
+[[ $# -gt 0 ]] && shift
+case $cmd in
+  setup) exec "$ROOT/scripts/setup.sh" "$@" ;;
+  client)
+    sub=${1:-}
+    [[ $# -gt 0 ]] && shift
+    case $sub in
+      codex) exec "$ROOT/scripts/client-codex.sh" "$@" ;;
+      *) echo "usage: meshlink client codex [options]  (Codex is the only client so far)" >&2; exit 2 ;;
+    esac ;;
+  doctor) exec "$ROOT/scripts/doctor.sh" "$@" ;;
+  tunnel) exec "$ROOT/scripts/rhino-tunnel.sh" "$@" ;;
+  windows-script) echo "$ROOT/scripts/prepare-windows.ps1" ;;
+  uninstall) exec "$ROOT/uninstall.sh" "$@" ;;
+  version|--version) echo "meshlink $VERSION" ;;
+  ""|help|-h|--help) usage ;;
+  *) echo "meshlink: unknown command '$cmd'" >&2; usage >&2; exit 2 ;;
+esac

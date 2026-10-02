@@ -1,0 +1,16 @@
+# Personal environment details (hosts, usernames, private config); never publish
+private-notes.md
+
+# OS and editor files
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Release builds
+dist/
