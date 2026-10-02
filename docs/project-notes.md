@@ -64,6 +64,7 @@ Windows 11）上的 W1 脚本、真实安装与卸载、首次 Release（§7）�
 | 2026-09-28，整理目录后 | 移到 `tests/` 后 `test-rhino-tunnel.sh` 24/24 通过，两个脚本 `bash -n` 通过。 | 仅模拟 SSH。 |
 | 2026-09-30 22:34 至 10-01 00:17，选项 1 断网回收实验 | 会话挂起时断开 Windows Wi-Fi（无 RST）。Mac 端 ssh 每轮都在断网后约 45–60 s 以 255 退出，无残留。Windows 端：sshd 默认配置下 `rhinomcp.exe` 与两个 `python.exe` 在恢复联网后仍残留（至少到 22:42:12），孤儿占着一条到 Rhino 1999 的连接，但不妨碍新会话；设置 `ClientAliveInterval 15` / `ClientAliveCountMax 3` 后，Windows 本机每 5 s 记录一次，进程与 sshd 连接在 00:14:07–00:14:12 之间消失，即断网后约 46–66 s，此时 Windows 仍未联网（首条 Wi-Fi 重连事件 00:14:42）。只读调用 `get_document_summary` 每轮成功。 | 环境：macOS 26.6.2、OpenSSH_10.3p1（Mac）；Windows 10 22H2 自带 OpenSSH Server（版本未记录）；rhinomcp 0.4.1.1；Rhino 版本未记录。断网时刻由 Mac 端 ssh 退出时间反推。默认配置下的孤儿后来在 22:42–23:27 之间以未知机制消失（坑 16）。两种配置下 OpenSSH 日志都没有该会话的断开记录。只测了断开 Windows Wi-Fi；Mac 断网、睡眠、长时间断网未测。计时有效的只有 1 轮（第 3 轮首次尝试时监视脚本启动过晚，作废）。 |
 | 2026-10-01 00:32–01:13，选项 1 断线后 Codex 恢复 | Codex TUI 中只读调用成功后，断开 Windows Wi-Fi，Mac 端 ssh 退出（00:36:12、01:07:27）后再恢复。嵌入模式（`-c`）与正常模式（`config.toml`，由后台守护进程拉起 ssh）结果一致：同一会话显示 `rhino: failed`，调用报 `Transport closed`，不会自动重连；退出 TUI 后重新启动 Codex，`connected (70 tools)`，只读调用成功（坑 17）。重启后 Windows 上只剩新会话的进程。 | 环境：Codex CLI 0.159.2（自 0.155.1 自动升级）、macOS 26.6.2、rhinomcp 0.4.1.1，Windows sshd 已设 `ClientAliveInterval`。每种模式只测了 1 次；只做了只读调用。 |
+| 2026-10-03，`prepare-windows.ps1` 报告去掉 `-l` | 修改后按手动清单在原环境运行 A（`-WhatIf`）、B（实际运行）、E（错误公钥）。 | **用户口头确认通过，没有截图或输出留存**，具体输出未经核对。脚本拷贝前后哈希一致；运行后用户已删除临时拷贝。 |
 | 2026-10-02 23:09 至 10-03 00:20，方案 A：原环境上的全新账户验收 | Mac 端经 `meshlink` 真实运行全新流程：`setup --host rhino-test --user rhino-test --key <新密钥>` 生成密钥、写入 Host 条目、打印 Windows 命令；临时删除 `known_hosts` 中该 PC 的记录后，交互核对指纹回答 no 时不写入、回答 yes 时写入并登录成功（ssh 随后按 `UpdateHostKeys` 补回 RSA 与 ECDSA，`known_hosts` 内容与测试前一致）。Windows 端新建普通账户 `rhino-test`：未登录过时 `prepare-windows.ps1` 报 FAIL 并提示 `runas`；登录一次后新装公钥、权限通过、给出以该账户安装 uv 的命令；按命令装好后重跑无改动；sshd 改为手动并停止后重跑，恢复为自动并启动；无默认注释的 `sshd_config` 副本中两项插在 `Match` 之前。`client codex` 写入临时 `CODEX_HOME`，doctor 在 Rhino 未监听时报两项 FAIL 并提示 `mcpstart`，`mcpstart` 后 9 OK、1 WARN（测试机 UAC 设置）、MCP 往返约 2 s。测试后两端清理，`~/.ssh/config` 与测试前备份逐字节一致，真实 Codex 配置未改。 | 发现并修复两处：`setup` 生成的密钥注释原为 user@host，会把 Mac 主机名带到 PC 与屏幕上（改为固定的 `meshlink`）；重跑 `setup` 不带 `--key` 时用默认密钥而非 Host 条目里的密钥（改为读取条目）；另修正远端报错末尾缺换行。防火墙一项没有测到“新增规则”：PC 上原本另有一条名为 `sshd` 的规则，按我给的清理命令被删除，已由用户恢复。未覆盖的路径见 `tests/prepare-windows-checklist.md`。 |
 | 2026-10-02 00:16–00:30，首次预发布 `v0.1.0-dev` | 发布前检查压缩包：内容中无个人信息与替换字符；元数据中发现打包人的 Mac 登录名与 `com.apple.provenance` 扩展属性（坑 21），修正 `scripts/package.sh` 后重打，属主为 `root:wheel`，原始字节中无扩展属性、用户名、本机路径。`gh release create` 建预发布 `v0.1.0-dev`，指向 `c83f064`（与 `origin/main` 一致），附压缩包与 `.sha256`；下载回来 `shasum -c` 通过，且与本地构建逐字节一致。 | 私有仓库，未公开。Release 说明列出已验证与未验证的范围。 |
 | 2026-10-01 23:56，原环境真实安装 | 用 `scripts/package.sh` 打包、`shasum -c` 校验通过，解压到临时目录后运行其中的 `install.sh`：装到 `~/.local/share/meshlink`，`~/.local/bin/meshlink` 为两行启动文件，`~/.local/bin` 已在 PATH 中所以没有提示。在 `/tmp` 下经 `meshlink` 运行：`version`、`windows-script` 正常；`setup --host rhino-agent` 判定已配置好，提示措辞为 `meshlink client codex ...`；`client codex --host rhino-agent` 判定已一致，未改写，随后 doctor 9 OK、1 WARN（测试机 UAC 设置），MCP 往返约 2 s。 | 只验证了“已配置好的环境上什么都不改”的路径。卸载没有在原环境运行（安装保留）。Codex 0.159.3。 |
@@ -864,9 +865,6 @@ MIT 许可证，署名 `Cheng Yuan`。英文主 README + 中文 `README.zh-CN.md
       OpenSSH、22 端口完全没有入站规则、管理员公钥文件多余权限、改动正在使用的
       `sshd_config` 并重启 sshd、为当前账户从零安装 uv 与 rhinomcp、`net localgroup`
       回退、Windows 11。需要一台全新的 Windows（虚拟机即可）。
-- [ ] **Windows 脚本报告里的 Codex 命令示例**：`prepare-windows.ps1` 最后一行仍写
-      `ssh ... -l <user> <host>`，与现在的产品默认（账户写在 Host 条目里，不带 `-l`）
-      不一致。改动后要按手动清单重测。
 - [ ] **`client-codex.sh` 不再整条覆盖**（首版之后）：现在靠 `codex mcp add`，会丢掉
       用户的工具审批等设置和全部注释（坑 19）。改为只替换 `command` / `args`，保留其余
       内容；需要在 bash 里安全地改 TOML，或等 Codex 提供只改部分字段的命令。
@@ -1095,6 +1093,7 @@ Mac 端发起连接，Windows 弹出确认，用户同意后两边建立连接�
 | 2026-10-02，首次预发布 | 用户定版本号 `0.1.0-dev` 并选择发布为预发布版。发现并修正压缩包元数据泄露打包人用户名与 macOS 扩展属性（坑 21，`scripts/package.sh`、`tests/test-install.sh` 新增两项断言，共 39 项）；推送 `c83f064`；在私有仓库发布 `v0.1.0-dev`。§7 删除“首次发布 Release”，§8 更新版本号。编辑本文时一次 awk 命令因变量为空误删 867 行，未提交，已从 `HEAD` 恢复后重做。 | 见验证范围 2026-10-02 一行。 |
 | 2026-10-02，脱敏并转为公开 | 公开前按用户选择脱敏：描述测试机安全状态的措辞改为中性（§2、§3、§5 与几条验证记录），去掉 13 处时区；`rhino-agent`、`rigelmansid`、`Cheng Yuan` 保留。把 `public` 压成一个新的孤立提交并强制推送，移动 `v0.1.0-dev` 标签，仓库改为公开（§5）。 | 公开前检查：当前文件、`public` 全部提交、提交说明与作者、Release 附件与说明中无私有网段 IP、本机与 Windows 用户名、主机名、卷标、主机指纹、真实邮箱、硬件与其他软件信息。 |
 | 2026-10-02 至 10-03，方案 A 验收 | 用户没有全新 Windows 或 Windows 11 电脑，选择方案 A：在原环境用新账户 `rhino-test` 真实运行全新流程（结果见验证范围）。修复 `setup.sh` 的密钥注释与 `--key` 重跑问题、`lib/common.sh` 的换行；`tests/test-setup.sh` 增至 57 项；手动清单区分已覆盖与未覆盖的路径；§7 更新 W1 剩余验收并新增 Codex 命令示例一项。 | 见验证范围 2026-10-02 23:09 一行。Hyper-V 下的 Windows 11 虚拟机（方案 B）未做。 |
+| 2026-10-03，Windows 脚本的 Codex 命令示例 | `prepare-windows.ps1` 报告末尾改为三行：rhinomcp.exe 路径、下一步 `meshlink client codex --host <host>`、Codex 将运行的不带 `-l` 的命令；§7 删除对应一项。 | 见验证范围 2026-10-03 一行（用户口头确认）。 |
 
 ---
 

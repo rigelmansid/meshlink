@@ -406,8 +406,12 @@ $addrs = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
            ForEach-Object { $_.IPAddress })
 if ($addrs.Count -gt 0) { Info ('this PC: {0}  (use one as HostName in the Mac''s ~/.ssh/config)' -f ($addrs -join ', ')) }
 
+# The account belongs in the Mac's Host entry (meshlink setup writes it), so
+# the command Codex runs carries no -l.
 if ($rhinomcp) {
-  Info ('Codex runs: ssh -T -o BatchMode=yes -l {0} <host> "{1}"' -f $User, $rhinomcp)
+  Info ('rhinomcp.exe for {0}: {1}' -f $User, $rhinomcp)
+  Info ('next, on the Mac: meshlink client codex --host <host>, where <host> logs in as {0}' -f $User)
+  Info ('Codex then runs: ssh -T -o BatchMode=yes <host> "set RHINO_MCP_TIMEOUT=30&& {0}"' -f $rhinomcp)
 }
 
 Finish
