@@ -29,6 +29,7 @@ HOST_ALIAS=rhino-pc
 ADDRESS=""
 WIN_USER=""
 KEY="$HOME/.ssh/id_ed25519_rhino"
+KEY_SET=no
 EXPECT_FP=""
 
 while (($#)); do
@@ -36,7 +37,7 @@ while (($#)); do
     --host) HOST_ALIAS=${2:-}; shift 2 ;;
     --address) ADDRESS=${2:-}; shift 2 ;;
     --user) WIN_USER=${2:-}; shift 2 ;;
-    --key) KEY=${2:-}; shift 2 ;;
+    --key) KEY=${2:-}; KEY_SET=yes; shift 2 ;;
     --fingerprint) EXPECT_FP=${2:-}; shift 2 ;;
     -h|--help) sed -n '2,/^set -uo/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $1 (see --help)" >&2; exit 2 ;;
@@ -61,6 +62,13 @@ has_alias() {
   [[ -f $CONFIG ]] &&
     grep -qiE "^[[:space:]]*Host[[:space:]]+(.*[[:space:]])?$HOST_ALIAS([[:space:]]|\$)" "$CONFIG"
 }
+
+# On a rerun the Host entry already names its key. Use that one unless --key
+# says otherwise, or the Windows command would carry the wrong public key.
+if [[ $KEY_SET == no ]] && has_alias; then
+  entry_key=$(resolved identityfile)
+  [[ -n $entry_key ]] && KEY=${entry_key/#\~/$HOME}
+fi
 
 # ---------------------------------------------------------------- 1. key
 if [[ ! -d $SSH_DIR ]]; then

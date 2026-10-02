@@ -10,6 +10,7 @@
 # Scenarios:
 #   S1  fresh Mac: key, config, Windows command, fingerprint, login    -> exit 0
 #   S2  run again                                -> nothing changes, no wait
+#   S2b rerun without --key                       -> the Host entry's key is used
 #   S3  alias exists with another account        -> WARN, config untouched
 #   S4  config with Include and "Host *"         -> entry after Include, before Host *
 #   S5  --fingerprint does not match             -> FAIL, known_hosts untouched
@@ -150,7 +151,15 @@ hasnt "$out" "prepare-windows.ps1 -User" "no Windows step when already working"
 has "$out" "already trusted" "host key recognised"
 [[ -z $(ls "$H/.ssh" | grep bak-) ]] && ok "no backup made" || bad "no backup made"
 
+echo "S2b rerun without --key uses the entry's key"
+fresh_home s2b
+run s2b1 '\n' "$SETUP" --host other-pc --address 10.0.0.9 --user agent --key "$H/.ssh/id_other" --fingerprint "$FP"
+exit_is "$rc" 0 "first run with --key"
+run s2b2 '' "$SETUP" --host other-pc
+has "$out" "key ~/.ssh/id_other already exists" "rerun picks the key named in the Host entry"
+
 echo "S3 alias exists with another account"
+H="$WORK/home-s1"   # S3 continues from S1/S2
 run s3 '' "$SETUP" --address 10.0.0.9 --user other
 cmp -s "$H/.ssh/config" "$WORK/s1.config" && ok "config untouched" || bad "config untouched"
 has "$out" "[WARN] it logs in as agent, not other" "difference reported"
