@@ -115,7 +115,10 @@ comments and in the pitfalls cited. Do not "simplify" them away.
     (`BeginUndoRecord` / `EndUndoRecord`).
   - Never overwrite an existing `.3dm` file; save under a new name.
 - Never write modeling scripts, generated models or scratch files into the
-  repository. Keep them outside the project directory.
+  repository. Put them in the maintainer's `../materials/scratch/` (outside
+  the repository, next to it; it may not exist on other machines). Reference
+  material is in `../materials/refs/` and unsorted material in
+  `../materials/inbox/`; read them only when the task needs them (D-15).
 
 ## Verification
 

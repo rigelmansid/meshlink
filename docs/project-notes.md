@@ -4,13 +4,14 @@
 
 ## 进行中
 
-更新：2026-10-03 01:20
-- 任务：无。上一个工作单元：文档结构迁移（D-14，2026-10-03，已提交，未推送）
-- 停在：迁移已提交到本地 `public`，推送由用户决定
-- 本次决策：D-14
-- 待用户确认：1. 是否推送本次迁移；2. 是否重新发布（`0.1.0-dev.2`，或等正式 `0.1.0`）；
+更新：2026-10-03 03:20
+- 任务：无。上一个工作单元：容器文件夹改名为 `P012_meshlink`（agent-system D-8；此前 D-5 的
+  全体改名已回滚，D-6），Claude Code 的 projects 目录与信任键、Codex 信任条目已随之迁移
+- 停在：D-15（资料放 `../materials/`）已落实并提交到本地 `public`，未推送
+- 本次决策：D-15
+- 待用户确认：1. 是否推送；2. 是否重新发布（`0.1.0-dev.2`，或等正式 `0.1.0`）；
   3. 是否把 §8 规划拆成 `ROADMAP.md`
-- 下一步：1. 用户决定发布方式后执行 §7 第一项；2. W1 剩余路径与 Windows 11 验收：需要全新
+- 下一步：0. 在新路径开会话，确认不弹信任对话框、`/pickup` 与 memory 正常；1. 用户决定发布方式后执行 §7 第一项；2. W1 剩余路径与 Windows 11 验收：需要全新
   Windows，候选是原 PC 上用 Hyper-V 跑 Windows 11 虚拟机（PC 为 Windows 10 专业版，先在 BIOS
   打开 VT-x，再启用 Hyper-V，都要重启）；3. 需要用户在场的手动检查：其他断线情形、真实终端
   `Ctrl-C`、rhinomcp 是否自动包撤销记录
@@ -59,6 +60,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类与重连行为。 |
 | [experiments/](../experiments/) | MCP stdio 探测脚本：Python 版 `mcp_stdio_probe.py`（`--hold` 可在调用后保持会话，用于断网实验）；纯 bash 3.2 版 `mcp_stdio_probe.sh`（一次工具调用并给出判定，验证 doctor 不依赖 Python 的可行性）。另有选项 1 的实验步骤 `ssh-stdio-test.md`。 |
 | `private-notes.md`（不入库） | 真实主机地址、用户名、个人配置和个人环境问题；在 `.gitignore` 中。 |
+| `../materials/`（仓库外） | 参考资料 `refs/`、待整理 `inbox/`、agent 临时产出 `scratch/`（建模脚本、生成的模型、实验输出）。见 D-15。 |
 
 现有内容：实测过的连接指南；Mac 端统一命令 `meshlink`（`bin/meshlink`，子命令 `setup`、
 `client codex`、`doctor` 等，实现都在 `scripts/`）、`install.sh` / `uninstall.sh` 与打包脚本

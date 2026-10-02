@@ -264,3 +264,21 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
   记录”；原 §6 移到 pitfalls.md，编号不变；原 §9 与「验证范围」表移到 log.md。project-notes
   保留原章节号，§5、§6、§9 留指向新文件的占位，所以历史记录里的 “§n” 仍然有效。AGENTS.md
   的文档维护规则相应改写，仍可独立使用。
+
+### D-15 项目资料放在仓库旁的 materials/（2026-10-03，用户决定）
+
+- 背景：参考资料、待整理资料不想放进仓库；规则只说“临时文件不写进项目目录”，没有
+  固定位置，建模脚本等临时产出每次要另选目录。仓库旁有空的 `meshlink bak`，仓库里有
+  空的 `temp/`。
+- 选项：A 仓库内建 git-ignored 目录 / B 仓库同级的 `materials/`（`refs/`、`inbox/`、
+  `scratch/`）/ C 统一的资料库（如 iCloud）
+- 选择：B，并写进 `~/agent-system`，对所有项目生效
+- 理由：在仓库外，`git add -A`、`scripts/package.sh` 和全仓搜索都碰不到，不会误提交或
+  进发布包；和项目放在同一个容器文件夹里，好找；入库文件用相对路径 `../materials/`，
+  不含个人路径。
+- 影响：`meshlink bak` 改名为 `materials/` 并建三个子目录，删除空的 `temp/`；AGENTS.md
+  的建模临时文件规则指向 `../materials/scratch/`；project-notes 文件表加一行。
+  agent-system：RULE.md 第 4 节写入约定，profiles/code.md、模板 AGENTS.md 与
+  project-notes、README.md 相应补充，`bin/new-project` 自动建 `../materials/` 三个子目录。
+  约定假设每个项目有自己的容器文件夹；项目直接放在共享目录下时，`../materials/` 会被
+  多个项目共用。
