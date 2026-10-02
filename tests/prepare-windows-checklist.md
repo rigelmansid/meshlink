@@ -30,17 +30,28 @@ $run = "powershell -NoProfile -ExecutionPolicy Bypass -File .\prepare-windows.ps
 After B, from the Mac: compare the `host key` fingerprint the script printed
 with `ssh-keygen -lF <HostName>`, and run `scripts/doctor.sh`.
 
+## Covered on an existing PC (2026-10-02)
+
+Run on the original Windows 10 PC with a new standard account (see
+`docs/project-notes.md`, verification table): an account that has never logged
+in; a new key into a new profile (`.ssh` created, permissions accepted); the
+printed `runas` steps installing uv and rhinomcp for that account; sshd stopped
+and set to manual; `sshd_config` without the commented defaults (insert above
+`Match`, on a copy).
+
 ## Not covered yet
 
-These paths have only been read, not run, because the test PC was already set
-up. Run them on a fresh PC or VM before claiming they work:
+Run these on a fresh PC or VM before claiming they work:
 
-- OpenSSH Server missing, stopped, or not set to start automatically
-- no firewall rule for TCP 22
-- key not yet present: creating `.ssh`, appending, resetting permissions
+- OpenSSH Server not installed
+- no inbound rule for TCP 22 at all. Before disabling rules for this case, list
+  every rule on port 22 (`Get-NetFirewallPortFilter -Protocol TCP | Where-Object
+  LocalPort -eq 22 | Get-NetFirewallRule`) and restore exactly those afterwards:
+  on 2026-10-02 a second rule named `sshd` already existed, so the "add a rule"
+  path did not run and the cleanup removed the user's own rule (restored by hand)
 - `administrators_authorized_keys` with extra permission entries
-- an account that has never logged in (no profile)
-- `sshd_config` without commented defaults (insert above `Match`), and a
-  restart of the live sshd
-- installing uv and rhinomcp from scratch, or replacing another rhinomcp version
+- editing the live `sshd_config` and restarting the live sshd
+- installing uv and rhinomcp for the account running the script, from scratch,
+  or replacing another rhinomcp version
 - `Get-LocalGroupMember` failing and the `net localgroup` fallback
+- Windows 11
