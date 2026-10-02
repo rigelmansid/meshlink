@@ -69,7 +69,9 @@ fi
 if [[ -f $KEY ]]; then
   ok "key $(tilde "$KEY") already exists, reusing it"
 else
-  if ssh-keygen -q -t ed25519 -N "" -C "rhino-mcp $(hostname -s 2>/dev/null)" -f "$KEY"; then
+  # A fixed comment: ssh-keygen's default (user@host) would put this Mac's
+  # login and host name into the key that goes to the PC and onto the screen.
+  if ssh-keygen -q -t ed25519 -N "" -C "meshlink" -f "$KEY"; then
     done_ "created key $(tilde "$KEY") (no passphrase)"
     hint "anyone holding this file can log in to the PC as that account; keep it off cloud sync"
   else

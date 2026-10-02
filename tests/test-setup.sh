@@ -134,6 +134,8 @@ exit_is "$rc" 0 "exit 0"
 has "$H/.ssh/config" "Host rhino-pc" "config has the Host entry"
 has "$H/.ssh/config" "IdentityFile ~/.ssh/id_ed25519_rhino" "IdentityFile written with ~"
 has "$out" "-User agent -PublicKey \"ssh-ed25519 " "Windows command carries the public key"
+[[ $(cut -d' ' -f3- "$H/.ssh/id_ed25519_rhino.pub") == meshlink ]] && ok "key comment is 'meshlink', not user@host" ||
+  bad "key comment is 'meshlink', not user@host ($(cut -d' ' -f3- "$H/.ssh/id_ed25519_rhino.pub"))"
 has "$H/.ssh/known_hosts" "10.0.0.9 ssh-ed25519 " "host key trusted under the address"
 has "$out" "[ OK ] ssh rhino-pc logs in as agent" "test login"
 [[ $(/usr/bin/ssh -F "$H/.ssh/config" -G rhino-pc | awk '$1=="user"{print $2}') == agent ]] &&

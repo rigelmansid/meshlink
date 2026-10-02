@@ -37,7 +37,7 @@ bash -n tests/test-rhino-tunnel.sh
 tests/test-rhino-tunnel.sh           # ~40 s, expects "passed: 24  failed: 0"
 bash -n scripts/doctor.sh
 tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
-tests/test-setup.sh                  # ~4 s, expects "passed: 54  failed: 0"
+tests/test-setup.sh                  # ~4 s, expects "passed: 55  failed: 0"
 tests/test-install.sh                # ~10 s, expects "passed: 39  failed: 0"
 scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
 ```
