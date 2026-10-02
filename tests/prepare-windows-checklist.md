@@ -3,7 +3,7 @@
 There is no PowerShell on the Mac side, so this script is tested by hand on the
 Windows PC. Run the whole list after every change to the script and on every
 Windows version you want to claim support for. Record the result, date,
-Windows build and PowerShell version in `docs/project-notes.md`.
+Windows build and PowerShell version in `docs/log.md` (verification records).
 
 ## Setup
 
@@ -33,7 +33,7 @@ with `ssh-keygen -lF <HostName>`, and run `scripts/doctor.sh`.
 ## Covered on an existing PC (2026-10-02)
 
 Run on the original Windows 10 PC with a new standard account (see
-`docs/project-notes.md`, verification table): an account that has never logged
+`docs/log.md`, verification records): an account that has never logged
 in; a new key into a new profile (`.ssh` created, permissions accepted); the
 printed `runas` steps installing uv and rhinomcp for that account; sshd stopped
 and set to manual; `sshd_config` without the commented defaults (insert above

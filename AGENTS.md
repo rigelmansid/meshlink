@@ -1,21 +1,29 @@
+<!-- profile: code -->
 # AGENTS.md
 
 Working rules for AI agents (Claude Code, Codex and others) and maintainers of
 this repository. `CLAUDE.md` is a symlink to this file; edit `AGENTS.md` only.
 
-This file says *how to work*. What the project is, its architecture, decisions,
-pitfalls (坑 1–21), todo list and roadmap live in
-[docs/project-notes.md](docs/project-notes.md); section numbers (§) below refer
-to that file. Do not copy project content into this file.
+This file says *how to work*. Project content lives in `docs/`, all in Chinese:
+
+- [project-notes.md](docs/project-notes.md): 进行中 (work in progress), current
+  status, architecture, config, daily use, §7 todo list, §8 roadmap. Section
+  numbers (§) below refer to this file.
+- [decisions.md](docs/decisions.md): decisions D-1 onward, with their reasons.
+- [pitfalls.md](docs/pitfalls.md): pitfalls 坑 1–21.
+- [log.md](docs/log.md): stage log and verification records.
+
+Do not copy project content into this file.
 
 ## Getting started
 
-1. Read project-notes 当前状态 and the §7 todo list to decide whether the task is
-   development or restoring a working setup.
+1. Read project-notes 进行中 and the §7 todo list, and restate the state to the
+   user before changing anything. Decide whether the task is development or
+   restoring a working setup.
 2. Restoring a setup: check environment, config and startup against §2–§4, then
    make one read-only Rhino tool call (see Verification).
-3. Before changing tunnel logic: read §5 (decisions) and §6 (pitfalls), and run
-   the existing tests.
+3. Before changing tunnel logic: read the related decisions (D-1, D-4, D-10)
+   and pitfalls (坑 8–13), and run the existing tests.
 4. What exists: the `meshlink` command (`bin/meshlink`, subcommands `setup`,
    `client codex`, `doctor`, `windows-script`, `tunnel`, `uninstall`,
    `version`), which dispatches to the scripts under `scripts/`;
@@ -73,7 +81,7 @@ comments and in the pitfalls cited. Do not "simplify" them away.
 
 - Write both ends of `-L` as `127.0.0.1` (坑 10).
 - Keep `-o BatchMode=yes` and `-o ExitOnForwardFailure=yes`. The daemon must never
-  prompt; first host-key acceptance is a manual `ssh rhino-pc` (§5).
+  prompt; first host-key acceptance is a manual `ssh rhino-pc` (D-4).
 - ssh and the backoff `sleep` run in the background and are awaited with
   `wait`, under one `trap cleanup INT TERM HUP` (坑 12).
 - Detect a tunnel by port (`lsof -nP -iTCP:<port> -sTCP:LISTEN`), never by
@@ -122,27 +130,37 @@ comments and in the pitfalls cited. Do not "simplify" them away.
 - Versions change without notice (坑 14). Re-verify after upgrades instead of
   reusing old compatibility claims.
 
-## Keeping project-notes current
+## Keeping docs current
 
-- After a unit of work, update project-notes: 当前状态 and 验证范围, the §7
-  todo list, and a new row in the §9 stage log. Do not write a separate handoff
-  file.
-- 当前状态 holds only the latest snapshot. Move outdated conclusions into the §9
-  log with their date.
+- Record a decision in `docs/decisions.md` when it is made, not at the end:
+  next D-number, date, "用户决定" or "agent 选择", then 背景 / 选项 / 选择 /
+  理由 / 影响 (see D-14). This covers choices the user makes and non-obvious
+  choices an agent makes; not pure implementation detail. Cite the number in
+  rules, code comments and commit bodies (`Why: D-14`).
+- When a decision changes, add a new entry that says what it replaces and mark
+  the old heading "（已被 D-n 替代）"; keep troubleshooting knowledge that is
+  still useful.
+- After a unit of work: overwrite the 进行中 block in project-notes (task,
+  where it stopped, decisions, what needs the user, next steps, what not to
+  repeat; at most 15 lines); update 当前状态 and 验证现状 and the §7 todo list;
+  append a row to the stage log in `docs/log.md` and, for real checks, to its
+  verification records. Do not write a separate handoff file.
+- 当前状态 holds only the latest snapshot. Move outdated conclusions into
+  `docs/log.md` with their date.
 - Maintain each config and procedure in one place and link to it rather than
   repeating it.
-- When a decision changes, record the new reason and mark the old decision as
-  superseded; keep troubleshooting knowledge that is still useful.
-- Append new pitfalls to §6 with the next number.
+- Append new pitfalls to `docs/pitfalls.md` with the next number.
 - When splicing a file by line numbers (awk/sed/head/tail), check that every
   number is set and numeric, write to a temporary file, and compare line counts
   before replacing the original. An empty variable once made awk delete 867
   lines of project-notes (2026-10-02; restored from `HEAD` before commit).
-- Planning: when an open item is settled, update its status in §8; move
-  actionable next steps into §7 and results into §9. If the plan grows to
+  Prefer locating text by heading over line numbers.
+- Planning: when an open item is settled, update its status in §8, record a
+  decision, move actionable next steps into §7 and results into `docs/log.md`. If the plan grows to
   multiple versions or outside contributors, move the forward-looking part of
   §8 to `ROADMAP.md` and link to it instead of keeping two copies.
-- project-notes and the experiment notes stay in Chinese. User-facing docs are
+- The files under `docs/` (except `remote-setup.md`) and the experiment notes
+  stay in Chinese. User-facing docs are
   English, with `README.zh-CN.md` kept in sync with `README.md`.
   `docs/remote-setup.md` mirrors upstream PR #63; keep the two consistent.
 - Write plain, factual prose. Commit subjects are short imperative English.
@@ -161,7 +179,7 @@ comments and in the pitfalls cited. Do not "simplify" them away.
   is kept as an archive. Why: early commits still contain a real IP and
   usernames in their files, and every commit's author is the machine's default
   identity; pushing sends the whole history, and pushed data cannot be reliably
-  taken back. The full reasoning is in project-notes §5. The same holds for
+  taken back. The full reasoning is in `docs/decisions.md` D-8. The same holds for
   the local branch `public-presquash` (the `public` history before it was
   squashed for going public).
 - Work continues on the `public` branch, which started as a fresh orphan commit

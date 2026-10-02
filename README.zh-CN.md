@@ -53,7 +53,7 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 | [scripts/rhino-tunnel.sh](scripts/rhino-tunnel.sh) | 维持 SSH 端口转发：断线后按退避策略重连；端口被占用时拒绝启动；Codex 配置里的 `RHINO_MCP_PORT` 不一致时发出警告。 |
 | [tests/test-rhino-tunnel.sh](tests/test-rhino-tunnel.sh) | 用假的 `ssh` 测试隧道脚本，不需要 Windows 电脑。 |
 | [experiments/](experiments/) | `mcp_stdio_probe.py`：一个小型 MCP 客户端，用来端到端检查服务是否可用；以及方式一的测试记录。 |
-| [docs/project-notes.md](docs/project-notes.md) | 开发记录：设计决策、踩过的全部坑、开发规划。 |
+| [docs/project-notes.md](docs/project-notes.md) | 开发记录：当前状态、待办、开发规划。同目录还有[设计决策](docs/decisions.md)、[踩过的全部坑](docs/pitfalls.md)和[阶段与验证记录](docs/log.md)。 |
 | [AGENTS.md](AGENTS.md) | 在本仓库工作的 AI agent 与贡献者需要遵守的规则（英文）。 |
 
 ## 两种连接方式

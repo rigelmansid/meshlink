@@ -57,7 +57,7 @@ removes meshlink.
 | [scripts/rhino-tunnel.sh](scripts/rhino-tunnel.sh) | Keeps the SSH port forward up: reconnects with backoff, refuses a busy port, warns when Codex's `RHINO_MCP_PORT` doesn't match. |
 | [tests/test-rhino-tunnel.sh](tests/test-rhino-tunnel.sh) | Tests the tunnel script against a fake `ssh`; needs no Windows PC. |
 | [experiments/](experiments/) | `mcp_stdio_probe.py`, a small MCP client for checking a server end to end, and the notes from testing Option 1. |
-| [docs/project-notes.md](docs/project-notes.md) | Developer notes in Chinese: design decisions, every pitfall hit so far, roadmap. |
+| [docs/project-notes.md](docs/project-notes.md) | Developer notes in Chinese: current status, todo list, roadmap. Alongside it: [decisions](docs/decisions.md), every [pitfall](docs/pitfalls.md) hit so far, and the [stage and verification log](docs/log.md). |
 | [AGENTS.md](AGENTS.md) | Working rules for AI agents and contributors in this repository. |
 
 ## Two ways to connect
