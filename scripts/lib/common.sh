@@ -51,6 +51,9 @@ readable() {
   else
     printf '%s' "$raw" | LC_ALL=C tr -cd '[:print:]\n'
   fi
+  # End with a newline, so a following line does not run on in a pipeline.
+  [[ -n $raw ]] && echo
+  return 0
 }
 
 # Strip one JSON string literal: leading space, quotes, trailing comma, and the
