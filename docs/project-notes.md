@@ -41,15 +41,28 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [experiments/](../experiments/) | MCP stdio 探测脚本：Python 版 `mcp_stdio_probe.py`（`--hold` 可在调用后保持会话，用于断网实验）；纯 bash 3.2 版 `mcp_stdio_probe.sh`（一次工具调用并给出判定，验证 doctor 不依赖 Python 的可行性）。另有选项 1 的实验步骤 `ssh-stdio-test.md`。 |
 | `private-notes.md`（不入库） | 真实主机地址、用户名、个人配置和个人环境问题；在 `.gitignore` 中。 |
 
-现有内容是一份经过实测的连接指南、一个只读诊断脚本 `scripts/doctor.sh`、一个隧道
-脚本，以及两者的模拟测试；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试
-清单；Mac 端 `scripts/setup.sh` 与 `scripts/client-codex.sh`；统一命令 `meshlink`
-（`bin/meshlink`）、`install.sh` / `uninstall.sh` 与打包脚本 `scripts/package.sh`。
-尚无已发布的版本、依赖清单或 CI。代码在公开仓库 `rigelmansid/meshlink`（`public`
-分支，见 §5）。默认连接方式为选项 1（SSH stdio，见 §5），前提是 Windows sshd 设置
-`ClientAliveInterval`（§3、坑 16）。首版范围已定（§8，版本号除外）。阶段 2 的脚本与
-安装首版都已完成（2026-10-01）；剩下的主要是真实环境验收：全新 Windows（含
-Windows 11）上的 W1 脚本、真实安装与卸载、首次 Release（§7）。
+现有内容：实测过的连接指南；Mac 端统一命令 `meshlink`（`bin/meshlink`，子命令 `setup`、
+`client codex`、`doctor` 等，实现都在 `scripts/`）、`install.sh` / `uninstall.sh` 与打包脚本
+`scripts/package.sh`；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试清单；
+四组自动化测试（install 39、setup 57、doctor 48、tunnel 24 项）。尚无依赖清单或 CI。
+
+仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，
+本地 `main` 与 `public-presquash` 永不推送（§5）。预发布 `v0.1.0-dev`（2026-10-02）落后于
+`main`：之后又推送了 5 个提交，其中修复有密钥注释、重跑 `setup` 的密钥、远端报错换行、
+Windows 报告去掉 `-l`；是否重新打包发布由用户决定。原环境（§2）已从发布包安装 meshlink
+并在使用，Codex 经专用普通账户以选项 1 连接。
+
+默认连接方式为选项 1（SSH stdio），前提是 Windows sshd 设置 `ClientAliveInterval`
+（§3、坑 16）。首版范围已定（§8）。用户没有全新 Windows 或 Windows 11 电脑；方案 A
+（2026-10-02 至 10-03）已在原环境用新账户真实跑通全新流程。
+
+**下次接着做**（2026-10-03 记录，建议顺序，详见 §7）：
+1. 决定是否重新发布：`0.1.0-dev.2`，或等正式 `0.1.0` 一起发。
+2. W1 剩余路径与 Windows 11 验收，需要一台全新的 Windows。候选是方案 B：在原 PC 上用
+   Hyper-V 跑 Windows 11 虚拟机（PC 为 Windows 10 专业版，需先在 BIOS 打开 VT-x，再启用
+   Hyper-V，都要重启）。
+3. 需要用户在场的手动检查：其他断线情形、真实终端 `Ctrl-C`、rhinomcp 是否自动包撤销记录。
+4. 等待中：PR #63（2026-09-28 提交，到 2026-10-03 仍无评论或审阅）、踩坑总结文章。
 
 ### 验证范围
 
@@ -860,6 +873,10 @@ MIT 许可证，署名 `Cheng Yuan`。英文主 README + 中文 `README.zh-CN.md
 
 ### 近期可执行任务
 
+- [ ] **决定是否重新发布**：`v0.1.0-dev` 之后的修复（密钥注释、重跑 `setup` 的密钥、
+      远端报错换行、Windows 报告去掉 `-l`）不在已发布的压缩包里。选项：发 `0.1.0-dev.2`
+      （改 `VERSION`、`scripts/package.sh`、`gh release create --prerelease`），或等全新
+      Windows 验收后发正式 `0.1.0`。上传是对外操作，由用户决定。
 - [ ] **W1 脚本剩余路径的验收**：方案 A（2026-10-02，见验证范围）已在原环境用新账户覆盖了
       一部分；`tests/prepare-windows-checklist.md` 的 “Not covered yet” 列出剩下的：未装
       OpenSSH、22 端口完全没有入站规则、管理员公钥文件多余权限、改动正在使用的
@@ -1094,6 +1111,7 @@ Mac 端发起连接，Windows 弹出确认，用户同意后两边建立连接�
 | 2026-10-02，脱敏并转为公开 | 公开前按用户选择脱敏：描述测试机安全状态的措辞改为中性（§2、§3、§5 与几条验证记录），去掉 13 处时区；`rhino-agent`、`rigelmansid`、`Cheng Yuan` 保留。把 `public` 压成一个新的孤立提交并强制推送，移动 `v0.1.0-dev` 标签，仓库改为公开（§5）。 | 公开前检查：当前文件、`public` 全部提交、提交说明与作者、Release 附件与说明中无私有网段 IP、本机与 Windows 用户名、主机名、卷标、主机指纹、真实邮箱、硬件与其他软件信息。 |
 | 2026-10-02 至 10-03，方案 A 验收 | 用户没有全新 Windows 或 Windows 11 电脑，选择方案 A：在原环境用新账户 `rhino-test` 真实运行全新流程（结果见验证范围）。修复 `setup.sh` 的密钥注释与 `--key` 重跑问题、`lib/common.sh` 的换行；`tests/test-setup.sh` 增至 57 项；手动清单区分已覆盖与未覆盖的路径；§7 更新 W1 剩余验收并新增 Codex 命令示例一项。 | 见验证范围 2026-10-02 23:09 一行。Hyper-V 下的 Windows 11 虚拟机（方案 B）未做。 |
 | 2026-10-03，Windows 脚本的 Codex 命令示例 | `prepare-windows.ps1` 报告末尾改为三行：rhinomcp.exe 路径、下一步 `meshlink client codex --host <host>`、Codex 将运行的不带 `-l` 的命令；§7 删除对应一项。 | 见验证范围 2026-10-03 一行（用户口头确认）。 |
+| 2026-10-03，交接整理 | 用户要求记下待办，下次开新窗口继续。重写当前状态（已有内容、仓库与发布状态、原环境现状、“下次接着做”的建议顺序），§7 最前面新增“决定是否重新发布”。 | 仅文档改动。PR #63 状态于 2026-10-03 用 `gh` 查询。 |
 
 ---
 
