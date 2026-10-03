@@ -7,8 +7,10 @@ this repository. `CLAUDE.md` is a symlink to this file; edit `AGENTS.md` only.
 This file says *how to work*. Project content lives in `docs/`, all in Chinese:
 
 - [project-notes.md](docs/project-notes.md): 进行中 (work in progress), current
-  status, architecture, config, daily use, §7 todo list, §8 roadmap. Section
-  numbers (§) below refer to this file.
+  status, architecture, config, daily use, §7 todo list. Section numbers (§)
+  below refer to this file.
+- [roadmap.md](docs/roadmap.md): first-release scope, product shape, phases,
+  open questions and risks.
 - [decisions.md](docs/decisions.md): decisions D-1 onward, with their reasons.
 - [pitfalls.md](docs/pitfalls.md): pitfalls 坑 1–21.
 - [log.md](docs/log.md): stage log and verification records.
@@ -158,10 +160,9 @@ comments and in the pitfalls cited. Do not "simplify" them away.
   before replacing the original. An empty variable once made awk delete 867
   lines of project-notes (2026-10-02; restored from `HEAD` before commit).
   Prefer locating text by heading over line numbers.
-- Planning: when an open item is settled, update its status in §8, record a
-  decision, move actionable next steps into §7 and results into `docs/log.md`. If the plan grows to
-  multiple versions or outside contributors, move the forward-looking part of
-  §8 to `ROADMAP.md` and link to it instead of keeping two copies.
+- Planning: when an open item is settled, update its status in
+  `docs/roadmap.md`, record a decision, move actionable next steps into §7 and
+  results into `docs/log.md`.
 - The files under `docs/` (except `remote-setup.md`) and the experiment notes
   stay in Chinese. User-facing docs are
   English, with `README.zh-CN.md` kept in sync with `README.md`.

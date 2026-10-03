@@ -1,22 +1,22 @@
 # meshlink 开发与维护记录
 
-最后更新：2026-10-03。
+最后更新：2026-10-04。
 
 ## 进行中
 
-更新：2026-10-03 03:25
-- 任务：无。上一个工作单元：容器文件夹改名为 `P012_meshlink`（agent-system D-8；此前 D-5 的
-  全体改名已回滚，D-6），Claude Code 的 projects 目录与信任键、Codex 信任条目已随之迁移
-- 停在：D-15（资料放 `../materials/`）已落实，提交 `7a23b42` 已推送到 `origin/main`
-- 本次决策：D-15
-- 待用户确认：1. 是否重新发布（`0.1.0-dev.2`，或等正式 `0.1.0`）；2. 是否把 §8 规划拆成
-  `ROADMAP.md`
-- 下一步：0. 在新路径开会话，确认不弹信任对话框、`/pickup` 与 memory 正常；1. 用户决定发布方式后执行 §7 第一项；2. W1 剩余路径与 Windows 11 验收：需要全新
+更新：2026-10-04
+- 任务：无，上一个工作单元：§8 开发规划移到 `docs/roadmap.md`（D-16），project-notes 降到
+  约 460 行
+- 停在：改动未提交，等用户说
+- 本次决策：D-16
+- 待用户确认：1. 提交并推送本次改动；2. 是否重新发布（`0.1.0-dev.2`，或等正式 `0.1.0`）
+- 下一步：1. 用户决定发布方式后执行 §7 第一项；2. W1 剩余路径与 Windows 11 验收：需要全新
   Windows，候选是原 PC 上用 Hyper-V 跑 Windows 11 虚拟机（PC 为 Windows 10 专业版，先在 BIOS
   打开 VT-x，再启用 Hyper-V，都要重启）；3. 需要用户在场的手动检查：其他断线情形、真实终端
   `Ctrl-C`、rhinomcp 是否自动包撤销记录
 - 等待中：PR #63（2026-09-28 提交，到 2026-10-03 仍无评论或审阅）、踩坑总结文章（等 PR 结果）
-- 不要重复：拆分已完成，§5、§6、§9 只剩指向新文件的占位，不要再拆或按行号拼接本文
+- 不要重复：新路径已确认（2026-10-04：不弹信任对话框，memory 正常；`/pickup` 已按
+  agent-system D-30 删除，开场由 hook 注入状态）；§5、§6、§8、§9 只剩占位，不要再拆或按行号拼接
 
 ## 项目概况
 
@@ -27,12 +27,12 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 - **范围**：只做 Rhino 8。其他设计软件和整机远程控制不在范围内（2026-09-30 决定，
   见 D-9）。
 - **方向**：方向 C，把现有方案做成别人能下载安装的工具（Mac CLI、诊断、Windows
-  准备脚本），规划见 §8。
+  准备脚本），规划见 [roadmap.md](roadmap.md)。
 - **正式名称**：meshlink（2026-10-01 用户确定），README 副标题保留 “RhinoMCP over SSH”。
 
-本文记录项目的进行中工作、现状、架构、待办与规划。决策见 [decisions.md](decisions.md)
-（D-n），踩过的坑见 [pitfalls.md](pitfalls.md)（坑 n），阶段记录与验证记录见
-[log.md](log.md)。接手步骤、验证与记录方法、文档维护、隐私与发布等**工作规则**统一放在
+本文记录项目的进行中工作、现状、架构与待办。规划见 [roadmap.md](roadmap.md)，决策见
+[decisions.md](decisions.md)（D-n），踩过的坑见 [pitfalls.md](pitfalls.md)（坑 n），
+阶段记录与验证记录见 [log.md](log.md)。接手步骤、验证与记录方法、文档维护、隐私与发布等**工作规则**统一放在
 根目录 [AGENTS.md](../AGENTS.md)（`CLAUDE.md` 是它的符号链接），不在本文重复。
 面向使用者的入口是 [README.md](../README.md) 与 [README.zh-CN.md](../README.zh-CN.md)。
 
@@ -48,12 +48,12 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [docs/pitfalls.md](pitfalls.md) | 踩过的坑 1–21：现象、原因、修法、启示。 |
 | [docs/log.md](log.md) | 阶段记录与验证记录（原 §9 与原「验证范围」表），只追加。 |
 | [scripts/rhino-tunnel.sh](../scripts/rhino-tunnel.sh) | 选项 2 的 SSH 隧道守护脚本：端口占用检查、端口配置不一致警告、断线退避重连、信号清理。 |
-| [scripts/doctor.sh](../scripts/doctor.sh) | 只读诊断（2026-10-01 首版）：从 `codex mcp get --json` 读取 Codex 实际使用的命令，逐段检查到一次真实的 MCP 工具调用。设计见 §8 首版范围。 |
+| [scripts/doctor.sh](../scripts/doctor.sh) | 只读诊断（2026-10-01 首版）：从 `codex mcp get --json` 读取 Codex 实际使用的命令，逐段检查到一次真实的 MCP 工具调用。设计见 [roadmap.md](roadmap.md) 首版范围。 |
 | [scripts/prepare-windows.ps1](../scripts/prepare-windows.ps1) | W1 Windows 准备脚本（2026-10-01 首版），由用户在 Windows 管理员 PowerShell 中运行，职责见 D-12。 |
 | [tests/prepare-windows-checklist.md](../tests/prepare-windows-checklist.md) | W1 脚本的手动测试清单，以及尚未实测的路径。 |
-| [scripts/setup.sh](../scripts/setup.sh)、[scripts/client-codex.sh](../scripts/client-codex.sh) | Mac 端首次配置与 Codex 配置（2026-10-01 首版），职责见 §8 首版范围；共用代码在 `scripts/lib/common.sh`（doctor 也用）。 |
+| [scripts/setup.sh](../scripts/setup.sh)、[scripts/client-codex.sh](../scripts/client-codex.sh) | Mac 端首次配置与 Codex 配置（2026-10-01 首版），职责见 [roadmap.md](roadmap.md) 首版范围；共用代码在 `scripts/lib/common.sh`（doctor 也用）。 |
 | [bin/meshlink](../bin/meshlink) | 统一命令 `meshlink`（2026-10-01）：只做分发，子命令转到 `scripts/` 下的脚本；导出 `MESHLINK_CLI`，让各脚本的提示写成 `meshlink ...`。 |
-| [install.sh](../install.sh)、[uninstall.sh](../uninstall.sh)、[scripts/package.sh](../scripts/package.sh)、`VERSION` | 安装到 `~/.local`、卸载、打包（2026-10-01 首版），职责见 §8 首版范围。 |
+| [install.sh](../install.sh)、[uninstall.sh](../uninstall.sh)、[scripts/package.sh](../scripts/package.sh)、`VERSION` | 安装到 `~/.local`、卸载、打包（2026-10-01 首版），职责见 [roadmap.md](roadmap.md) 首版范围。 |
 | [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 8 组场景（37 项断言）。 |
 | [tests/test-setup.sh](../tests/test-setup.sh) | 在临时 HOME 中用 fake ssh、ssh-keyscan、codex 验证 setup 与 client-codex 的 12 组场景（54 项断言）。 |
 | [tests/test-doctor.sh](../tests/test-doctor.sh) | 用 fake codex 与 fake ssh 验证 doctor 的 12 组场景（48 项断言）。 |
@@ -74,8 +74,8 @@ Windows 报告去掉 `-l`；是否重新打包发布由用户决定。原环境�
 并在使用，Codex 经专用普通账户以选项 1 连接。
 
 默认连接方式为选项 1（SSH stdio），前提是 Windows sshd 设置 `ClientAliveInterval`
-（§3、坑 16）。首版范围已定（§8）。用户没有全新 Windows 或 Windows 11 电脑；方案 A
-（2026-10-02 至 10-03）已在原环境用新账户真实跑通全新流程。
+（§3、坑 16）。首版范围已定（[roadmap.md](roadmap.md)）。用户没有全新 Windows 或
+Windows 11 电脑；方案 A（2026-10-02 至 10-03）已在原环境用新账户真实跑通全新流程。
 
 ### 验证现状
 
@@ -422,162 +422,7 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
 
 ## 8. 开发规划
 
-以下范围、命令形式和阶段均为**建议方案**，尚未逐项确认或实施。规划中的命令不是
-当前可执行接口。
-
-### 目标与首版定位
-
-帮助有 Rhino 使用经验、能按指引执行终端命令的用户，在 macOS 上通过 SSH 连接
-Windows 上的 Rhino 8，完成 MCP 客户端配置、启动和故障诊断，而不需要自己理解和
-拼接 SSH 参数。
-
-首版范围于 2026-10-01 与用户逐项确认（名称与版本号除外）：
-
-| 项目 | 首版范围 | 当前证据或限制 |
-|---|---|---|
-| 客户端系统 | macOS。只声明已验证的版本，其他版本写“可能可用，未验证”。 | 只在一台 macOS 26（arm64）上用过。CLI 只依赖 bash 3.2 和系统自带工具。 |
-| Rhino 主机 | **只声明 Windows 10 22H2** + Rhino 8；Windows 11 标为未验证。 | 只验证过 Windows 10 22H2。微软已于 2025 年 10 月停止支持 Windows 10，新用户多半用 Windows 11，见下方风险。 |
-| MCP 客户端 | **只支持 Codex**。其他客户端在文档里给手动配置示例，标为未验证。 | Codex 0.159.2 已验证（含断线恢复，坑 17）。Claude Code 有 `claude mcp add`，但未测。 |
-| 连接方式 | SSH 密钥认证 + loopback；默认选项 1，选项 2 作为备选（D-10）。 | 两种都实测过，见验证范围。 |
-| 账户 | 推荐专用普通账户只用于 SSH，兼容管理员账户（D-13）。 | 见验证范围 2026-10-01 方案 B。 |
-| 依赖版本 | 固定一个验证过的 rhinomcp 版本。 | `0.4.1.1` 是当前基线，发布前重新核对。 |
-| Mac 端 CLI | bash 3.2；**不设项目配置文件**；统一命令 `meshlink`，子命令 `setup`、`client codex`、`doctor`，见下；另有 `windows-script`、`tunnel`（选项 2 备选）、`uninstall`、`version`。 | 首版已实现（2026-10-01），模拟测试见 §4，真实环境运行见验证范围。 |
-| Windows 端 | W1 准备脚本（D-12）。 | 首版已实现（2026-10-01）；全新环境的路径未运行（§7）。 |
-| 安装与升级 | GitHub Release 压缩包（附校验值）+ `install.sh`，装到 `~/.local/bin`，不需要管理员权限；重新安装即升级；`uninstall.sh` 只删除本工具安装的文件，客户端配置删不删先问用户。Windows 脚本放在同一 Release。不提供 `curl … \| bash`。 | `install.sh`、`uninstall.sh`、`scripts/package.sh` 首版已实现（2026-10-01）：文件装到 `~/.local/share/meshlink`，`~/.local/bin/meshlink` 是两行的启动文件；压缩包内容由 `install.sh --list` 唯一定义。尚未发布。 |
-| 首版人工步骤 | 安装 OpenSSH Server、安装 Rhino 插件、在 Windows 上运行 W1 脚本、核对主机指纹、在 Rhino 中执行 `mcpstart`。 | — |
-
-**不设项目配置文件的理由**：连接信息已经有两处来源。`~/.ssh/config` 管主机、用户和
-密钥（AGENTS.md 的规定）；客户端配置里有完整的 ssh 命令，doctor 用
-`codex mcp get rhino` 读出即可。再加一份项目配置，就会出现三处不一致的风险，
-坑 11 就是这类问题。
-
-**子命令职责**（统一命令 `meshlink`，2026-10-01）：
-- `setup`：生成密钥（若不存在）。在 `~/.ssh/config` 追加 `Host` 条目，同名条目已存在
-  时不覆盖、只提示。打印一条可直接粘贴到 Windows 管理员 PowerShell 的 W1 命令，
-  里面带好公钥。最后引导首次核对主机指纹。为第二版的配对流程预留：装公钥和核对
-  指纹各自是独立步骤（§8 长期方向）。
-- `client codex`：先备份，再调用 `codex mcp add` 写入配置，并提示哪些原有设置会丢失
-  （§3）。
-- `doctor`：按 §4 快速排查的顺序逐段检查，最后做一次 MCP 层只读调用。远端报错的
-  编码按坑 18 处理；UAC 关闭时给出警告（D-13 账户类型）。
-
-后置：其他 MCP 客户端（第一个候选是 Claude Code）、Windows 11 正式支持、Linux 与
-Windows 客户端、Homebrew、图形界面、后台自启动、自动发现与配对（见下）。
-
-### 目标用户流程
-
-1. 从 GitHub 获取明确版本的发布包，安装工具并检查依赖。
-2. 按 Windows 指引准备 OpenSSH 和 Rhino 插件；需要管理员权限的步骤明确标出。
-3. 初始化连接信息（Windows 主机、用户名、密钥、端口），核对首次主机指纹。
-4. 生成或合并 MCP 客户端配置，并说明如何重新加载客户端。
-5. 在 Rhino 中执行 `mcpstart`，（选项 2 时）启动隧道，运行诊断。
-6. 调用一次只读 Rhino 工具验收；之后能停止、重启、升级或卸载工具。
-
-### 产品形态
-
-一个**双端工具**：Mac 是控制端，Windows 是 Rhino 主机端，中间是 SSH。建模能力
-仍来自 Rhino 8 与 rhinomcp，本项目负责安装准备、连接、配置和诊断。
-
-- **Mac CLI**（主要入口）：保存连接信息；生成或安全合并 MCP 客户端配置（不覆盖无关
-  配置）；逐段诊断；选项 2 时创建、维持和停止隧道。候选子命令 `init`、`doctor`、
-  `tunnel`、`status`、`config codex`，名称未定。先做命令行，连接流程稳定后再考虑
-  菜单栏应用，且图形界面必须调用同一套底层逻辑。
-- **Windows 准备脚本**（候选为 PowerShell）：检查或安装 OpenSSH Server 并启动
-  `sshd`；创建防火墙规则；按管理员/普通账户把公钥放到正确位置并设置 ACL（坑 2）；
-  检查 Rhino 8、rhinomcp 插件和 `mcpstart` 监听；选项 1 时安装 uv 与固定版本的
-  rhinomcp；输出主机地址、用户、指纹供 Mac 端初始化。系统修改要明确提示，支持
-  `-WhatIf` 预览并可重复执行。
-- **连接层**：MCP 客户端和 rhinomcp 永远只连 127.0.0.1，跨机一跳只走 SSH（D-1）。
-  Windows 不为 rhinomcp 开放任何入站端口。
-
-不做：Rhino 建模引擎、云端中转、绕过用户确认的远程控制。
-
-### 长期方向：自动发现与配对（第二版起，2026-10-01 与用户确认）
-
-**理想流程**（用户提出）：Windows 上打开 Rhino，Mac 上启动工具后自动发现这台 PC；
-Mac 端发起连接，Windows 弹出确认，用户同意后两边建立连接。
-
-**分阶段**：
-- 首版仍按上文的 SSH + CLI 方案做。但“安装公钥”和“核对主机指纹”要做成独立的
-  步骤，以后由配对流程替换。
-- 第二版增加：Windows 端一个 C# 组件，优先做成 Rhino 插件，Rhino 打开时就在运行；
-  Mac 端增加发现与配对功能。
-
-**设计要点**：
-- **发现**：用 mDNS/DNS-SD 在局域网里广播。网络屏蔽组播时（公司网络、访客 Wi-Fi、
-  AP 隔离），要能退回到手动输入地址。
-- **确认**：只在首次配对时确认，两边显示同一个配对码，防止中间人冒充；之后 Rhino
-  打开时自动连接。Rhino 内显示“已连接”状态，并提供断开、取消信任的入口。不做每次
-  连接都弹窗：选项 1 每次启动客户端都会建一条新连接，`/mcp` 还会额外开短连接。
-- **通道**：配对后底层仍然走 SSH，配对只是自动完成装公钥和核对指纹这两步。不自己
-  实现加密通道。
-- **无法省掉的一步**：首次让 Windows 允许外部连入（OpenSSH Server 或防火墙规则），
-  需要一次管理员确认。
-
-**待解决**：
-- C# 组件是自己写插件，还是给上游 rhinomcp 提 PR；
-- 往专用账户（§8 待确定事项“Windows 登录账户类型”）写公钥需要管理员权限；
-- Windows 与 macOS 的代码签名；
-- Windows 是否会对自己的主机名应答 mDNS，未核实。
-
-### 实施阶段与验收标准
-
-测试随相关功能同步补充，不等到发布前集中补测。
-
-| 阶段 | 主要工作 | 验收标准 | 状态 |
-|---|---|---|---|
-| 1. 范围与基线 | 决定默认连接方式；确定首版范围和人工步骤；记录现有测试与真实链路结果。 | 支持目标与已验证环境分别列出；首版范围确认。 | 基本完成（2026-10-01）：首版范围已定，名称与版本号除外，二者在推送 GitHub 前确定。 |
-| 2. 配置与核心工具 | 可移植的配置与统一入口；输入验证；MCP 客户端配置生成与合并。 | 换主机不需要改源码；本地端口与客户端配置一致；重复初始化不产生重复条目；无关配置保留且可恢复。 | 未开始 |
-| 3. 安装与诊断 | 安装、升级、卸载流程；doctor；Windows 准备脚本。 | 新用户目录能完成安装；缺依赖和连接故障有可执行提示；卸载只移除本工具管理的内容。 | 进行中：`doctor`、`prepare-windows.ps1`、`setup`、`client-codex`、`install.sh` / `uninstall.sh` 首版完成（2026-10-01）；真实安装与全新 Windows 验收未做 |
-| 4. 测试与 CI | 整理现有模拟测试，补充配置和安装测试，建立 GitHub Actions。 | 语法、静态检查和自动化测试通过；失败案例能被检测；真实 Rhino 验收单独记录。 | 未开始 |
-| 5. 文档与发布材料 | README、排障、安全说明、贡献说明、变更记录。 | 新用户能从 README 找到前置条件、安装、使用、排障和卸载；公开材料无个人信息。 | 部分完成：README、LICENSE、连接指南已有 |
-| 6. 独立安装与首发 | 用干净环境走完整流程，修复阻碍，发布首个版本。 | 他人能独立安装并完成只读 Rhino 调用；支持矩阵与证据一致；有校验值和升级/回退说明。 | 未开始 |
-
-### 实现边界
-
-- **配置**：SSH 连接参数仍由 `~/.ssh/config` 负责；若增加项目配置，每个字段只在一处
-  维护。写入已有配置前先备份，只更新本项目的条目，用结构化解析而不是整文件覆盖。
-- **密钥**：不复制私钥到项目或发布包；是否使用 passphrase / ssh-agent，以及无人值守
-  重连的取舍要写清楚。
-- **诊断**：逐段检查本地依赖、配置、SSH 认证、转发监听地址（`*:1999` 或
-  `0.0.0.0:1999` 要报警，坑 10）、三个端口是否一致（坑 11）、远端 Rhino listener、
-  MCP 客户端本身能否运行（坑 14）。每次都重新读取配置；结果区分成功、失败和未验证，
-  并给出下一步操作。隧道监听和 server 启动成功不能标记为整条链路成功。
-- **测试**：保留现有隧道测试作为回归基础；补充端口冲突、配置不一致、配置合并与
-  恢复、重复安装等场景；`BatchMode=yes` 检查要核对每次调用而不是出现过一次。CI 从
-  macOS 开始，Linux 上通过不等于承诺支持 Linux。真实 Windows/Rhino 验收单独记录。
-- **发布**：引用上游 rhinomcp 并说明本项目提供的部分；上游升级后重新验证监听方式、
-  依赖和工具调用。
-
-### 待确定事项
-
-| 事项 | 当前建议 | 状态 |
-|---|---|---|
-| 默认连接方式 | 选项 1（SSH stdio），选项 2 作为备选，见 D-10。 | 已定（2026-10-01） |
-| 项目、仓库及命令名称 | meshlink。仓库 `rigelmansid/meshlink`（2026-10-02 起公开）。命令也叫 `meshlink`。 | 已定（2026-10-01） |
-| 首版系统与客户端范围 | macOS + Windows 10 22H2 + Rhino 8 + Codex，见上方首版范围。 | 已定（2026-10-01） |
-| Windows 自动化程度 | W1：PowerShell 准备脚本负责 SSH 配置、公钥、uv 与 rhinomcp、检查报告；OpenSSH 安装、插件、`mcpstart`、指纹仍手动，见 D-12。 | 已定（2026-10-01） |
-| Windows 登录账户类型 | 推荐专用普通账户只用于 SSH（方案 B），兼容管理员账户；收益取决于 UAC 是否开启，见 D-13。 | 已定（2026-10-01） |
-| 实现语言、配置格式与 CLI | bash 3.2；不设项目配置文件；子命令 `setup`、`client codex`、`doctor`，见上方首版范围。命令名 `meshlink`。 | 已定（2026-10-01） |
-| 安装路径、分发与升级 | Release 压缩包 + `install.sh` / `uninstall.sh`，装到 `~/.local/bin`，见上方首版范围。 | 已定（2026-10-01） |
-| 首版版本号与发布时间 | `0.1.0-dev` 已作为预发布版发布（2026-10-02，用户决定；同日仓库公开）。正式 `0.1.0` 待全新 Windows / Windows 11 验收后再定。 | 预发布已发（2026-10-02） |
-
-### 风险：上游变化
-
-- **上游支持 HTTP 传输**：本方案的前提是 rhinomcp 只监听 loopback、只有 stdio 传输。
-  若上游支持 HTTP，跨机最大的障碍会减小，但认证（桥接协议目前无认证）、TLS、防火墙
-  和插件监听方式仍需解决，本项目的必要性会下降但不会消失。
-- **用户直接打开 `RHINO_MCP_ALLOW_REMOTE`**：它没有认证，用户可能不看本项目就这样做。
-  PR #63 的文档已在上游说明为什么不应这样用。
-- **McNeel 官方 MCP**：目前只接受本机连接、不支持远程（见 §10），若官方加入远程能力
-  需重新评估。
-
-### 风险：只声明 Windows 10
-
-首版只声明已验证的 Windows 10 22H2（2026-10-01 用户决定）。Windows 10 已于 2025 年
-10 月停止支持，新用户多半使用 Windows 11，首版可能把大部分潜在用户挡在“未验证”
-之外。Windows 11 上 OpenSSH 的安装方式、`sshd_config` 默认内容、UAC 默认值都可能不同。
-发布前若能借到 Windows 11 机器或使用虚拟机，应补测一次完整流程。
+已移到 [roadmap.md](roadmap.md)（2026-10-04，D-16）。
 
 ---
 

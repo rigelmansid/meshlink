@@ -282,3 +282,16 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
   project-notes、README.md 相应补充，`bin/new-project` 自动建 `../materials/` 三个子目录。
   约定假设每个项目有自己的容器文件夹；项目直接放在共享目录下时，`../materials/` 会被
   多个项目共用。
+
+### D-16 开发规划移到 docs/roadmap.md，用中文（2026-10-04，用户决定）
+
+- 背景：project-notes 有 612 行，超过约 600 行的上限；§8 开发规划约 160 行，变动少，
+  每次会话不必读。AGENTS.md 原规定计划扩大后再拆成根目录的英文 `ROADMAP.md`。
+- 选项：A `docs/roadmap.md`，中文，按标题整段原样搬过去 / B 根目录 `ROADMAP.md`，英文，
+  只写面向使用者的未完成部分
+- 选择：A，替代 AGENTS.md 原来“拆成 `ROADMAP.md`”的写法
+- 理由：与 D-14 的拆分方式一致，不用翻译和取舍内容；docs/ 下的文件统一用中文。
+- 影响：新增 `docs/roadmap.md`（原 §8，小节标题升一级，指向其他章节的引用改为
+  “project-notes §n”或 log.md）；project-notes 的 §8 只留占位，所以历史记录里的 “§8”
+  仍然有效，行数降到约 460；AGENTS.md 的文档列表与规划规则、README（中英）的文档表
+  相应更新。
