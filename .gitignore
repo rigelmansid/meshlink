@@ -14,3 +14,7 @@ __pycache__/
 
 # Release builds
 dist/
+
+# .NET build output (top-level bin/ holds the meshlink launcher, so list paths)
+obj/
+experiments/pairing-spike/bin/

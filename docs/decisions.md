@@ -318,3 +318,32 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
   作为 0.2 开发不改变 0.1.0 的范围。
 - 影响：0.1.0 范围与 D-17 不变，仍等全新 Windows 验收后发布；§7 的 W1 验收标为暂缓；
   roadmap「长期方向」从第二版设想转为当前开发方向，具体设计另行记录。
+
+### D-19 Windows 端配对组件做成自己的 Rhino 插件（2026-10-04，用户决定）
+
+- 背景：roadmap「长期方向」待解决的第一项：C# 组件自己写插件，还是给上游 rhinomcp 提 PR。
+- 选项：A 独立插件 `meshlink`（C#、net8.0，Yak 包），rhinomcp 作为前提 / B 给 rhinomcp 提 PR
+- 选择：A
+- 理由：提权、写公钥、局域网配对都不在 rhinomcp 的职责内；PR #63 至今无回应，进度不应
+  依赖上游。rhinomcp 只面向 net8.0，插件跟随它，不做 net48。
+- 影响：仓库新增插件源码目录；发布物多一个 Windows 端 Yak 包。
+
+### D-20 配对由 Mac 广播并监听，Rhino 发现后弹窗并主动连出（2026-10-04，用户决定）
+
+- 背景：配对前两端还没有 SSH 信任，需要一条临时通道交换 Mac 公钥和 Windows 主机公钥。
+- 选项：A Mac 用 `dns-sd -R` 广播、`nc -l` 临时监听，Rhino 插件发现后弹窗并连出 /
+  B Rhino 插件广播并开配对端口，Mac 连过去
+- 选择：A
+- 理由：Windows 不开新的入站端口，不触发“允许 Rhino 通过防火墙”的管理员对话框，与 D-1
+  只让 SSH 跨机的思路一致；Mac 端只用系统自带的 `dns-sd`、`nc`、`shasum`。
+- 影响：协议用“先承诺后揭示 + 两端显示同一个 6 位配对码”防中间人（细节见
+  `docs/pairing.md`）；写公钥由插件以 UAC 提权运行 `prepare-windows.ps1`，UAC 即管理员确认。
+
+### D-21 插件在 Mac 上用 .NET 8 SDK 编译（2026-10-04，用户决定）
+
+- 背景：这台 Mac 没有 .NET SDK，也没有 Mac 版 Rhino。
+- 选项：A 用户在 Mac 上安装 .NET 8 SDK，编译后拷到 PC 测试 / B 在 Windows PC 上编译
+- 选择：A
+- 理由：agent 能在本机编译和跑单元测试；RhinoCommon 从 NuGet 获取，不需要 Mac 版 Rhino。
+- 影响：SDK 由用户安装；协议部分写成不依赖 RhinoCommon 的库，单元测试在 Mac 上运行；
+  加载与真实配对仍需在 PC 上由用户操作。
