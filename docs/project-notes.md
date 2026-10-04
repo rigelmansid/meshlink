@@ -70,7 +70,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，
 本地 `main` 与 `public-presquash` 永不推送（D-8）。预发布 `v0.1.0-dev`（2026-10-02）落后于
 `main`：之后又推送了 5 个提交，其中修复有密钥注释、重跑 `setup` 的密钥、远端报错换行、
-Windows 报告去掉 `-l`；是否重新打包发布由用户决定。原环境（§2）已从发布包安装 meshlink
+Windows 报告去掉 `-l`；不发中间预发布，等全新 Windows 验收后发正式 `0.1.0`（D-17）。原环境（§2）已从发布包安装 meshlink
 并在使用，Codex 经专用普通账户以选项 1 连接。
 
 默认连接方式为选项 1（SSH stdio），前提是 Windows sshd 设置 `ClientAliveInterval`
@@ -381,11 +381,7 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
 
 ### 近期可执行任务
 
-- [ ] **决定是否重新发布**：`v0.1.0-dev` 之后的修复（密钥注释、重跑 `setup` 的密钥、
-      远端报错换行、Windows 报告去掉 `-l`）不在已发布的压缩包里。选项：发 `0.1.0-dev.2`
-      （改 `VERSION`、`scripts/package.sh`、`gh release create --prerelease`），或等全新
-      Windows 验收后发正式 `0.1.0`。上传是对外操作，由用户决定。
-- [ ] **W1 脚本剩余路径的验收**：方案 A（2026-10-02，见验证范围）已在原环境用新账户覆盖了
+- [ ] **W1 脚本剩余路径的验收**（暂缓，D-18；正式 `0.1.0` 仍以它为前提，D-17）：方案 A（2026-10-02，见验证范围）已在原环境用新账户覆盖了
       一部分；`tests/prepare-windows-checklist.md` 的 “Not covered yet” 列出剩下的：未装
       OpenSSH、22 端口完全没有入站规则、管理员公钥文件多余权限、改动正在使用的
       `sshd_config` 并重启 sshd、为当前账户从零安装 uv 与 rhinomcp、`net localgroup`
