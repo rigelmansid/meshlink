@@ -14,6 +14,7 @@ This file says *how to work*. Project content lives in `docs/`, all in Chinese:
 - [decisions.md](docs/decisions.md): decisions D-1 onward, with their reasons.
 - [pitfalls.md](docs/pitfalls.md): pitfalls 坑 1–21.
 - [log.md](docs/log.md): stage log and verification records.
+- [pairing.md](docs/pairing.md): the 0.2 pairing protocol (draft).
 
 Do not copy project content into this file.
 
@@ -49,6 +50,7 @@ bash -n scripts/doctor.sh
 tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
 tests/test-setup.sh                  # ~4 s, expects "passed: 57  failed: 0"
 tests/test-install.sh                # ~10 s, expects "passed: 39  failed: 0"
+tests/test-pair.sh                   # ~1 s, expects "passed: 11  failed: 0"
 scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
 ```
 

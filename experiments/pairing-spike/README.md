@@ -28,7 +28,20 @@
 
 ## 结果
 
-尚未运行。
+**2026-10-05 22:30，原环境 PC**（Rhino 8.35.26237.11001、.NET 8.0.22、Windows 10 22H2
+19045、64 位；Mac 为 macOS 26。探针由 Mac 上 .NET SDK 10.0.401 编译，目标 net8.0、
+RhinoCommon 8.17.25066.7001）。用户把 `.rhp` 拖进 Rhino 加载，Mac 运行 `mac-probe.sh`，
+Rhino 运行一次 `MeshlinkProbe`。
+
+| 编号 | 结果 | 说明 |
+|---|---|---|
+| P1 | 通过 | `DnsServiceBrowse` 返回 pending，回调 4 次 status=0 后找到 Mac 的实例；取消后最后一次回调为 1223（已取消，正常）。`DnsServiceResolve` 解析出 `<mac>.local`、Mac 的 IPv4、端口 29950 与 TXT `v=0`、`probe=1`，64 位结构偏移读取正确。 |
+| P2 | 通过 | Rhino 连出到 Mac 的 `nc -l` 并收到回复；Mac 收到 `PROBE from <pc-name>`，结束后端口释放。两端都没有弹防火墙对话框（用户确认）。 |
+| P3 | 部分 | 读到了 `ssh_host_ed25519_key.pub`。但测试机 UAC 关闭，Rhino 以已提权身份运行，“未提权也能读”没有被证明。 |
+| P4 | 部分 | `Verb=runas` 启动的 PowerShell 为 High Mandatory Level，退出码 0，结果文件写在父进程临时目录并被读回。没有弹 UAC：测试机 `EnableLUA=0`，`runas` 直接提权，与预期一致。“UAC 开启时会弹窗、用户拒绝时返回 1223”未测。 |
+
+限制：只在一台 UAC 关闭、桌面账户为管理员的 PC 上测过；只运行了一次；UAC 开启的
+路径（P3 未提权读取、P4 弹窗与拒绝）需要另一台 UAC 开启的 Windows。
 
 Mac 端本地自测（2026-10-04，macOS 26，不涉及 Windows）：`mac-probe.sh` 广播后
 `dns-sd -B` 能看到实例，用本机 `nc` 冒充 Rhino 完成一次收发，结束后无残留进程、端口释放。

@@ -386,6 +386,9 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
       OpenSSH、22 端口完全没有入站规则、管理员公钥文件多余权限、改动正在使用的
       `sshd_config` 并重启 sshd、为当前账户从零安装 uv 与 rhinomcp、`net localgroup`
       回退、Windows 11。需要一台全新的 Windows（虚拟机即可）。
+- [ ] **配对的 UAC 开启路径**（随全新 Windows 验收一起做，D-22）：探针 P3、P4 只在 UAC
+      关闭的原环境通过。需验证未提权的 Rhino 能读 `ssh_host_ed25519_key.pub`（读不到时
+      改由别的方式取得主机公钥），以及 `runas` 弹 UAC、用户拒绝时得到 1223。
 - [ ] **`client-codex.sh` 不再整条覆盖**（首版之后）：现在靠 `codex mcp add`，会丢掉
       用户的工具审批等设置和全部注释（坑 19）。改为只替换 `command` / `args`，保留其余
       内容；需要在 bash 里安全地改 TOML，或等 Codex 提供只改部分字段的命令。
