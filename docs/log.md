@@ -46,6 +46,7 @@
 | 2026-10-03，交接整理 | 用户要求记下待办，下次开新窗口继续。重写当前状态（已有内容、仓库与发布状态、原环境现状、“下次接着做”的建议顺序），§7 最前面新增“决定是否重新发布”。 | 仅文档改动。PR #63 状态于 2026-10-03 用 `gh` 查询。 |
 | 2026-10-03，文档结构迁移 | 按 D-14 把本文件拆成 project-notes、decisions、pitfalls、log：原 §5 编号为 D-1–D-13，新增 D-14；project-notes 顶部新增「进行中」，「下次接着做」并入其中，「验证范围」改为摘要「验证现状」；AGENTS.md 的接手步骤、文档维护与隐私一节改为引用新文件；README（中英）文档表、`tests/prepare-windows-checklist.md`、`experiments/ssh-stdio-test.md` 的引用更新。 | 仅文档改动。拆分用脚本按标题定位，核对了原 §5、§6、§9 与验证范围的正文逐字保留；入库文件无 U+FFFD、无真实地址或用户名；相对链接有效。未运行测试（脚本未改动）。 |
 | 2026-10-04，规划拆出 | 按 D-16 把 project-notes §8 开发规划移到 `docs/roadmap.md`（中文，小节标题升一级，跨文件引用改写），§8 留占位；AGENTS.md 文档列表与规划规则、README（中英）文档表更新。project-notes 由 612 行降到 457 行。 | 仅文档改动。按标题定位搬移，核对了正文除引用外逐字保留；入库文件无 U+FFFD；相对链接有效。未运行测试（脚本未改动）。 |
+| 2026-10-04，配对方案与 Mac 端重构 | 用户决定推进发现与配对（D-18–D-21）；新增 Phase 0 探针 `experiments/pairing-spike/`（未编译，待装 .NET SDK）；`setup.sh` 的密钥、Host 条目、主机公钥三步移到 `scripts/lib/sshcfg.sh`，`install.sh` 清单加入该文件。 | 四组测试全部通过（setup 57、install 39、doctor 48、tunnel 24）；另用旧版与新版分别跑 test-setup 的各场景，把随机密钥、指纹、时间戳和路径归一后，7 份 setup 输出逐行一致。探针的 Mac 半边在本机自测通过，Windows 半边未运行。 |
 
 ## 验证记录
 

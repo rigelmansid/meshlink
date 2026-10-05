@@ -24,6 +24,8 @@ PROG=setup
 HERE="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/common.sh
 source "$HERE/lib/common.sh"
+# shellcheck source=lib/sshcfg.sh
+source "$HERE/lib/sshcfg.sh"
 
 HOST_ALIAS=rhino-pc
 ADDRESS=""
@@ -49,20 +51,6 @@ CONFIG="$SSH_DIR/config"
 KNOWN="$SSH_DIR/known_hosts"
 STAMP=$(date +%Y%m%d-%H%M%S)
 
-# Show paths under $HOME with ~, as ssh_config itself would.
-tilde() { case $1 in "$HOME"/*) printf '~/%s' "${1#"$HOME"/}" ;; *) printf '%s' "$1" ;; esac; }
-
-# ssh -G resolves what ssh will really use for an alias. -F pins the file:
-# ssh reads ~/.ssh/config from the password database, not from $HOME.
-resolved() { # key
-  ssh -F "$CONFIG" -G "$HOST_ALIAS" 2>/dev/null | awk -v k="$1" '$1 == k {print $2; exit}'
-}
-
-has_alias() {
-  [[ -f $CONFIG ]] &&
-    grep -qiE "^[[:space:]]*Host[[:space:]]+(.*[[:space:]])?$HOST_ALIAS([[:space:]]|\$)" "$CONFIG"
-}
-
 # On a rerun the Host entry already names its key. Use that one unless --key
 # says otherwise, or the Windows command would carry the wrong public key.
 if [[ $KEY_SET == no ]] && has_alias; then
@@ -71,26 +59,7 @@ if [[ $KEY_SET == no ]] && has_alias; then
 fi
 
 # ---------------------------------------------------------------- 1. key
-if [[ ! -d $SSH_DIR ]]; then
-  mkdir -p "$SSH_DIR" && chmod 700 "$SSH_DIR"
-fi
-if [[ -f $KEY ]]; then
-  ok "key $(tilde "$KEY") already exists, reusing it"
-else
-  # A fixed comment: ssh-keygen's default (user@host) would put this Mac's
-  # login and host name into the key that goes to the PC and onto the screen.
-  if ssh-keygen -q -t ed25519 -N "" -C "meshlink" -f "$KEY"; then
-    done_ "created key $(tilde "$KEY") (no passphrase)"
-    hint "anyone holding this file can log in to the PC as that account; keep it off cloud sync"
-  else
-    fail "could not create $(tilde "$KEY")"
-    finish
-  fi
-fi
-if [[ ! -f $KEY.pub ]]; then
-  ssh-keygen -y -f "$KEY" >"$KEY.pub" || { fail "could not derive $(tilde "$KEY").pub"; finish; }
-fi
-PUBKEY=$(cat "$KEY.pub")
+ensure_key || finish
 
 # ---------------------------------------------------------- 2. ssh config
 if has_alias; then
@@ -114,47 +83,10 @@ else
       { fail "no account given"; finish; }
     WIN_USER=$REPLY
   done
-  block="# Added by scripts/setup.sh on $STAMP
-Host $HOST_ALIAS
-    HostName $ADDRESS
-    User $WIN_USER
-    IdentityFile $(tilde "$KEY")
-    IdentitiesOnly yes
-    ConnectTimeout 10
-    ServerAliveInterval 15
-    ServerAliveCountMax 3
-"
-  # ssh takes the first value it finds for each option, so the entry has to
-  # come before any Host or Match block (a "Host *" earlier would win). It
-  # must also come after any top-level Include or option, which would
-  # otherwise end up inside this entry.
-  if [[ -f $CONFIG ]]; then
-    cp -p "$CONFIG" "$CONFIG.bak-$STAMP"
-    first=$(grep -niE '^[[:space:]]*(Host|Match)[[:space:]]' "$CONFIG" | head -1 | cut -d: -f1)
-    tmp="$CONFIG.tmp-$STAMP"
-    if [[ -n $first ]]; then
-      { head -n $((first - 1)) "$CONFIG"; printf '%s\n' "$block"; tail -n +"$first" "$CONFIG"; } >"$tmp"
-    else
-      { cat "$CONFIG"; [[ -s $CONFIG ]] && echo; printf '%s' "$block"; } >"$tmp"
-    fi
-    # Keep the file itself (and its mode) by rewriting its content.
-    cat "$tmp" >"$CONFIG" && rm -f "$tmp"
-    done_ "added Host $HOST_ALIAS to $(tilde "$CONFIG") (backup: config.bak-$STAMP)"
-  else
-    printf '%s' "$block" >"$CONFIG"
-    chmod 600 "$CONFIG"
-    done_ "created $(tilde "$CONFIG") with Host $HOST_ALIAS"
-  fi
+  add_host_entry
 fi
 
-PORT=$(resolved port)
-PORT=${PORT:-22}
-KH_NAME=$ADDRESS
-[[ $PORT != 22 ]] && KH_NAME="[$ADDRESS]:$PORT"
-
-login() {
-  ssh -F "$CONFIG" -o BatchMode=yes -o ConnectTimeout=10 "$HOST_ALIAS" "echo setup-ok" 2>&1
-}
+set_kh_name
 
 windows_step() {
   echo
@@ -170,8 +102,8 @@ windows_step() {
 
 # -------------------------------------------- 3. host key, 4. test login
 # Once the key is trusted and accepted, a rerun has nothing left to do.
-known=$(ssh-keygen -F "$KH_NAME" -f "$KNOWN" 2>/dev/null | grep -v '^#')
-if [[ -n $known ]] && [[ $(login) == *setup-ok* ]]; then
+known_entry
+if [[ -n $KNOWN_ENTRY ]] && [[ $(login) == *setup-ok* ]]; then
   ok "host key for $ADDRESS already trusted"
   ok "ssh $HOST_ALIAS logs in as $WIN_USER"
   hint "next: $CMD_CLIENT --host $HOST_ALIAS, then $CMD_DOCTOR"
@@ -180,32 +112,18 @@ fi
 
 windows_step
 
-scan=$(ssh-keyscan -T 10 -p "$PORT" -t ed25519 "$ADDRESS" 2>/dev/null | grep -v '^#')
-if [[ -z $scan ]]; then
-  fail "could not read the PC's host key at $ADDRESS:$PORT"
-  hint "check that sshd runs on the PC and the address is right, then run this again"
-  finish
-fi
-fp=$(printf '%s\n' "$scan" | ssh-keygen -lf - 2>/dev/null | awk '{print $2}' | head -1)
+scan_host_key || finish
 
-if [[ -n $known ]]; then
-  stored=$(printf '%s\n' "$known" | ssh-keygen -lf - 2>/dev/null | awk '{print $2}')
-  if printf '%s\n' "$stored" | grep -qxF "$fp"; then
-    ok "host key for $ADDRESS matches known_hosts ($fp)"
-  else
-    fail "the PC's host key does not match the one in $(tilde "$KNOWN")"
-    hint "if the PC was reinstalled or sshd re-created its keys, remove the old entry with: ssh-keygen -R '$KH_NAME'"
-    hint "otherwise stop here: something else may be answering at $ADDRESS"
-    finish
-  fi
+if [[ -n $KNOWN_ENTRY ]]; then
+  check_known_host_key || finish
 else
   echo "The PC at $ADDRESS presents this host key:"
   echo
-  echo "  $fp (ED25519)"
+  echo "  $FP (ED25519)"
   echo
   if [[ -n $EXPECT_FP ]]; then
-    if [[ $EXPECT_FP != "$fp" ]]; then
-      fail "host key $fp is not the expected $EXPECT_FP"
+    if [[ $EXPECT_FP != "$FP" ]]; then
+      fail "host key $FP is not the expected $EXPECT_FP"
       hint "do not connect; check the address and the fingerprint printed by prepare-windows.ps1"
       finish
     fi
@@ -217,9 +135,7 @@ else
       finish
     fi
   fi
-  printf '%s\n' "$scan" | sed "s/^[^ ]*/$KH_NAME/" >>"$KNOWN"
-  chmod 600 "$KNOWN"
-  done_ "trusted host key $fp for $ADDRESS"
+  trust_host_key
 fi
 
 out=$(login)
