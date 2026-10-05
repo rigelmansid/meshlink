@@ -28,12 +28,14 @@ Do not copy project content into this file.
 3. Before changing tunnel logic: read the related decisions (D-1, D-4, D-10)
    and pitfalls (坑 8–13), and run the existing tests.
 4. What exists: the `meshlink` command (`bin/meshlink`, subcommands `setup`,
-   `client codex`, `doctor`, `windows-script`, `tunnel`, `uninstall`,
+   `pair`, `client codex`, `doctor`, `windows-script`, `tunnel`, `uninstall`,
    `version`), which dispatches to the scripts under `scripts/`;
    `install.sh` / `uninstall.sh`; `scripts/package.sh`; and
-   `scripts/prepare-windows.ps1`. Anything listed as planned in project-notes
-   (published releases, other clients, discovery and pairing) does not exist
-   yet; never describe it as existing or invent its interface.
+   `scripts/prepare-windows.ps1`. `pair` is the Mac side of pairing
+   (docs/pairing.md); the Rhino plug-in it talks to does not exist yet, so it
+   has only run against a fake. Anything listed as planned in project-notes
+   (published releases, other clients, the plug-in) does not exist yet; never
+   describe it as existing or invent its interface.
 5. `setup`, `client codex`, `install.sh` and `uninstall.sh` write to the user's
    `~/.ssh`, Codex config or `~/.local`; run them on the real machine only when
    the user asks. Their tests use a temporary home.
@@ -50,15 +52,15 @@ bash -n scripts/doctor.sh
 tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
 tests/test-setup.sh                  # ~4 s, expects "passed: 57  failed: 0"
 tests/test-install.sh                # ~10 s, expects "passed: 39  failed: 0"
-tests/test-pair.sh                   # ~1 s, expects "passed: 11  failed: 0"
+tests/test-pair.sh                   # ~25 s, expects "passed: 117  failed: 0"
 scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
 ```
 
 The tests need `python3`, `lsof`, `pgrep`, `ps` and free local ports
-29931–29936 (tunnel) and 29941–29942 (doctor); check the ports are free before
-running. They use a fake `ssh` and `codex` and, where they write files, a
-temporary home; they never touch `~/.ssh`, `~/.local`, the Codex config, a real
-host or port 1999. A test that reads `$?` after a function must not run that
+29931–29936 (tunnel), 29941–29942 (doctor) and 29951–29952 (pair); check the
+ports are free before running. They use a fake `ssh`, `codex` and `dns-sd`
+and, where they write files, a temporary home; they never touch `~/.ssh`,
+`~/.local`, the Codex config, a real host or port 1999. A test that reads `$?` after a function must not run that
 function on the right of a pipe (it runs in a subshell; see `test-install.sh` I7). Assertion T4a is
 timing-sensitive and can flake on a busy machine; rerun before assuming a
 regression.

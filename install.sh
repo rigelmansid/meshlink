@@ -17,8 +17,8 @@ set -uo pipefail
 FILES=(
   VERSION LICENSE README.md install.sh uninstall.sh
   bin/meshlink
-  scripts/lib/common.sh scripts/lib/sshcfg.sh
-  scripts/setup.sh scripts/client-codex.sh scripts/doctor.sh
+  scripts/lib/common.sh scripts/lib/sshcfg.sh scripts/lib/pairing.sh
+  scripts/setup.sh scripts/pair.sh scripts/client-codex.sh scripts/doctor.sh
   scripts/rhino-tunnel.sh scripts/prepare-windows.ps1
   docs/remote-setup.md
 )

@@ -5,32 +5,44 @@
 
 状态：计算部分（承诺值、配对码）已实现于 `scripts/lib/pairing.sh`，由
 `tests/test-pair.sh` 对照 [`tests/pairing-vectors.txt`](../tests/pairing-vectors.txt)
-检查。传输方向按 D-20，尚待 Phase 0 探针（`experiments/pairing-spike/`）在真实 PC 上
-确认；`meshlink pair` 与 Rhino 插件都还不存在。
+检查。传输方向按 D-20，Phase 0 探针已在真实 PC 上确认发现与连出可行（D-22）。Mac 端
+`meshlink pair`（`scripts/pair.sh`）已实现，`tests/test-pair.sh` 用一个假的 Rhino 端
+（Python）检查四步交换与各种失败；Rhino 插件还不存在，所以没有和真实 Windows 配对过。
 
 ## 角色与流程
 
 - **Mac（M）**：`meshlink pair` 用 `dns-sd -R` 广播 `_meshlink-pair._tcp`，TXT 带
-  `v=1`，并用 `nc -l` 在一个端口上依次接受三次连接。
-- **Windows（W）**：Rhino 插件发现广播后主动连出，完成三次交换；第 2 次之后在 Rhino 里
-  弹窗显示配对码，用户允许后以 UAC 提权运行 `prepare-windows.ps1` 装公钥。
+  `v=1`，每一步用一次性的 `nc -l` 在同一个端口上接受连接；第 1 步完成后停止广播。
+- **Windows（W）**：Rhino 插件发现广播后提示用户；用户选择配对后主动连出，完成下面的
+  四次交换。
 
 每次交换是一条 TCP 连接：W 发送请求后关闭写方向，M 回复后关闭连接。M 的回复不依赖
-W 的请求内容，所以可以事先写好，用 `nc -l < 回复 > 请求` 完成。
+W 的请求内容，所以可以事先写好，用 `nc -l < 回复 > 请求` 完成。M 只在准备好某一步的
+回复后才监听，所以 W 每一步遇到连接被拒都要重试；第 3 步尤其如此，因为 M 要等本机
+用户回答完才开始监听。
+
+M 收到的请求如果缺少本步必需的键（例如另一台 PC 的第 1 步请求落到了第 2 步），就忽略
+这条连接、继续监听，直到本步超时。
 
 ## 消息格式
 
 ASCII 文本，每行 `键 值`，以 LF 结尾（收到的 CR 一律去掉）。第一行固定为
-`MESHLINK-PAIR 1`。未知的键忽略；缺少必需的键视为失败。
+`MESHLINK-PAIR 1`，其后必须有一行 `STEP <n>`，与本步一致。未知的键忽略。
 
-| 交换 | W → M | M → W |
+| 步 | W → M | M → W |
 |---|---|---|
 | 1 | `COMMIT <承诺值>` | `NAME <Mac 显示名>`、`MACPUB <Mac 公钥>`、`NONCE <nonce_m>` |
-| 2 | `HOSTKEY <主机公钥>`、`NONCE <nonce_w>`、`USER <Windows 账户>`、一行或多行 `ADDR <IPv4>` | `OK` |
-| 3 | `RESULT ok\|fail\|declined`、可选 `MESSAGE <说明>` | `OK` |
+| 2 | `HOSTKEY <主机公钥>`、`NONCE <nonce_w>`、一行或多行 `ADDR <IPv4>` | （仅 `STEP 2`） |
+| — | 两端各自显示配对码，各自的用户确认 | |
+| 3 | （仅 `STEP 3`） | `CONFIRM yes\|no`：Mac 用户是否确认 |
+| 4 | `RESULT ok\|fail\|declined`；`ok` 时必须有 `USER <Windows 账户>`；可有多行 `MESSAGE <说明>` | （仅 `STEP 4`） |
 
-- 公钥行写 `类型 base64`，不带注释。
+- 公钥行写 `类型 base64`，不带注释；主机公钥必须是 `ssh-ed25519`。
 - nonce 是 16 个随机字节，写成 32 位小写十六进制。
+- `ADDR` 的第一行是 W 连到 M 时所用的本机地址，其余是 W 的其他 IPv4 地址。
+- 第 3 步得到 `CONFIRM no` 时，W 不做任何修改，也不进行第 4 步。
+- 第 4 步的 `declined` 表示 Windows 用户在弹窗或 UAC 中拒绝；`USER` 是公钥实际装给的账户
+  （用户可在弹窗里改选），所以放在最后一步。
 
 ## 计算
 
@@ -63,22 +75,35 @@ W 在看到 nonce_m 之前先用承诺值锁定 nonce_w，M 在看到 nonce_w �
 
 ## 两端各自的检查
 
-**Mac 端**，任何一步失败都不写入 `~/.ssh/config` 和 known_hosts：
+**Mac 端**：除了开始时按需创建密钥（与 `setup` 相同），任何一步失败都不写入
+`~/.ssh/config` 和 known_hosts。
 
-1. 交换 2 收到的主机公钥与 nonce_w 必须符合交换 1 的承诺值。
-2. 显示配对码，用户确认与 Rhino 上一致（回答 `yes`）。
-3. 交换 3 必须是 `RESULT ok`。
-4. 从 `ADDR` 中选出地址，`ssh-keyscan` 读到的主机公钥必须与配对得到的一致，才写入
-   known_hosts（复用 `scripts/lib/sshcfg.sh`）。
-5. 用 `BatchMode=yes` 试登录一次。
+1. 开始前：要写的 Host 别名不能已存在，端口必须空闲。
+2. 第 2 步收到的主机公钥与 nonce_w 必须符合第 1 步的承诺值。
+3. 显示配对码，用户确认与 Rhino 上一致（回答 `yes`）；第 3 步把回答告诉 W。
+4. 第 4 步必须是 `RESULT ok`，`USER` 只能由字母、数字和 `._-` 组成（它要写进
+   `~/.ssh/config`）。
+5. 按 `ADDR` 的顺序用 `ssh-keyscan` 读主机公钥，取第一个与配对所得一致的地址；都不一致
+   就失败。known_hosts 里该地址已有不同的公钥时也失败。
+6. 写入 known_hosts 与 Host 条目（复用 `scripts/lib/sshcfg.sh`），再用 `BatchMode=yes`
+   试登录一次。
+
+收到的文本（`NAME` 以外的值都来自网络）先校验格式再使用；`MESSAGE` 去掉控制字符后
+才显示。请求文件限制在 64 KiB 以内。
 
 **Windows 端**：
 
-1. 只有用户在弹窗里看到配对码并点“允许”，才会启动提权步骤。
-2. 提权由 UAC 确认。装公钥、设权限沿用 `prepare-windows.ps1`（坑 2）。
-3. 用户拒绝弹窗或 UAC 时，交换 3 发 `RESULT declined`，不写任何文件。
+1. 只有用户在弹窗里看到配对码并点“允许”，且第 3 步得到 `CONFIRM yes`，才启动提权步骤。
+2. 提权运行 `prepare-windows.ps1` 装公钥、设权限（坑 2）。UAC 开启时这里会再弹一次系统
+   确认；UAC 关闭时不会，弹窗是唯一的确认（D-22）。
+3. 用户拒绝弹窗或 UAC 时，第 4 步发 `RESULT declined`，不写任何文件。
+
+## 默认值
+
+- 端口 29950（`--port`）。
+- 等待 W 连入第 1 步、等待第 4 步结果：各 300 秒（`--timeout`）；第 2 步 30 秒；第 3 步在
+  Mac 用户确认后 120 秒，回答 `no` 时 20 秒。
 
 ## 待定
 
-- 传输方向与发现方式以探针结果为准（D-20）。
-- 默认端口、超时时间、Rhino 弹窗的具体文字。
+- Rhino 弹窗的具体文字。

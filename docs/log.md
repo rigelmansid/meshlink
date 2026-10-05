@@ -49,6 +49,7 @@
 | 2026-10-04，配对方案与 Mac 端重构 | 用户决定推进发现与配对（D-18–D-21）；新增 Phase 0 探针 `experiments/pairing-spike/`（未编译，待装 .NET SDK）；`setup.sh` 的密钥、Host 条目、主机公钥三步移到 `scripts/lib/sshcfg.sh`，`install.sh` 清单加入该文件。 | 四组测试全部通过（setup 57、install 39、doctor 48、tunnel 24）；另用旧版与新版分别跑 test-setup 的各场景，把随机密钥、指纹、时间戳和路径归一后，7 份 setup 输出逐行一致。探针的 Mac 半边在本机自测通过，Windows 半边未运行。 |
 | 2026-10-05，配对协议草案 | 新增 `docs/pairing.md`（消息格式、承诺值与 6 位配对码的计算、两端检查）、`scripts/lib/pairing.sh`（nonce、承诺值、配对码）、`tests/pairing-vectors.txt`（Python 独立生成的 4 组向量）、`tests/test-pair.sh`；AGENTS.md 文档列表与命令、roadmap 相应更新。传输部分不受影响的内容先做，探针仍待在 PC 上运行。 | `tests/test-pair.sh` 11/11（/bin/bash 3.2）；对 `pairing.sh` 做 3 处人为破坏（去掉补零、不去注释、改前缀），均被发现。未接入 `meshlink`，未进安装清单。 |
 | 2026-10-05，配对 Phase 0 探针 | 用户在原环境 PC 上运行 `MeshlinkProbe`，Mac 运行 `mac-probe.sh`。发现（P1）与连出（P2）通过，D-20 的方向成立；读主机公钥（P3）与提权（P4）只在 UAC 关闭的条件下通过。新增 D-22，§7 新增“配对的 UAC 开启路径”。 | 结果与限制见验证记录 2026-10-05 22:30 一行与 `experiments/pairing-spike/README.md`。 |
+| 2026-10-05，Mac 端 `meshlink pair` | 协议草案改为四步：两端用户都确认后 Windows 才装公钥（第 3 步传 Mac 用户的回答），每条消息带 `STEP`，`USER` 移到最后一步，`ADDR` 第一行为 PC 连到 Mac 时用的地址。新增 `scripts/pair.sh` 与 `meshlink pair`；`pairing.sh` 增加消息解析；安装清单加入两个文件；`tests/test-pair.sh` 增至 117 项（P1–P15：正常配对、无关连接、承诺值不符、Mac 回答 no、PC 拒绝或失败、地址校验与选择、账户名校验、超时、别名已存在、端口占用、SIGTERM、known_hosts 冲突、登录失败）。AGENTS.md、pairing.md、§7 与文件表相应更新。 | 五组测试全部通过（setup 57、install 39、doctor 48、pair 117、tunnel 24）。对 `pair.sh` 做 9 处人为破坏，均被发现；其中“不校验地址”起初未被发现，补了地址扫描记录与 `-oProxyCommand=` 形式的地址后才发现。另在本机用真实 `dns-sd` 与 `nc`、临时 HOME 和 Python 假 Rhino 跑通一次完整配对，`dns-sd -B` 能看到广播，结束后端口释放。没有和真实 Windows 配对（插件未写）。 |
 
 ## 验证记录
 

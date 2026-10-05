@@ -18,6 +18,8 @@ meshlink $VERSION: use RhinoMCP on a Windows PC from this Mac, over SSH
 usage: meshlink <command> [options]
 
   setup            first-time setup: SSH key, ~/.ssh/config entry, the PC's host key
+  pair             the same over the local network, confirmed by a code on both screens
+                   (needs the meshlink Rhino plug-in, which is not released yet)
   client codex     point Codex's MCP entry at rhinomcp on the PC
   doctor           read-only check of the whole link, ending with one tool call
   windows-script   print the path of prepare-windows.ps1, to copy to the PC
@@ -33,6 +35,7 @@ cmd=${1:-}
 [[ $# -gt 0 ]] && shift
 case $cmd in
   setup) exec "$ROOT/scripts/setup.sh" "$@" ;;
+  pair) exec "$ROOT/scripts/pair.sh" "$@" ;;
   client)
     sub=${1:-}
     [[ $# -gt 0 ]] && shift
