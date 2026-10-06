@@ -97,11 +97,15 @@ Mac 端发起连接，Windows 弹出确认，用户同意后两边建立连接�
 - **无法省掉的一步**：首次让 Windows 允许外部连入（OpenSSH Server 或防火墙规则），
   需要一次管理员确认。
 
-**待解决**：
-- C# 组件是自己写插件，还是给上游 rhinomcp 提 PR；
-- 往专用账户（下文「待确定事项」中的“Windows 登录账户类型”）写公钥需要管理员权限；
-- Windows 与 macOS 的代码签名；
-- Windows 是否会对自己的主机名应答 mDNS，未核实。
+**待解决**（2026-10-06 更新）：
+- C# 组件是自己写插件，还是给上游 rhinomcp 提 PR：已定，自己的插件（D-19）；
+- 往专用账户（下文「待确定事项」中的“Windows 登录账户类型”）写公钥需要管理员权限：
+  插件以提权方式运行 `prepare-windows.ps1`（D-20、D-22），原环境已实测；
+- Windows 与 macOS 的代码签名：未定；
+- Windows 是否会对自己的主机名应答 mDNS：不再需要，改为 Mac 广播、Windows 浏览（D-20）。
+
+**进展**：Mac 端 `meshlink pair` 与 Windows 端插件已在原环境真实配对（2026-10-06，
+[log.md](log.md) 验证记录）；还没有安装包，见 project-notes §7。
 
 ## 实施阶段与验收标准
 

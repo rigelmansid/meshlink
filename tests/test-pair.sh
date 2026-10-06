@@ -30,9 +30,14 @@
 #   P14 known_hosts has another key for the address   -> FAIL, no Host entry
 #   P15 login still refused after pairing             -> FAIL with a hint, entry kept
 #
+# PAIR_CLIENT=dotnet runs the P scenarios against the real code of the PC's
+# side (rhino-plugin/Meshlink.Pairing.Driver, built beforehand) instead of the
+# Python fake. P2, P3 and P9 need a PC that misbehaves and are skipped then.
+#
 # Ports 29951-29952 must be free.
 #
 # Usage: tests/test-pair.sh
+#        PAIR_CLIENT=dotnet tests/test-pair.sh
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -43,6 +48,12 @@ PORT=29951
 BUSY_PORT=29952
 
 command -v python3 >/dev/null 2>&1 || { echo "python3 is required"; exit 2; }
+PAIR_CLIENT=${PAIR_CLIENT:-python}
+DRIVER="$ROOT/rhino-plugin/Meshlink.Pairing.Driver/bin/Release/net8.0/Meshlink.Pairing.Driver.dll"
+if [[ $PAIR_CLIENT == dotnet && ! -f $DRIVER ]]; then
+  echo "build the driver first: dotnet build rhino-plugin/Meshlink.Pairing.Driver -c Release"
+  exit 2
+fi
 for p in $PORT $BUSY_PORT; do
   if lsof -nP -iTCP:$p -sTCP:LISTEN >/dev/null 2>&1; then
     echo "port $p is in use; free it first"
@@ -230,8 +241,13 @@ rhino() {
   : >"$RHINO_OUT"
   local addr_args=()
   for x in ${RHINO_ADDRS:-127.0.0.1}; do addr_args+=("--addr=$x"); done
-  python3 "$WORK/fake-rhino.py" --port "$PORT" --hostkey "$WORK/hostkey.pub" \
-      --out "$RHINO_OUT" "${addr_args[@]}" "$@" &
+  if [[ $PAIR_CLIENT == dotnet ]]; then
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1 dotnet "$DRIVER" --port "$PORT" \
+        --hostkey "$WORK/hostkey.pub" --out "$RHINO_OUT" "${addr_args[@]}" "$@" &
+  else
+    python3 "$WORK/fake-rhino.py" --port "$PORT" --hostkey "$WORK/hostkey.pub" \
+        --out "$RHINO_OUT" "${addr_args[@]}" "$@" &
+  fi
   RHINO_PID=$!
 }
 stop_rhino() {
@@ -287,7 +303,7 @@ sas=$(sed -n 's/^SAS //p' "$RHINO_OUT")
 has "$RHINO_OUT" "CONFIRM yes" "P1 PC told yes"
 has "$RHINO_OUT" "NAME test-mac" "P1 PC sees the Mac's name"
 has "$RHINO_OUT" "DONE" "P1 PC finished all four steps"
-has "$WORK/p1.dnssd" "-R test-mac _meshlink-pair._tcp local $PORT v=1" "P1 announced with the port and version"
+has "$WORK/p1.dnssd" "-R test-mac _meshlink-pair._tcp local $PORT v=1 id=" "P1 announced with the port, version and id"
 has "$H/.ssh/config" "# Added by scripts/pair.sh on" "P1 entry marked as added by pair.sh"
 has "$H/.ssh/config" "Host rhino-pc" "P1 Host entry"
 has "$H/.ssh/config" "HostName 127.0.0.1" "P1 HostName is the PC's address"
@@ -299,7 +315,15 @@ has "$out" "ssh rhino-pc logs in as agent" "P1 test login"
 has "$out" "next: scripts/client-codex.sh --host rhino-pc" "P1 next step"
 no_leftovers P1
 
+# skip_unless_python NAME -- true (and a note) when the scenario needs the Python fake.
+skip_unless_python() {
+  [[ $PAIR_CLIENT == python ]] && return 1
+  echo "  skip : $1 needs a misbehaving PC (Python fake only)"
+  return 0
+}
+
 echo "P2 a stray connection comes first"
+if ! skip_unless_python P2; then
 fresh_home p2
 rhino p2 --stray-first
 pair_run p2 'yes\n'
@@ -308,8 +332,10 @@ exit_is "$rc" 0 "P2 exit 0"
 has "$out" "ignored a connection that was not step 1" "P2 stray ignored"
 has "$H/.ssh/config" "Host rhino-pc" "P2 Host entry"
 no_leftovers P2
+fi
 
 echo "P3 host key does not match the commitment"
+if ! skip_unless_python P3; then
 fresh_home p3
 rhino p3 --bad-commit --patience 3
 pair_run p3 'yes\n'
@@ -319,6 +345,7 @@ has "$out" "does not match what it committed to" "P3 FAIL"
 hasnt "$out" "Pairing code" "P3 no code shown"
 nothing_written P3
 no_leftovers P3
+fi
 
 echo "P4 Mac answers no"
 fresh_home p4
@@ -343,12 +370,13 @@ nothing_written P5
 
 echo "P6 PC fails, message with an escape sequence"
 fresh_home p6
-rhino p6 --result fail --user "" --message $'sshd is not\e[31m installed'
+rhino p6 --result fail --user "" --message $'sshd is not\e[31m installed' "--message=-> install it first"
 pair_run p6 'yes\n'
 wait "$RHINO_PID"; RHINO_PID=""
 exit_is "$rc" 1 "P6 exit 1"
 has "$out" "could not install this Mac's key" "P6 FAIL"
 has "$out" "PC: sshd is not[31m installed" "P6 message shown"
+has "$out" "PC:        install it first" "P6 hint indented under it"
 grep -q $'\e' "$out" && bad "P6 escape character reached the terminal" || ok "P6 escape character removed"
 nothing_written P6
 
@@ -374,6 +402,7 @@ has "$H/.ssh/config" "HostName 127.0.0.1" "P8 the answering address is used"
   bad "P8 scanned: $(paste -sd' ' - <"$WORK/p8.scan")"
 
 echo "P9 account name with spaces"
+if ! skip_unless_python P9; then
 fresh_home p9
 rhino p9 --user "agent ProxyCommand evil"
 pair_run p9 'yes\n'
@@ -381,6 +410,7 @@ wait "$RHINO_PID"; RHINO_PID=""
 exit_is "$rc" 1 "P9 exit 1"
 has "$out" "account name this Mac cannot use" "P9 FAIL"
 nothing_written P9
+fi
 
 echo "P10 no PC within the timeout"
 fresh_home p10

@@ -7,14 +7,19 @@
 `tests/test-pair.sh` 对照 [`tests/pairing-vectors.txt`](../tests/pairing-vectors.txt)
 检查。传输方向按 D-20，Phase 0 探针已在真实 PC 上确认发现与连出可行（D-22）。Mac 端
 `meshlink pair`（`scripts/pair.sh`）已实现，`tests/test-pair.sh` 用一个假的 Rhino 端
-（Python）检查四步交换与各种失败；Rhino 插件还不存在，所以没有和真实 Windows 配对过。
+（Python）检查四步交换与各种失败。Windows 端在 `rhino-plugin/`：协议部分
+（`Meshlink.Pairing`）在 Mac 上有单元测试，并用 `PAIR_CLIENT=dotnet tests/test-pair.sh`
+与真实的 `pair.sh` 对跑；Rhino 插件已能编译，但还没在 Rhino 里运行过，所以没有和真实
+Windows 配对过。
 
 ## 角色与流程
 
 - **Mac（M）**：`meshlink pair` 用 `dns-sd -R` 广播 `_meshlink-pair._tcp`，TXT 带
-  `v=1`，每一步用一次性的 `nc -l` 在同一个端口上接受连接；第 1 步完成后停止广播。
-- **Windows（W）**：Rhino 插件发现广播后提示用户；用户选择配对后主动连出，完成下面的
-  四次交换。
+  `v=1` 和 `id`（每次运行随机生成），每一步用一次性的 `nc -l` 在同一个端口上接受连接；
+  第 1 步完成后停止广播。
+- **Windows（W）**：Rhino 插件每隔几秒浏览一次（D-23 的 ListenForPairing），同一个
+  实例名加 `id` 只提示一次；广播消失时关掉还没开始的提示。也可以用 `MeshlinkPair` 命令
+  主动查找。用户选择配对后主动连出，完成下面的四次交换。
 
 每次交换是一条 TCP 连接：W 发送请求后关闭写方向，M 回复后关闭连接。M 的回复不依赖
 W 的请求内容，所以可以事先写好，用 `nc -l < 回复 > 请求` 完成。M 只在准备好某一步的

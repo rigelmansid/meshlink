@@ -164,7 +164,11 @@ respond() {
 }
 
 # ------------------------------------------- 3. announce, step 1: commit
-dns-sd -R "$NAME" _meshlink-pair._tcp local "$LISTEN_PORT" "v=$PAIR_VERSION" >"$TMP/dnssd.log" 2>&1 &
+# id is new for every run, so the plug-in can tell a second run from the
+# same Mac apart from the first.
+PAIR_ID=$(pair_nonce | cut -c1-8)
+dns-sd -R "$NAME" _meshlink-pair._tcp local "$LISTEN_PORT" "v=$PAIR_VERSION" "id=$PAIR_ID" \
+  >"$TMP/dnssd.log" 2>&1 &
 DNSSD_PID=$!
 tries=0
 until grep -q 'Name now registered and active' "$TMP/dnssd.log" 2>/dev/null; do
@@ -270,7 +274,15 @@ fi
 show_messages() {
   local m
   while IFS= read -r m; do
-    [[ -n $m ]] && hint "PC: $(printf '%s' "$m" | pair_text)"
+    m=$(printf '%s' "$m" | pair_text)
+    [[ -z $m ]] && continue
+    # A hint under a PC line arrives as "-> ...": indent it under that line's
+    # text rather than stacking two arrows.
+    if [[ $m == "-> "* ]]; then
+      hint "PC:        ${m#-> }"
+    else
+      hint "PC: $m"
+    fi
   done < <(pair_get_all "$TMP/req" MESSAGE)
   return 0
 }

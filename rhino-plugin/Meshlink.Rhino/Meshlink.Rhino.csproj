@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The meshlink Rhino plug-in (D-19): the PC's side of pairing, and starting
+       the MCP listener with Rhino. Builds on the Mac (D-21):
+         dotnet build rhino-plugin/Meshlink.Rhino -c Release
+       Rhino on the PC loads Meshlink.rhp from the output folder, which also
+       holds Meshlink.Pairing.dll and prepare-windows.ps1. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Meshlink</AssemblyName>
+    <RootNamespace>Meshlink.Plugin</RootNamespace>
+    <TargetExt>.rhp</TargetExt>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <Version>0.2.0-dev</Version>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <!-- RhinoCommon ships net48 reference assemblies only; Rhino 8 loads them on .NET 8. -->
+    <NoWarn>NU1701</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The version rhinomcp 0.4.1.1 builds against: it loads wherever rhinomcp does. -->
+    <PackageReference Include="RhinoCommon" Version="8.17.25066.7001" ExcludeAssets="runtime" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Meshlink.Pairing\Meshlink.Pairing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Kept in one place, scripts/; the plug-in runs it elevated to install a key. -->
+    <None Include="..\..\scripts\prepare-windows.ps1" Link="prepare-windows.ps1" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

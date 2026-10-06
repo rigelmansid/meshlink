@@ -41,6 +41,12 @@ The rhinomcp version to install. Keep it equal to the Rhino plugin's version.
 The sshd_config to edit. Only for testing on a copy: sshd is restarted only
 when this is the live file.
 
+.PARAMETER ResultFile
+Also write the outcome to this file, for a caller that cannot read this
+window: the meshlink Rhino plug-in starts the script elevated when a Mac
+pairs (docs/pairing.md). UTF-8 without BOM; the lines are "RESULT ok" or
+"RESULT fail", "USER <account>", then "LINE <text>" for each report line.
+
 .EXAMPLE
 powershell -ExecutionPolicy Bypass -File .\prepare-windows.ps1 -User rhino-agent -PublicKey "ssh-ed25519 AAAA... mac" -WhatIf
 #>
@@ -50,7 +56,8 @@ param(
   [Parameter(Mandatory = $true)][string]$PublicKey,
   [string]$RhinoMcpVersion = '0.4.1.1',
   [int]$RhinoPort = 1999,
-  [string]$SshdConfig = (Join-Path $env:ProgramData 'ssh\sshd_config')
+  [string]$SshdConfig = (Join-Path $env:ProgramData 'ssh\sshd_config'),
+  [string]$ResultFile = ''
 )
 
 Set-StrictMode -Version 2.0
@@ -61,6 +68,7 @@ $ErrorActionPreference = 'Continue'
 
 $script:fails = 0
 $script:warns = 0
+$script:lines = New-Object System.Collections.Generic.List[string]
 $dryRun = [bool]$WhatIfPreference
 
 # Under -WhatIf, modules that load on first use print a "What if: Set Alias"
@@ -69,23 +77,38 @@ $WhatIfPreference = $false
 Import-Module CimCmdlets, NetSecurity, NetTCPIP, Microsoft.PowerShell.LocalAccounts -ErrorAction SilentlyContinue
 $WhatIfPreference = $dryRun
 
-function Report([string]$tag, [string]$msg) { Write-Host ('[{0}] {1}' -f $tag, $msg) }
+function Report([string]$tag, [string]$msg) { Line ('[{0}] {1}' -f $tag, $msg) }
+function Line([string]$text) { Write-Host $text; $script:lines.Add($text) }
 function Ok([string]$m)   { Report ' OK ' $m }
 function Done([string]$m) { Report 'DONE' $m }
 function Info([string]$m) { Report 'INFO' $m }
 function Warn([string]$m) { Report 'WARN' $m; $script:warns++ }
 function Fail([string]$m) { Report 'FAIL' $m; $script:fails++ }
 function Skip([string]$m) { Report 'SKIP' $m }
-function Hint([string]$m) { Write-Host ('       -> {0}' -f $m) }
+function Hint([string]$m) { Line ('       -> {0}' -f $m) }
 
 function Finish {
   Write-Host ''
   if ($dryRun) { Write-Host 'WhatIf: nothing was changed.' }
+  $result = 'ok'
   if ($script:fails -gt 0) {
+    $result = 'fail'
     Write-Host ('prepare-windows: {0} failed, {1} warning(s)' -f $script:fails, $script:warns)
-    exit 1
+  } else {
+    Write-Host ('prepare-windows: done, {0} warning(s)' -f $script:warns)
   }
-  Write-Host ('prepare-windows: done, {0} warning(s)' -f $script:warns)
+  if ($ResultFile) {
+    $out = New-Object System.Collections.Generic.List[string]
+    $out.Add('RESULT ' + $result)
+    $out.Add('USER ' + $User)
+    foreach ($l in $script:lines) { $out.Add('LINE ' + $l) }
+    try {
+      [IO.File]::WriteAllLines($ResultFile, $out.ToArray(), (New-Object Text.UTF8Encoding($false)))
+    } catch {
+      Write-Host ('could not write {0}: {1}' -f $ResultFile, $_.Exception.Message)
+    }
+  }
+  if ($result -eq 'fail') { exit 1 }
   exit 0
 }
 

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Runs on the Mac: dotnet test rhino-plugin/Meshlink.Pairing.Tests -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <!-- Run on a newer runtime when .NET 8 itself is not installed. -->
+    <RollForward>Major</RollForward>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <!-- Only its parser: a syntax check of scripts/prepare-windows.ps1. -->
+    <PackageReference Include="System.Management.Automation" Version="7.4.20" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Meshlink.Pairing\Meshlink.Pairing.csproj" />
+  </ItemGroup>
+</Project>

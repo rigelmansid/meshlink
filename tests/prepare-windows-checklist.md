@@ -1,7 +1,8 @@
 # Manual test: scripts/prepare-windows.ps1
 
-There is no PowerShell on the Mac side, so this script is tested by hand on the
-Windows PC. Run the whole list after every change to the script and on every
+The Mac side only checks this script's syntax (`dotnet test
+rhino-plugin/Meshlink.Pairing.Tests`), so it is tested by hand on the Windows
+PC. Run the whole list after every change to the script and on every
 Windows version you want to claim support for. Record the result, date,
 Windows build and PowerShell version in `docs/log.md` (verification records).
 
@@ -26,6 +27,7 @@ $run = "powershell -NoProfile -ExecutionPolicy Bypass -File .\prepare-windows.ps
 | C | `Copy-Item <an sshd_config with the two settings commented out> $env:TEMP\sshd_test_config`, then `iex "$run -User <agent> -PublicKey '$k' -SshdConfig $env:TEMP\sshd_test_config"`, then `Select-String -Path $env:TEMP\sshd_test_config -Pattern "ClientAlive\|^Match"` | `[DONE] sshd_config: ... (was commented out)` with a backup name; `[INFO] ... is not the live config; sshd was not restarted`. Both settings sit on their original lines, above the `Match` line. |
 | D | `iex "$run -User $env:USERNAME -PublicKey '$k' -WhatIf"` (an administrator) | `[WARN] ... is an administrator`; key checked in `administrators_authorized_keys`; uv and rhinomcp checked for the current account. |
 | E | `iex "$run -PublicKey 'not-a-key'"` | `[FAIL] that does not look like an SSH public key line` before any other step; exit code 1. |
+| F | `iex "$run -User <agent> -PublicKey '$k' -ResultFile $env:TEMP\r.txt"`; `Get-Content $env:TEMP\r.txt`; then E with `-ResultFile` | `RESULT ok`, `USER <agent>`, then one `LINE ` per report line, the same as on screen. For E: `RESULT fail` and the `[FAIL]` line. |
 
 After B, from the Mac: compare the `host key` fingerprint the script printed
 with `ssh-keygen -lF <HostName>`, and run `scripts/doctor.sh`.

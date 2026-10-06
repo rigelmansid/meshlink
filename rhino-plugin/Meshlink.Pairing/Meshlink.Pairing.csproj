@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The Windows side of docs/pairing.md. Nothing here depends on Rhino, so it
+       builds and its tests run on the Mac (D-21); only Discovery needs Windows
+       at run time. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+</Project>

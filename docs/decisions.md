@@ -360,3 +360,16 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
 - 影响：插件弹窗写明“允许后将以管理员身份修改 SSH 配置”；UAC 开启时的路径（未提权读
   主机公钥、UAC 弹窗与拒绝）需要一台 UAC 开启的 Windows 验证，并入暂缓的全新 Windows
   验收（§7）。D-20 的方向不变。
+
+### D-23 配对成功后 Rhino 启动时自动运行 mcpstart，配对提示默认开启（2026-10-05，agent 选择）
+
+- 背景：路线图要求配对后“Rhino 打开即可用”；rhinomcp 的监听要在每次打开 Rhino 后手动
+  `mcpstart`。插件随 Rhino 启动加载，可以代为执行。
+- 选项：A 插件不碰 `mcpstart` / B 配对成功后打开“启动时运行 mcpstart”，可在
+  `MeshlinkOptions` 关闭 / C 装上插件就自动运行
+- 选择：B；另外“发现配对请求时提示”（ListenForPairing）默认开启
+- 理由：配对成功是用户明确要从 Mac 使用这台 Rhino 的信号，没配对过的机器行为不变；监听
+  仍只在 127.0.0.1（D-1）。不想在办公网络里收到提示的，可以关掉 ListenForPairing，
+  改用 `MeshlinkPair` 命令。
+- 影响：插件设置 `ListenForPairing`（默认 On）与 `StartMcpOnLaunch`（默认 Off，配对成功
+  后置 On）；1999 端口已在监听时不再运行 `mcpstart`。

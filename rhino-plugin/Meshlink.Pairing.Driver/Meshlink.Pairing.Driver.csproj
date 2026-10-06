@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The PC's side of pairing without Rhino or Windows: the real
+       PairingSession with a stand-in for installing the key. For
+       PAIR_CLIENT=dotnet tests/test-pair.sh, against the real pair.sh. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Meshlink.Pairing\Meshlink.Pairing.csproj" />
+  </ItemGroup>
+</Project>

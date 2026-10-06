@@ -32,10 +32,13 @@ Do not copy project content into this file.
    `version`), which dispatches to the scripts under `scripts/`;
    `install.sh` / `uninstall.sh`; `scripts/package.sh`; and
    `scripts/prepare-windows.ps1`. `pair` is the Mac side of pairing
-   (docs/pairing.md); the Rhino plug-in it talks to does not exist yet, so it
-   has only run against a fake. Anything listed as planned in project-notes
-   (published releases, other clients, the plug-in) does not exist yet; never
-   describe it as existing or invent its interface.
+   (docs/pairing.md). `rhino-plugin/` holds the Windows side: the Rhino
+   plug-in (`Meshlink.rhp`), its pairing library, tests and a test driver.
+   The plug-in builds and its pairing code is tested on the Mac, but it has not
+   yet run in Rhino, so pairing has not happened with a real PC. Anything
+   listed as planned in project-notes (published releases, a Yak package,
+   other clients) does not exist yet; never describe it as existing or invent
+   its interface.
 5. `setup`, `client codex`, `install.sh` and `uninstall.sh` write to the user's
    `~/.ssh`, Codex config or `~/.local`; run them on the real machine only when
    the user asks. Their tests use a temporary home.
@@ -52,8 +55,13 @@ bash -n scripts/doctor.sh
 tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
 tests/test-setup.sh                  # ~4 s, expects "passed: 57  failed: 0"
 tests/test-install.sh                # ~10 s, expects "passed: 39  failed: 0"
-tests/test-pair.sh                   # ~25 s, expects "passed: 117  failed: 0"
+tests/test-pair.sh                   # ~25 s, expects "passed: 118  failed: 0"
 scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
+
+dotnet test rhino-plugin/Meshlink.Pairing.Tests       # ~10 s, expects "Passed: 54"
+dotnet build rhino-plugin/Meshlink.Pairing.Driver -c Release
+PAIR_CLIENT=dotnet tests/test-pair.sh                  # ~20 s, expects "passed: 98  failed: 0"
+dotnet build rhino-plugin/Meshlink.Rhino -c Release   # the plug-in, for Rhino on the PC
 ```
 
 The tests need `python3`, `lsof`, `pgrep`, `ps` and free local ports
@@ -65,11 +73,20 @@ function on the right of a pipe (it runs in a subshell; see `test-install.sh` I7
 timing-sensitive and can flake on a busy machine; rerun before assuming a
 regression.
 
-`scripts/prepare-windows.ps1` has no automated test: run
-`tests/prepare-windows-checklist.md` by hand on Windows after every change. Keep
-the file ASCII only (Windows PowerShell 5.1 reads a file without a BOM in the
-system code page) and compatible with PowerShell 5.1. Never run it on the user's
-PC yourself; it changes system configuration.
+`scripts/prepare-windows.ps1` has no automated run, only a syntax check in
+`Meshlink.Pairing.Tests`: run `tests/prepare-windows-checklist.md` by hand on
+Windows after every change. Keep the file ASCII only (Windows PowerShell 5.1
+reads a file without a BOM in the system code page) and compatible with
+PowerShell 5.1 (the test rejects PowerShell 7-only operators). Never run it on
+the user's PC yourself; it changes system configuration. The plug-in runs it
+elevated when a Mac pairs (`-ResultFile`).
+
+The .NET projects under `rhino-plugin/` need the .NET SDK (D-21); the tests and
+the driver roll forward to a newer runtime than .NET 8. The plug-in has no
+automated test inside Rhino: run `tests/rhino-plugin-checklist.md` by hand on
+the PC after every change, and never load it on the user's PC yourself. Its
+network input is untrusted: keep checking every value read from the Mac
+(`Meshlink.Pairing.Check`) before it reaches a file or a command line.
 
 Probe any MCP stdio server end to end:
 
