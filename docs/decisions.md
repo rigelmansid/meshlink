@@ -406,3 +406,29 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
 - 理由：用户决定。插件只在一台 UAC 关闭的 Windows 10 上验证过；版本号方案还要再讨论。
 - 影响：包只在本地 `dist/` 生成，在 PC 上用拖入 `.yak` 的方式安装；推送与首个公开版本号
   留到以后再定（§7）。
+
+### D-27 `client codex` 直接编辑 config.toml，不再默认用 `codex mcp add`（2026-10-07，agent 选择）
+
+- 背景：`codex mcp add` 会重写整个 `config.toml`，删掉所有注释，并丢掉被替换条目的 env、
+  启动超时和工具审批（坑 19）。原来的做法只是事先列出损失、备份并要求确认。
+- 选项：A 继续用 `codex mcp add` / B 在 bash 里直接编辑：已有条目只替换 `command` 与
+  `args` 两行，没有条目就在文件末尾追加一节，写后由 Codex 读回核对 / C 等 Codex 提供只改
+  部分字段的命令
+- 选择：B；条目不是 Codex 写出的形式（`args` 跨行、内联表等）时退回 A，并照旧列出损失、
+  备份、要求确认
+- 理由：其余内容逐字节不变，不再需要用户在丢设置和不更新之间二选一；只认 Codex 自己写出
+  的简单形式，认不出就退回，不去解析完整 TOML。
+- 影响：`scripts/client-codex.sh`；Codex 读回的命令、参数与 env、启动超时不符时从备份恢复；
+  读不了的 `config.toml` 不碰。`tests/test-setup.sh` 的假 codex 改为读写 `config.toml`。
+
+### D-28 不再要求生成的脚本自己包撤销记录（2026-10-07，agent 选择）
+
+- 背景：AGENTS.md 要求每段生成的建模脚本用 `BeginUndoRecord` / `EndUndoRecord` 包成一步
+  撤销。§7 待核实 rhinomcp 是否已经这样做。
+- 选项：A 保留这条规定 / B 删除，改为说明 rhinomcp 的行为与升级后要重新核对
+- 选择：B
+- 理由：rhinomcp 0.4.1.1 的 Rhino 插件把每条非只读命令（含执行 Python、C# 脚本的两条）
+  包在一条 `MCP: <命令名>` 撤销记录里（`plugin/RhinoMCPServer.cs`，标签 `releases/0.4.1.1`）；
+  RhinoCommon 文档说明记录已在进行时 `BeginUndoRecord` 返回 0、不开新记录。脚本自己再包
+  一层不起作用。
+- 影响：AGENTS.md 的建模安全规则改写；rhinomcp 升级后要重新核对（坑 14）。

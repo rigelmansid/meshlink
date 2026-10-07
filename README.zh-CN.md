@@ -69,7 +69,7 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 | [tests/test-install.sh](tests/test-install.sh) | 在临时 HOME 中测试打包、安装、升级、卸载和 `meshlink` 命令。 |
 | [scripts/setup.sh](scripts/setup.sh) | Mac 端首次配置：SSH 密钥、`~/.ssh/config` 中的 Host 条目、要在 Windows 上执行的完整命令、对照 Windows 报告核对主机指纹、测试登录。不会覆盖已有的密钥或 Host 条目。 |
 | [scripts/pair.sh](scripts/pair.sh) | `meshlink pair`：在局域网里宣告本机，带 Rhino 插件走完 [docs/pairing.md](docs/pairing.md) 的四步，双方都确认后添加 Host 条目。 |
-| [scripts/client-codex.sh](scripts/client-codex.sh) | 把 Codex 的 MCP 条目指向 Windows 上的 `rhinomcp`，然后运行 `doctor`。替换已有的不同条目前要确认并先备份：`codex mcp add` 会丢掉该条目的其他设置和 `config.toml` 里的注释。 |
+| [scripts/client-codex.sh](scripts/client-codex.sh) | 把 Codex 的 MCP 条目指向 Windows 上的 `rhinomcp`，然后运行 `doctor`。直接编辑 `config.toml`：已有条目只改命令和参数两行，其他设置和所有注释都保留。修改已有的不同条目前要确认，并先备份。 |
 | [tests/test-setup.sh](tests/test-setup.sh) | 在临时 HOME 中用假的 `ssh` 和 `codex` 测试 `setup.sh` 与 `client-codex.sh`。 |
 | [scripts/doctor.sh](scripts/doctor.sh) | 只读诊断：逐段检查整条链路，最后做一次真实的工具调用。配置从 Codex 读取，不需要输入，也不修改任何东西。 |
 | [tests/test-doctor.sh](tests/test-doctor.sh) | 用假的 `codex` 和 `ssh` 测试 `doctor.sh`，不需要 Windows 电脑。 |

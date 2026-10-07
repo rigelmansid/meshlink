@@ -54,7 +54,7 @@ bash -n tests/test-rhino-tunnel.sh
 tests/test-rhino-tunnel.sh           # ~40 s, expects "passed: 24  failed: 0"
 bash -n scripts/doctor.sh
 tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
-tests/test-setup.sh                  # ~4 s, expects "passed: 57  failed: 0"
+tests/test-setup.sh                  # ~5 s, expects "passed: 85  failed: 0"
 tests/test-install.sh                # ~10 s, expects "passed: 39  failed: 0"
 tests/test-pair.sh                   # ~25 s, expects "passed: 118  failed: 0"
 scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
@@ -140,8 +140,10 @@ comments and in the pitfalls cited. Do not "simplify" them away.
 - Modeling safety:
   - Delete only objects your task created, identified by layer or user string.
     An "empty-looking" document is not permission to bulk-delete.
-  - Wrap each generated script in one undo record
-    (`BeginUndoRecord` / `EndUndoRecord`).
+  - One tool call is one undo step: rhinomcp 0.4.1.1 wraps every
+    non-read-only command, script execution included, in an undo record
+    named `MCP: <command>`. Do not open another inside a script; it would not
+    start (D-28). Check this again after a rhinomcp upgrade (pitfall 14).
   - Never overwrite an existing `.3dm` file; save under a new name.
 - Never write modeling scripts, generated models or scratch files into the
   repository. Put them in the maintainer's `../materials/scratch/` (outside

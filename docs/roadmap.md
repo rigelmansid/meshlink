@@ -36,8 +36,8 @@ Windows 上的 Rhino 8，完成 MCP 客户端配置、启动和故障诊断，�
   时不覆盖、只提示。打印一条可直接粘贴到 Windows 管理员 PowerShell 的 W1 命令，
   里面带好公钥。最后引导首次核对主机指纹。为第二版的配对流程预留：装公钥和核对
   指纹各自是独立步骤（下文「长期方向」）。
-- `client codex`：先备份，再调用 `codex mcp add` 写入配置，并提示哪些原有设置会丢失
-  （project-notes §3）。
+- `client codex`：先备份，再直接编辑 `config.toml`，只改该条目的命令与参数两行（D-27）；
+  认不出的写法退回 `codex mcp add`，并提示哪些原有设置会丢失（project-notes §3、坑 19）。
 - `doctor`：按 project-notes §4 快速排查的顺序逐段检查，最后做一次 MCP 层只读调用。
   远端报错的编码按坑 18 处理；UAC 关闭时给出警告（D-13 账户类型）。
 
