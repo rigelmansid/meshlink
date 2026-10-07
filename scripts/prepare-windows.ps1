@@ -142,7 +142,8 @@ if (-not (New-Object Security.Principal.WindowsPrincipal($me)).IsInRole(
 if ($RemoveKey) {
   Info ('removing this key for {0}; sshd, the firewall and sshd_config are left alone' -f $User)
 }
-if ($env:SSH_CONNECTION) {
+# Removing a key never restarts sshd.
+if ($env:SSH_CONNECTION -and -not $RemoveKey) {
   Warn 'running over SSH: if sshd has to be restarted, this session will drop'
 }
 

@@ -388,11 +388,10 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
 
 ### 近期可执行任务
 
-- [ ] **配对：发布与剩余检查**（Phase 3 已于 2026-10-07 在原环境验证 R12–R14）：是否把 Yak
-      包推送到公共服务器（对外操作，由用户决定）；下次装新包时确认三处小改动（ListenForPairing
-      为 Off 时的启动提示、`MeshlinkOptions` 按 Esc 的提示、Mac 端提示里的 `MeshlinkPair`）；
-      `prepare-windows-checklist.md` 的 G（直接运行 `-RemoveKey`，含 `-WhatIf`）未做，R13
-      只覆盖了经插件运行的路径。
+- [ ] **配对：发布与剩余检查**（Phase 3 已于 2026-10-07 在原环境验证 R12–R14）：Yak 包暂不
+      推送（D-26），以后再定推送时机与首个公开版本号（预发布标签按字母排序，`dev` 之后改用
+      `beta` 会被当成更旧）；下次装新包时确认三处小改动（ListenForPairing
+      为 Off 时的启动提示、`MeshlinkOptions` 按 Esc 的提示、Mac 端提示里的 `MeshlinkPair`）。G 已于 2026-10-07 做过（见 log）。
 - [ ] **W1 脚本剩余路径的验收**（暂缓，D-18；正式 `0.1.0` 仍以它为前提，D-17）：方案 A（2026-10-02，见验证范围）已在原环境用新账户覆盖了
       一部分；`tests/prepare-windows-checklist.md` 的 “Not covered yet” 列出剩下的：未装
       OpenSSH、22 端口完全没有入站规则、管理员公钥文件多余权限、改动正在使用的

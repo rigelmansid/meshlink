@@ -42,6 +42,14 @@ printed `runas` steps installing uv and rhinomcp for that account; sshd stopped
 and set to manual; `sshd_config` without the commented defaults (insert above
 `Match`, on a copy).
 
+## Covered on an existing PC (2026-10-07)
+
+G on the original PC, run from the Mac over SSH as the administrator account
+(UAC off), with a throwaway key first added in the normal way: `-WhatIf`
+changed nothing; the removal left the key file byte for byte as it was before
+the key was added, permissions unchanged; the third run reported the key
+absent; `-ResultFile` held the same lines. See `docs/log.md`.
+
 ## Not covered yet
 
 Run these on a fresh PC or VM before claiming they work:
