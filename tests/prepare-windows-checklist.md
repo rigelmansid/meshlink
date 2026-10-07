@@ -28,6 +28,7 @@ $run = "powershell -NoProfile -ExecutionPolicy Bypass -File .\prepare-windows.ps
 | D | `iex "$run -User $env:USERNAME -PublicKey '$k' -WhatIf"` (an administrator) | `[WARN] ... is an administrator`; key checked in `administrators_authorized_keys`; uv and rhinomcp checked for the current account. |
 | E | `iex "$run -PublicKey 'not-a-key'"` | `[FAIL] that does not look like an SSH public key line` before any other step; exit code 1. |
 | F | `iex "$run -User <agent> -PublicKey '$k' -ResultFile $env:TEMP\r.txt"`; `Get-Content $env:TEMP\r.txt`; then E with `-ResultFile` | `RESULT ok`, `USER <agent>`, then one `LINE ` per report line, the same as on screen. For E: `RESULT fail` and the `[FAIL]` line. |
+| G | `iex "$run -User <agent> -PublicKey '$k' -RemoveKey -WhatIf"`, then without `-WhatIf`, then once more | WhatIf: one `What if:` line, removing the key; no step for sshd, the firewall, `sshd_config` or uv runs. Then `[DONE] key removed from ...` and `key file permissions are what sshd requires`; other keys in the file stay. The third run: `the key is not in ...`, exit 0. |
 
 After B, from the Mac: compare the `host key` fingerprint the script printed
 with `ssh-keygen -lF <HostName>`, and run `scripts/doctor.sh`.

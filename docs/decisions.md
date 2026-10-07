@@ -373,3 +373,26 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
   改用 `MeshlinkPair` 命令。
 - 影响：插件设置 `ListenForPairing`（默认 On）与 `StartMcpOnLaunch`（默认 Off，配对成功
   后置 On）；1999 端口已在监听时不再运行 `mcpstart`。
+
+### D-24 Yak 包用官方 yak 工具打，工具放在仓库外（2026-10-07，用户决定）
+
+- 背景：Phase 3 要把插件做成 Yak 包，用 Package Manager 安装与卸载。这台 Mac 没有 Rhino，
+  也就没有随 Rhino 附带的 `yak`。
+- 选项：A 从 files.mcneel.com 下载独立的官方 `yak`，放在 `../materials/scratch/tools/` /
+  B 用户自己安装 `yak` / C 不用 `yak`，脚本按文档结构自己压 zip
+- 选择：A
+- 理由：官方工具读 `.rhp` 算出兼容的 Rhino 版本标记并检查 manifest，不用手工猜；放在仓库外，
+  不装进系统。
+- 影响：新增 `scripts/package-yak.sh`，通过环境变量 `YAK` 或 PATH 找 `yak`；包输出到
+  `dist/`。推送到公共 Yak 服务器仍是对外操作，由用户决定。
+
+### D-25 MeshlinkUnpair 只列出经插件配对过的 Mac（2026-10-07，用户决定）
+
+- 背景：撤销配对要从 Windows 账户的 `authorized_keys` 删掉对应公钥；配对装的公钥和
+  `setup` 手工装的公钥注释都是 `meshlink`，单看文件分不出来。
+- 选项：A 配对成功时插件记下 Mac 名字、账户和公钥，`MeshlinkUnpair` 只列这些 / B 列出
+  某个账户的全部公钥，任选删除 / C 暂不做
+- 选择：A
+- 理由：不会误删不是配对装上的公钥；删除对象明确。
+- 影响：插件设置里保存配对记录；`prepare-windows.ps1` 增加只删公钥的 `-RemoveKey` 模式，
+  插件以提权方式运行它。配对前已有的公钥不在列表里，需要时按手动方法删除。

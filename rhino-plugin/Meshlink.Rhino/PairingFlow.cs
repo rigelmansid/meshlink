@@ -164,7 +164,17 @@ namespace Meshlink.Plugin
                     return;
                 }
                 await session.SendResultAsync(PairingResult.Ok, account, setup.Notable(), CancellationToken.None);
-                MeshlinkPlugin.Instance.Settings.SetBool(MeshlinkPlugin.StartMcpSetting, true);
+                var paired = new PairedMac
+                {
+                    Name = name,
+                    Account = account,
+                    Key = session.MacPublicKey,
+                    Date = DateTime.Now.ToString("yyyy-MM-dd"),
+                };
+                var settings = MeshlinkPlugin.Instance.Settings;
+                settings.SetStringList(MeshlinkPlugin.PairedSetting,
+                    PairedMac.Add(settings.GetStringList(MeshlinkPlugin.PairedSetting, new string[0]), paired));
+                settings.SetBool(MeshlinkPlugin.StartMcpSetting, true);
                 End(string.Format("Paired with \"{0}\": it logs in as {1}. Rhino now starts the MCP listener " +
                                   "when it opens (MeshlinkOptions to change). On the Mac, finish with: " +
                                   "meshlink client codex", name, account), setup.Notable());

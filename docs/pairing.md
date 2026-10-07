@@ -9,8 +9,8 @@
 `meshlink pair`（`scripts/pair.sh`）已实现，`tests/test-pair.sh` 用一个假的 Rhino 端
 （Python）检查四步交换与各种失败。Windows 端在 `rhino-plugin/`：协议部分
 （`Meshlink.Pairing`）在 Mac 上有单元测试，并用 `PAIR_CLIENT=dotnet tests/test-pair.sh`
-与真实的 `pair.sh` 对跑；Rhino 插件已能编译，但还没在 Rhino 里运行过，所以没有和真实
-Windows 配对过。
+与真实的 `pair.sh` 对跑；插件已在原环境 PC 上真实配对（2026-10-06，
+`tests/rhino-plugin-checklist.md` R1–R10）。
 
 ## 角色与流程
 
@@ -102,6 +102,15 @@ W 在看到 nonce_m 之前先用承诺值锁定 nonce_w，M 在看到 nonce_w �
 2. 提权运行 `prepare-windows.ps1` 装公钥、设权限（坑 2）。UAC 开启时这里会再弹一次系统
    确认；UAC 关闭时不会，弹窗是唯一的确认（D-22）。
 3. 用户拒绝弹窗或 UAC 时，第 4 步发 `RESULT declined`，不写任何文件。
+
+## 撤销配对
+
+配对成功时插件在 Rhino 设置 `PairedMacs` 里记一行
+`1|账户|类型 base64|日期|名字`（名字放最后，因为可能含 `|`）。`MeshlinkUnpair` 只列这些
+记录（D-25）；选中并确认后，以提权方式运行 `prepare-windows.ps1 -RemoveKey`，从该账户的
+公钥文件（管理员账户是 `administrators_authorized_keys`）里删掉含这把公钥的行，文件在原处
+改写、权限不变（坑 2），其余配置都不动。公钥已不在时也算成功，记录随之删除。不是经插件
+配对装上的公钥不会出现在列表里。Mac 端不受影响：`meshlink pair` 加的 Host 条目要手动删。
 
 ## 默认值
 

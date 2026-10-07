@@ -58,21 +58,22 @@ namespace Meshlink.Plugin
 
     /// <summary>
     /// Installs a paired Mac's key by running prepare-windows.ps1 elevated
-    /// (docs/pairing.md). With UAC on, Windows asks for approval; with UAC off
-    /// it does not, and the pairing dialog was the only question (D-22).
+    /// (docs/pairing.md), or removes it again (-RemoveKey, MeshlinkUnpair).
+    /// With UAC on, Windows asks for approval; with UAC off it does not, and
+    /// the plug-in's own dialog was the only question (D-22).
     /// </summary>
     static class ElevatedSetup
     {
         const int ErrorCancelled = 1223;
 
-        public static Task<SetupOutcome> RunAsync(string account, string macKey)
+        public static Task<SetupOutcome> RunAsync(string account, string macKey, bool remove = false)
         {
             if (!Check.IsAccount(account) || !Check.IsPublicKey(macKey))
                 throw new ArgumentException("account or key not checked before setup");
-            return Task.Run(() => Run(account, macKey));
+            return Task.Run(() => Run(account, macKey, remove));
         }
 
-        static SetupOutcome Run(string account, string macKey)
+        static SetupOutcome Run(string account, string macKey, bool remove)
         {
             var outcome = new SetupOutcome();
             var bundled = Path.Combine(Path.GetDirectoryName(typeof(ElevatedSetup).Assembly.Location),
@@ -93,8 +94,8 @@ namespace Meshlink.Plugin
                 var result = Path.Combine(dir, "result.txt");
                 // account and key were checked: no quotes or spaces can break out.
                 var args = string.Format(
-                    "-NoProfile -ExecutionPolicy Bypass -File \"{0}\" -User {1} -PublicKey \"{2} meshlink\" -ResultFile \"{3}\"",
-                    script, account, macKey, result);
+                    "-NoProfile -ExecutionPolicy Bypass -File \"{0}\" -User {1} -PublicKey \"{2} meshlink\" -ResultFile \"{3}\"{4}",
+                    script, account, macKey, result, remove ? " -RemoveKey" : "");
                 var psi = new ProcessStartInfo("powershell.exe", args)
                 {
                     UseShellExecute = true,

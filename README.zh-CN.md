@@ -16,8 +16,8 @@ AI 客户端 ── rhinomcp ── 127.0.0.1:1999 ══ SSH ══► 127.0.0.
 RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出错时不报错的配置问题。
 
 > **状态：早期。** 目前有一份实测过的配置指南、Mac 端的 `meshlink` 命令（首次配置、
-> Codex 配置、只读的 `doctor` 诊断）、Windows 准备脚本、安装脚本，以及它们的测试。
-> 还没有发布正式版本。项目只支持 Rhino 8。
+> Codex 配置、只读的 `doctor` 诊断）、Windows 准备脚本、安装脚本，以及它们的测试；
+> 通过 Rhino 插件配对的功能正在开发。还没有发布正式版本。项目只支持 Rhino 8。
 
 ## 快速开始
 
@@ -34,6 +34,30 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 
 之后随时可以用 `meshlink doctor` 检查整条链路；`meshlink uninstall` 用于卸载。
 
+## 配对（0.2，开发中）
+
+可以不做第 3 到 5 步，改由 Windows 上的 meshlink Rhino 插件和 Mac 上的
+`meshlink pair` 在局域网里完成配对。两边屏幕会显示同一个 6 位配对码；双方都确认后，
+插件安装 Mac 的 SSH 公钥（以管理员身份运行 `prepare-windows.ps1`），Mac 核对 Windows
+的主机公钥并添加 Host 条目。只要有一方没有确认，两台电脑都不会有任何改动。协议见
+[docs/pairing.md](docs/pairing.md)。
+
+目前只在一台 UAC 关闭的 Windows 10 电脑上测试过，还没有包含在任何发布版本里。试用方法：
+
+1. 在 Mac 上打包插件。需要 .NET SDK 和 McNeel 的
+   [`yak` 工具](https://developer.rhino3d.com/guides/yak/yak-cli-reference/)：
+   `YAK=/path/to/yak scripts/package-yak.sh` 生成
+   `dist/meshlink-<版本>-rh8_17-win.yak`。
+2. 在 Windows 上按第 1 步装好 OpenSSH Server 和 RhinoMCP，再把 `.yak` 文件拖进
+   Rhino 8（8.17 或更新），然后重启 Rhino。
+3. 在 Mac 上运行 `meshlink pair`。几秒内 Rhino 会弹出配对请求。核对两边的配对码，
+   选择 Mac 要登录的 Windows 账户（专用的普通账户更安全），然后在两边确认。
+4. 和上面第 4 步一样运行 `meshlink client codex`。此后每次打开 Rhino，插件都会自动
+   运行 `mcpstart`；在 Rhino 里用 `MeshlinkOptions` 可以关掉。
+
+在 Rhino 里运行 `MeshlinkUnpair` 可以删掉配对时装给某台 Mac 的公钥；Mac 上再删掉
+`meshlink pair` 在 `~/.ssh/config` 里添加的 Host 条目。
+
 ## 仓库内容
 
 | 路径 | 内容 |
@@ -44,12 +68,17 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 | [scripts/package.sh](scripts/package.sh) | 生成 `dist/meshlink-<版本>.tar.gz` 及其 SHA-256 校验文件。 |
 | [tests/test-install.sh](tests/test-install.sh) | 在临时 HOME 中测试打包、安装、升级、卸载和 `meshlink` 命令。 |
 | [scripts/setup.sh](scripts/setup.sh) | Mac 端首次配置：SSH 密钥、`~/.ssh/config` 中的 Host 条目、要在 Windows 上执行的完整命令、对照 Windows 报告核对主机指纹、测试登录。不会覆盖已有的密钥或 Host 条目。 |
+| [scripts/pair.sh](scripts/pair.sh) | `meshlink pair`：在局域网里宣告本机，带 Rhino 插件走完 [docs/pairing.md](docs/pairing.md) 的四步，双方都确认后添加 Host 条目。 |
 | [scripts/client-codex.sh](scripts/client-codex.sh) | 把 Codex 的 MCP 条目指向 Windows 上的 `rhinomcp`，然后运行 `doctor`。替换已有的不同条目前要确认并先备份：`codex mcp add` 会丢掉该条目的其他设置和 `config.toml` 里的注释。 |
 | [tests/test-setup.sh](tests/test-setup.sh) | 在临时 HOME 中用假的 `ssh` 和 `codex` 测试 `setup.sh` 与 `client-codex.sh`。 |
 | [scripts/doctor.sh](scripts/doctor.sh) | 只读诊断：逐段检查整条链路，最后做一次真实的工具调用。配置从 Codex 读取，不需要输入，也不修改任何东西。 |
 | [tests/test-doctor.sh](tests/test-doctor.sh) | 用假的 `codex` 和 `ssh` 测试 `doctor.sh`，不需要 Windows 电脑。 |
 | [scripts/prepare-windows.ps1](scripts/prepare-windows.ps1) | 在 Windows 管理员 PowerShell 中运行一次：防火墙、按 sshd 要求的权限放置 Mac 的公钥、`ClientAliveInterval`、uv 与固定版本的 `rhinomcp`，最后输出报告（含主机指纹）。可重复运行，`-WhatIf` 可预览。不安装 OpenSSH Server 和 Rhino 插件。 |
-| [tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) | Windows 脚本的手动测试清单（英文；Mac 端没有 PowerShell）。 |
+| [tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) | Windows 脚本的手动测试清单（英文；Mac 端只检查语法）。 |
+| [rhino-plugin/](rhino-plugin) | 用于配对的 Rhino 插件（C#、.NET 8），以及它的配对库、单元测试和测试驱动程序。 |
+| [scripts/package-yak.sh](scripts/package-yak.sh) | 把插件打成 Yak 包，连同 SHA-256 校验文件输出到 `dist/`。 |
+| [tests/test-pair.sh](tests/test-pair.sh) | 用假的插件端测试 `pair.sh`；加 `PAIR_CLIENT=dotnet` 时改用插件自己的配对代码。 |
+| [tests/rhino-plugin-checklist.md](tests/rhino-plugin-checklist.md) | 插件在 Rhino 里的手动测试清单（英文）。 |
 | [scripts/rhino-tunnel.sh](scripts/rhino-tunnel.sh) | 维持 SSH 端口转发：断线后按退避策略重连；端口被占用时拒绝启动；Codex 配置里的 `RHINO_MCP_PORT` 不一致时发出警告。 |
 | [tests/test-rhino-tunnel.sh](tests/test-rhino-tunnel.sh) | 用假的 `ssh` 测试隧道脚本，不需要 Windows 电脑。 |
 | [experiments/](experiments/) | `mcp_stdio_probe.py`：一个小型 MCP 客户端，用来端到端检查服务是否可用；以及方式一的测试记录。 |
@@ -109,11 +138,14 @@ tests/test-install.sh        # 约 10 秒
 tests/test-setup.sh          # 约 4 秒
 tests/test-doctor.sh         # 约 6 秒，使用本地端口 29941–29942
 tests/test-rhino-tunnel.sh   # 约 40 秒，使用本地端口 29931–29936
+tests/test-pair.sh           # 约 25 秒，使用本地端口 29951–29952
+dotnet test rhino-plugin/Meshlink.Pairing.Tests   # 需要 .NET SDK
 ```
 
-测试使用假的 `ssh`、`codex` 和临时 HOME，需要 `python3`；不会读写 `~/.ssh` 和
-Codex 的配置，也不会连接任何真实主机。Windows 脚本按
-[tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) 手动测试。
+测试使用假的 `ssh`、`codex`、`dns-sd` 和临时 HOME，需要 `python3`；不会读写 `~/.ssh`
+和 Codex 的配置，也不会连接任何真实主机。Windows 脚本和插件分别按
+[tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) 和
+[tests/rhino-plugin-checklist.md](tests/rhino-plugin-checklist.md) 手动测试。
 
 ## 安全
 

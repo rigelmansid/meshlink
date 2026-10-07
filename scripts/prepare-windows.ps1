@@ -41,6 +41,11 @@ The rhinomcp version to install. Keep it equal to the Rhino plugin's version.
 The sshd_config to edit. Only for testing on a copy: sshd is restarted only
 when this is the live file.
 
+.PARAMETER RemoveKey
+Remove -PublicKey from -User's key file instead, and change nothing else:
+sshd, the firewall and sshd_config stay as they are. Used by the meshlink
+Rhino plug-in's MeshlinkUnpair; safe to run when the key is not there.
+
 .PARAMETER ResultFile
 Also write the outcome to this file, for a caller that cannot read this
 window: the meshlink Rhino plug-in starts the script elevated when a Mac
@@ -57,6 +62,7 @@ param(
   [string]$RhinoMcpVersion = '0.4.1.1',
   [int]$RhinoPort = 1999,
   [string]$SshdConfig = (Join-Path $env:ProgramData 'ssh\sshd_config'),
+  [switch]$RemoveKey,
   [string]$ResultFile = ''
 )
 
@@ -133,59 +139,65 @@ if (-not (New-Object Security.Principal.WindowsPrincipal($me)).IsInRole(
   Hint 'right-click Windows PowerShell > Run as administrator, then run this again'
   Finish
 }
+if ($RemoveKey) {
+  Info ('removing this key for {0}; sshd, the firewall and sshd_config are left alone' -f $User)
+}
 if ($env:SSH_CONNECTION) {
   Warn 'running over SSH: if sshd has to be restarted, this session will drop'
 }
 
-# ------------------------------------------------------- 1. OpenSSH Server
-$svc = Get-Service sshd -ErrorAction SilentlyContinue
-if (-not $svc) {
-  Fail 'OpenSSH Server is not installed'
-  Hint 'Settings > Apps > Optional features > Add a feature > OpenSSH Server, then run this again'
-  Hint 'Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0 also works, but can hang for a long time when Windows Update is blocked'
-  Finish
-}
-if ($svc.StartType -ne 'Automatic') {
-  if ($PSCmdlet.ShouldProcess('sshd', 'set startup type to Automatic')) {
-    Set-Service sshd -StartupType Automatic
-    Done 'sshd starts with Windows'
+# Steps 1 and 2 prepare the PC; removing a key needs neither.
+if (-not $RemoveKey) {
+  # ------------------------------------------------------- 1. OpenSSH Server
+  $svc = Get-Service sshd -ErrorAction SilentlyContinue
+  if (-not $svc) {
+    Fail 'OpenSSH Server is not installed'
+    Hint 'Settings > Apps > Optional features > Add a feature > OpenSSH Server, then run this again'
+    Hint 'Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0 also works, but can hang for a long time when Windows Update is blocked'
+    Finish
   }
-} else {
-  Ok 'sshd starts with Windows'
-}
-# sshd writes its host keys and the default sshd_config on first start, so it
-# has to run before the config can be edited.
-if ($svc.Status -ne 'Running') {
-  if ($PSCmdlet.ShouldProcess('sshd', 'start')) {
-    try {
-      Start-Service sshd -ErrorAction Stop
-      Done 'sshd started'
-    } catch {
-      Fail ('sshd does not start: {0}' -f $_.Exception.Message)
-      Finish
+  if ($svc.StartType -ne 'Automatic') {
+    if ($PSCmdlet.ShouldProcess('sshd', 'set startup type to Automatic')) {
+      Set-Service sshd -StartupType Automatic
+      Done 'sshd starts with Windows'
     }
+  } else {
+    Ok 'sshd starts with Windows'
   }
-} else {
-  Ok 'sshd is running'
-}
+  # sshd writes its host keys and the default sshd_config on first start, so it
+  # has to run before the config can be edited.
+  if ($svc.Status -ne 'Running') {
+    if ($PSCmdlet.ShouldProcess('sshd', 'start')) {
+      try {
+        Start-Service sshd -ErrorAction Stop
+        Done 'sshd started'
+      } catch {
+        Fail ('sshd does not start: {0}' -f $_.Exception.Message)
+        Finish
+      }
+    }
+  } else {
+    Ok 'sshd is running'
+  }
 
-$sshdExe = $null
-$svcInfo = Get-CimInstance Win32_Service -Filter "Name='sshd'" -ErrorAction SilentlyContinue
-if ($svcInfo -and $svcInfo.PathName) { $sshdExe = $svcInfo.PathName.Trim().Trim('"') }
-if (-not $sshdExe -or -not (Test-Path $sshdExe)) { $sshdExe = Join-Path $env:SystemRoot 'System32\OpenSSH\sshd.exe' }
-$sshDir = Split-Path $sshdExe
+  $sshdExe = $null
+  $svcInfo = Get-CimInstance Win32_Service -Filter "Name='sshd'" -ErrorAction SilentlyContinue
+  if ($svcInfo -and $svcInfo.PathName) { $sshdExe = $svcInfo.PathName.Trim().Trim('"') }
+  if (-not $sshdExe -or -not (Test-Path $sshdExe)) { $sshdExe = Join-Path $env:SystemRoot 'System32\OpenSSH\sshd.exe' }
+  $sshDir = Split-Path $sshdExe
 
-# ------------------------------------------------------------- 2. firewall
-$fw = @(Get-NetFirewallPortFilter -Protocol TCP -ErrorAction SilentlyContinue |
-        Where-Object { $_.LocalPort -eq '22' } |
-        Get-NetFirewallRule -ErrorAction SilentlyContinue |
-        Where-Object { $_.Enabled -eq 'True' -and $_.Direction -eq 'Inbound' -and $_.Action -eq 'Allow' })
-if ($fw.Count -gt 0) {
-  Ok ('firewall allows inbound TCP 22 ({0})' -f $fw[0].Name)
-} elseif ($PSCmdlet.ShouldProcess('Windows Firewall', 'allow inbound TCP 22 for sshd')) {
-  New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True `
-    -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 | Out-Null
-  Done 'firewall rule sshd added for inbound TCP 22'
+  # ------------------------------------------------------------- 2. firewall
+  $fw = @(Get-NetFirewallPortFilter -Protocol TCP -ErrorAction SilentlyContinue |
+          Where-Object { $_.LocalPort -eq '22' } |
+          Get-NetFirewallRule -ErrorAction SilentlyContinue |
+          Where-Object { $_.Enabled -eq 'True' -and $_.Direction -eq 'Inbound' -and $_.Action -eq 'Allow' })
+  if ($fw.Count -gt 0) {
+    Ok ('firewall allows inbound TCP 22 ({0})' -f $fw[0].Name)
+  } elseif ($PSCmdlet.ShouldProcess('Windows Firewall', 'allow inbound TCP 22 for sshd')) {
+    New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True `
+      -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 | Out-Null
+    Done 'firewall rule sshd added for inbound TCP 22'
+  }
 }
 
 # -------------------------------------------------------------- 3. account
@@ -215,9 +227,11 @@ if ($isAdmin -eq $null) {
   Fail ('cannot tell whether {0} is an administrator' -f $User)
   Finish
 }
-if ($isAdmin) {
+if ($isAdmin -and -not $RemoveKey) {
   Warn ('{0} is an administrator: the SSH key will give a fully elevated shell' -f $User)
   Hint 'a dedicated standard account for SSH is recommended (docs/remote-setup.md, Security)'
+} elseif ($isAdmin) {
+  Ok ('{0} is an administrator: its keys are in administrators_authorized_keys' -f $User)
 } else {
   Ok ('{0} is a standard account' -f $User)
 }
@@ -232,6 +246,10 @@ if ($isAdmin) {
   $keyFile = Join-Path $env:ProgramData 'ssh\administrators_authorized_keys'
   $allowed = @($SID_ADMINS, $SID_SYSTEM)
 } else {
+  if (-not $profilePath -and $RemoveKey) {
+    Ok ('{0} has no profile folder, so it has no key to remove' -f $User)
+    Finish
+  }
   if (-not $profilePath) {
     Fail ('{0} has never logged in, so it has no profile folder yet' -f $User)
     Hint ('run: runas /user:{0} cmd   (enter its password, close the window), then run this again' -f $User)
@@ -243,7 +261,16 @@ if ($isAdmin) {
 
 $present = (Test-Path $keyFile) -and
            [bool](Get-Content $keyFile -ErrorAction SilentlyContinue | Where-Object { $_ -match [regex]::Escape($keyBody) })
-if ($present) {
+if ($RemoveKey) {
+  if (-not $present) {
+    Ok ('the key is not in {0}' -f $keyFile)
+  } elseif ($PSCmdlet.ShouldProcess($keyFile, 'remove the public key')) {
+    $keep = @(Get-Content $keyFile | Where-Object { $_ -notmatch [regex]::Escape($keyBody) })
+    # Rewrite the same file, so its permissions stay as they are (pitfall 2).
+    [IO.File]::WriteAllLines($keyFile, [string[]]$keep, (New-Object Text.ASCIIEncoding))
+    Done ('key removed from {0}' -f $keyFile)
+  }
+} elseif ($present) {
   Ok ('key already in {0}' -f $keyFile)
 } elseif ($PSCmdlet.ShouldProcess($keyFile, 'add the public key')) {
   $dir = Split-Path $keyFile
@@ -285,6 +312,8 @@ if (-not (Test-Path $keyFile)) {
     Hint ('check with: icacls "{0}"' -f $keyFile)
   }
 }
+
+if ($RemoveKey) { Finish }
 
 # ------------------------------------------------------- 5. sshd_config
 # Without ClientAliveInterval, a dropped network leaves rhinomcp running on

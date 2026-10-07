@@ -33,12 +33,13 @@ Do not copy project content into this file.
    `install.sh` / `uninstall.sh`; `scripts/package.sh`; and
    `scripts/prepare-windows.ps1`. `pair` is the Mac side of pairing
    (docs/pairing.md). `rhino-plugin/` holds the Windows side: the Rhino
-   plug-in (`Meshlink.rhp`), its pairing library, tests and a test driver.
-   The plug-in builds and its pairing code is tested on the Mac, but it has not
-   yet run in Rhino, so pairing has not happened with a real PC. Anything
-   listed as planned in project-notes (published releases, a Yak package,
-   other clients) does not exist yet; never describe it as existing or invent
-   its interface.
+   plug-in (`Meshlink.rhp`, commands `MeshlinkPair`, `MeshlinkUnpair`,
+   `MeshlinkOptions`), its pairing library, tests and a test driver;
+   `scripts/package-yak.sh` builds its Yak package locally. Pairing has been
+   tested on the original PC (tests/rhino-plugin-checklist.md lists what is
+   covered). Anything listed as planned in project-notes (published releases,
+   a package on the public Yak server, other clients) does not exist yet;
+   never describe it as existing or invent its interface.
 5. `setup`, `client codex`, `install.sh` and `uninstall.sh` write to the user's
    `~/.ssh`, Codex config or `~/.local`; run them on the real machine only when
    the user asks. Their tests use a temporary home.
@@ -62,7 +63,12 @@ dotnet test rhino-plugin/Meshlink.Pairing.Tests       # ~10 s, expects "Passed: 
 dotnet build rhino-plugin/Meshlink.Pairing.Driver -c Release
 PAIR_CLIENT=dotnet tests/test-pair.sh                  # ~20 s, expects "passed: 98  failed: 0"
 dotnet build rhino-plugin/Meshlink.Rhino -c Release   # the plug-in, for Rhino on the PC
+YAK=<path to yak> scripts/package-yak.sh               # dist/meshlink-<version>-rh8_17-win.yak
 ```
+
+`yak` is McNeel's standalone tool; on the maintainer's Mac it is
+`../materials/scratch/tools/yak` (D-24). Pushing a package to the public Yak
+server is an outward-facing step that needs the user's explicit go.
 
 The tests need `python3`, `lsof`, `pgrep`, `ps` and free local ports
 29931–29936 (tunnel), 29941–29942 (doctor) and 29951–29952 (pair); check the

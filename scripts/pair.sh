@@ -184,7 +184,7 @@ done
 NONCE_M=$(pair_nonce)
 respond 1 NAME "$NAME" MACPUB "$(pair_key "$PUBKEY")" NONCE "$NONCE_M"
 info "this Mac is offering to pair as \"$NAME\" (port $LISTEN_PORT, up to ${TIMEOUT}s)"
-hint "on the PC, accept the request from this Mac in Rhino (needs the meshlink plug-in)"
+hint "on the PC, accept the request from this Mac in Rhino (needs the meshlink plug-in), or run MeshlinkPair there"
 serve 1 "$TIMEOUT" COMMIT
 rc=$?
 stop_dnssd

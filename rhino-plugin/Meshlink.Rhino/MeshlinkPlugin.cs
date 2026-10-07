@@ -12,6 +12,8 @@ namespace Meshlink.Plugin
     {
         public const string ListenSetting = "ListenForPairing";
         public const string StartMcpSetting = "StartMcpOnLaunch";
+        /// <summary>Macs paired through the plug-in, one PairedMac line each (D-25).</summary>
+        public const string PairedSetting = "PairedMacs";
 
         readonly DiscoveryWatcher watcher = new DiscoveryWatcher();
 
@@ -48,6 +50,7 @@ namespace Meshlink.Plugin
             watcher.Problem += message => RhinoApp.InvokeOnUiThread(new Action(() => Log("cannot look for Macs: " + message)));
             RhinoApp.Closing += (sender, e) => watcher.Stop();
             if (Settings.GetBool(ListenSetting, true)) watcher.Start();
+            else Log("not watching for Macs that offer to pair (ListenForPairing=Off); MeshlinkPair still finds them");
             if (Settings.GetBool(StartMcpSetting, false)) Mcp.StartWhenIdle();
             return LoadReturnCode.Success;
         }

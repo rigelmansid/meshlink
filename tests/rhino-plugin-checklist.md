@@ -20,6 +20,21 @@ dotnet build rhino-plugin/Meshlink.Rhino -c Release
 In Rhino 8 on the PC, drag `Meshlink.rhp` into the window once. rhinomcp must
 be installed (Package Manager).
 
+For R12 to R14, build the package instead and copy it to the PC:
+
+```sh
+YAK=<path to yak> scripts/package-yak.sh   # dist/meshlink-<version>-rh8_17-win.yak
+```
+
+A drag-and-drop install registers the same plug-in ID as the package, and Yak
+may refuse a package whose ID is already registered. Remove the drag-and-drop
+install first: close Rhino, delete the folder `Meshlink.rhp` was dragged from,
+start Rhino and check that `PlugInManager` no longer lists Meshlink. If it
+still does, close Rhino and delete the registry key named
+`F9D3FAE8-C39C-4D9D-B405-7F597DE0D608` under
+`HKEY_CURRENT_USER\Software\McNeel\Rhinoceros\8.0\Plug-Ins` (export it first).
+The plug-in's settings are kept under the same ID, so they survive the switch.
+
 Pair under a test alias with a test key, so the working Host entry and key stay
 as they are, and give Codex a temporary config:
 
@@ -45,6 +60,9 @@ export CODEX_HOME=$(mktemp -d)   # for R7 and R8 only
 | R9 | `meshlink pair` on the Mac again (new alias), then `MeshlinkPair` in Rhino instead of the offer. | Same dialog as R6, without the offer step. Deny it. |
 | R10 | `MeshlinkOptions` ListenForPairing=Off; `meshlink pair` on the Mac. | No offer appears; `MeshlinkPair` still finds the Mac. Set it back to On. |
 | R11 | With UAC on (another PC, see project-notes §7): R6, once allowing and once refusing the UAC prompt. | Refused: "Administrator approval was declined. Nothing was changed."; Mac: "declined on the PC". |
+| R12 | Drag the `.yak` onto Rhino, then restart Rhino. | Package Manager, Installed: `meshlink` with the version built. `MeshlinkPair`, `MeshlinkUnpair` and `MeshlinkOptions` exist; with StartMcpOnLaunch on, the command line shows `started the MCP listener` or `already running`. |
+| R13 | Pair under `<test-alias>` as in R6, then run `MeshlinkUnpair`, choose that Mac and answer Yes. | A PowerShell window runs and closes. Command line: `removed the key of "..." from <agent>`. On the Mac, `ssh -o BatchMode=yes <test-alias> exit` is refused; `<agent>`'s other keys still work (`meshlink doctor`). `MeshlinkUnpair` no longer lists that Mac. |
+| R14 | Package Manager, Installed, meshlink: Uninstall; restart Rhino. | `MeshlinkPair` is an unknown command and Rhino starts no listener by itself. Install the `.yak` again if the plug-in should stay. |
 
 ## Clean up
 
@@ -61,9 +79,13 @@ export CODEX_HOME=$(mktemp -d)   # for R7 and R8 only
 R1 to R10 on the original Windows 10 PC (UAC off, desktop account an
 administrator), pairing the dedicated account, which already had rhinomcp; see
 `docs/log.md`, verification records. Cleaned up afterwards as above.
+R12 to R14 on the same PC on 2026-10-07: the package installed by drag and
+drop after the drag-and-drop install was removed, unpaired, uninstalled and
+installed again.
 
 ## Not covered yet
 
-UAC on (R11); a PC where the paired account is the one running Rhino and has no
+UAC on (R11); pushing the package to the public Yak server and installing it
+from there; a PC where the paired account is the one running Rhino and has no
 rhinomcp yet (the script then installs uv and rhinomcp for it); two PCs with the
 plug-in on one network; Windows 11.

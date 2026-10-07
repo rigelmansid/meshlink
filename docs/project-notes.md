@@ -4,16 +4,16 @@
 
 ## 进行中
 
-更新：2026-10-07 00:01
-- 任务：无，上一个工作单元：0.2 发现与配对（D-18–D-23）：Mac 端 `meshlink pair`、Windows 端
-  Rhino 插件 `rhino-plugin/`；2026-10-06 在原环境 PC 上按清单 R1–R10 测试通过，测试改动已清理
-- 停在：全部改动已提交，未推送
-- 本次决策：D-17–D-23
-- 待用户确认：1. 是否推送；2. Phase 3 的 Yak 包是否发布到公共服务器（对外操作）
-- 下一步：1. Phase 3：Yak 包、`MeshlinkUnpair`、README 加配对；2. UAC 开启路径（R11）与 W1 剩余
-  验收随全新 Windows 一起做（暂缓，D-18）
-- 不要重复：探针 P1–P4、插件 R1–R10 已在原环境做过；原环境的 Rhino 已开启启动时 `mcpstart`
-  （用户决定保留）；§5、§6、§8、§9 只剩占位，不要再拆或按行号拼接
+更新：2026-10-07 13:42
+- 任务：无，上一个工作单元：配对 Phase 3（D-24、D-25）：Yak 打包脚本、`MeshlinkUnpair` 与
+  `prepare-windows.ps1 -RemoveKey`、README（中英）配对一节；2026-10-07 在原环境 PC 上验证 R12–R14
+- 停在：全部改动已提交并推送；测试改动已清理（Mac 配置复原、测试密钥已删，真实 doctor 正常）
+- 本次决策：D-24、D-25
+- 待用户确认：Yak 包是否推送到公共服务器（对外操作）
+- 下一步：1. 下次重装新包时看三处小改动（Off 时的启动提示、Esc 提示、Mac 端提示 MeshlinkPair）；
+  2. 清单 G（直接运行 `-RemoveKey` 含 `-WhatIf`）；3. UAC 开启路径与 W1 剩余验收随全新 Windows 做（暂缓）
+- 不要重复：探针 P1–P4、插件 R1–R10 与 R12–R14 已在原环境做过；原环境 Rhino 已装插件包、
+  启动时 `mcpstart`（用户保留）；§5、§6、§8、§9 只剩占位，不要再拆或按行号拼接
 
 ## 项目概况
 
@@ -56,7 +56,8 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [tests/test-setup.sh](../tests/test-setup.sh) | 在临时 HOME 中用 fake ssh、ssh-keyscan、codex 验证 setup 与 client-codex 的 12 组场景（54 项断言）。 |
 | [tests/test-doctor.sh](../tests/test-doctor.sh) | 用 fake codex 与 fake ssh 验证 doctor 的 12 组场景（48 项断言）。 |
 | [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类与重连行为。 |
-| [rhino-plugin/](../rhino-plugin) | Windows 端（2026-10-05，0.2 开发中，D-19–D-23）：`Meshlink.Pairing` 协议库（四步会话、配对码、校验、Windows mDNS 发现）、`Meshlink.Pairing.Tests`（含 `prepare-windows.ps1` 语法检查）、`Meshlink.Pairing.Driver`（供 `PAIR_CLIENT=dotnet tests/test-pair.sh`）、`Meshlink.Rhino`（插件 `Meshlink.rhp`：配对弹窗、提权运行 `prepare-windows.ps1`、启动时 `mcpstart`）。在 Mac 上用 .NET SDK 编译；2026-10-06 在原环境 PC 上按清单 R1–R10 测试通过（UAC 关闭）。还没有安装包，靠把 `Meshlink.rhp` 拖进 Rhino 加载。 |
+| [rhino-plugin/](../rhino-plugin) | Windows 端（2026-10-05，0.2 开发中，D-19–D-23）：`Meshlink.Pairing` 协议库（四步会话、配对码、校验、Windows mDNS 发现）、`Meshlink.Pairing.Tests`（含 `prepare-windows.ps1` 语法检查）、`Meshlink.Pairing.Driver`（供 `PAIR_CLIENT=dotnet tests/test-pair.sh`）、`Meshlink.Rhino`（插件 `Meshlink.rhp`：配对弹窗、提权运行 `prepare-windows.ps1`、启动时 `mcpstart`、`MeshlinkUnpair`）。在 Mac 上用 .NET SDK 编译；2026-10-06 在原环境 PC 上按清单 R1–R10 测试通过（UAC 关闭）。 |
+| [scripts/package-yak.sh](../scripts/package-yak.sh) | 用官方 `yak`（D-24，维护者机器上在 `../materials/scratch/tools/yak`）把插件打成 `dist/meshlink-<版本>-rh8_17-win.yak`（2026-10-07）。2026-10-07 在原环境 PC 上验证了从包安装、撤销配对与卸载（清单 R12–R14）。 |
 | [tests/rhino-plugin-checklist.md](../tests/rhino-plugin-checklist.md) | 插件的手动测试清单（PC 上执行）。 |
 | [tests/test-pair.sh](../tests/test-pair.sh) | 配对：对照 [测试向量](../tests/pairing-vectors.txt) 检查承诺值与配对码；用 Python 假 Rhino 端、fake dns-sd / ssh / ssh-keyscan 和真实 `nc` 验证 `pair.sh` 的 15 组场景（共 118 项断言）。 |
 | [experiments/](../experiments/) | MCP stdio 探测脚本：Python 版 `mcp_stdio_probe.py`（`--hold` 可在调用后保持会话，用于断网实验）；纯 bash 3.2 版 `mcp_stdio_probe.sh`（一次工具调用并给出判定，验证 doctor 不依赖 Python 的可行性）。另有选项 1 的实验步骤 `ssh-stdio-test.md`。 |
@@ -87,7 +88,8 @@ Windows 11 电脑；方案 A（2026-10-02 至 10-03）已在原环境用新账�
 最近一次确认的端到端可用：选项 2 是 2026-09-25 的真实建模，选项 1 是 2026-09-26 的
 实验。此后环境若有变化（升级、重启、换网络），以一次只读 Rhino 工具调用为准。
 
-最近的真实验证：2026-10-06 配对插件 R1–R10（原环境，UAC 关闭；配对、Codex 经测试条目
+最近的真实验证：2026-10-07 插件包安装、撤销配对、卸载与重装（R12–R14，原环境）；
+2026-10-06 配对插件 R1–R10（原环境，UAC 关闭；配对、Codex 经测试条目
 的只读调用、重启后自动 `mcpstart`），测后清理并以真实配置运行 doctor：9 OK、1 WARN。
 更早：2026-10-02 23:09 至 10-03 00:20 方案 A（原环境上的全新账户，`setup`、
 `prepare-windows.ps1`、`client codex`、doctor 全流程）；2026-10-03 `prepare-windows.ps1` 报告
@@ -386,9 +388,11 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
 
 ### 近期可执行任务
 
-- [ ] **配对 Phase 3：打包与收尾**（Phase 2 已于 2026-10-06 在原环境测试通过）：做成 Yak 包
-      （`.yak` 本地安装可卸载；推送到公共 Yak 服务器是对外操作，由用户决定）、
-      `MeshlinkUnpair`（提权删除配对时装的公钥）、README（中英）加入配对的用法。
+- [ ] **配对：发布与剩余检查**（Phase 3 已于 2026-10-07 在原环境验证 R12–R14）：是否把 Yak
+      包推送到公共服务器（对外操作，由用户决定）；下次装新包时确认三处小改动（ListenForPairing
+      为 Off 时的启动提示、`MeshlinkOptions` 按 Esc 的提示、Mac 端提示里的 `MeshlinkPair`）；
+      `prepare-windows-checklist.md` 的 G（直接运行 `-RemoveKey`，含 `-WhatIf`）未做，R13
+      只覆盖了经插件运行的路径。
 - [ ] **W1 脚本剩余路径的验收**（暂缓，D-18；正式 `0.1.0` 仍以它为前提，D-17）：方案 A（2026-10-02，见验证范围）已在原环境用新账户覆盖了
       一部分；`tests/prepare-windows-checklist.md` 的 “Not covered yet” 列出剩下的：未装
       OpenSSH、22 端口完全没有入站规则、管理员公钥文件多余权限、改动正在使用的

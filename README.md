@@ -19,8 +19,9 @@ safely, and the setup problems that fail without an error message.
 
 > **Status: early.** What exists today is a tested setup guide, the `meshlink`
 > command for the Mac (setup, Codex configuration, a read-only `doctor`), a
-> Windows preparation script, an installer, and tests. No release has been
-> published yet. The project covers Rhino 8 only.
+> Windows preparation script, an installer, and tests; pairing through a Rhino
+> plug-in is in development. No stable release has been published yet. The
+> project covers Rhino 8 only.
 
 ## Quick start
 
@@ -38,6 +39,33 @@ safely, and the setup problems that fail without an error message.
 `meshlink doctor` checks the whole link again at any time; `meshlink uninstall`
 removes meshlink.
 
+## Pairing (0.2, in development)
+
+Instead of steps 3 to 5, the meshlink Rhino plug-in on the PC and `meshlink pair`
+on the Mac can pair the two machines over the local network. Both screens show
+the same six-digit code. Once both people confirm it, the plug-in installs the
+Mac's SSH key (it runs `prepare-windows.ps1` as administrator), and the Mac checks
+the PC's host key and adds a Host entry. Nothing changes on either machine
+unless both confirm. The protocol is in [docs/pairing.md](docs/pairing.md).
+
+So far this has been tested on one Windows 10 PC with UAC off, and it is not in
+any release. To try it:
+
+1. On the Mac, build the plug-in's package. This needs the .NET SDK and McNeel's
+   [`yak` tool](https://developer.rhino3d.com/guides/yak/yak-cli-reference/):
+   `YAK=/path/to/yak scripts/package-yak.sh` writes
+   `dist/meshlink-<version>-rh8_17-win.yak`.
+2. On the PC, install OpenSSH Server and RhinoMCP as in step 1, then drag the
+   `.yak` file onto Rhino 8 (8.17 or later) and restart Rhino.
+3. On the Mac, run `meshlink pair`. Rhino shows the request within a few seconds.
+   Compare the codes, choose the Windows account the Mac logs in as (a dedicated
+   standard account is safer), and confirm on both sides.
+4. Run `meshlink client codex`, as in step 4 above. From then on the plug-in runs
+   `mcpstart` when Rhino opens; `MeshlinkOptions` in Rhino turns that off.
+
+`MeshlinkUnpair` in Rhino removes the key a paired Mac was given. On the Mac,
+delete the Host entry `meshlink pair` added to `~/.ssh/config`.
+
 ## What's here
 
 | Path | What it is |
@@ -48,12 +76,17 @@ removes meshlink.
 | [scripts/package.sh](scripts/package.sh) | Builds `dist/meshlink-<version>.tar.gz` and its SHA-256 file. |
 | [tests/test-install.sh](tests/test-install.sh) | Tests packaging, install, upgrade, uninstall and the `meshlink` command in a temporary home. |
 | [scripts/setup.sh](scripts/setup.sh) | First-time setup on the Mac: SSH key, a Host entry in `~/.ssh/config`, the exact command to run on the PC, the PC's host key checked against what the PC reports, and a test login. Never overwrites an existing key or Host entry. |
+| [scripts/pair.sh](scripts/pair.sh) | `meshlink pair`: announces this Mac on the local network, takes the Rhino plug-in through the four steps of [docs/pairing.md](docs/pairing.md), and adds the Host entry once both sides have confirmed. |
 | [scripts/client-codex.sh](scripts/client-codex.sh) | Points Codex's MCP entry at `rhinomcp` on the PC, then runs `doctor`. Replacing an existing, different entry needs a yes and makes a backup first: `codex mcp add` drops that entry's other settings and the comments in `config.toml`. |
 | [tests/test-setup.sh](tests/test-setup.sh) | Tests `setup.sh` and `client-codex.sh` in a temporary home with a fake `ssh` and `codex`. |
 | [scripts/doctor.sh](scripts/doctor.sh) | Read-only check of the whole link, segment by segment, ending with one real tool call. Reads Codex's configuration; asks for nothing and changes nothing. |
 | [tests/test-doctor.sh](tests/test-doctor.sh) | Tests `doctor.sh` against a fake `codex` and `ssh`; needs no Windows PC. |
 | [scripts/prepare-windows.ps1](scripts/prepare-windows.ps1) | Run once on the PC in an elevated PowerShell: firewall, the Mac's key with the permissions sshd requires, `ClientAliveInterval`, uv and the pinned `rhinomcp`, then a report with the host key fingerprint. Safe to rerun; `-WhatIf` previews. Does not install OpenSSH Server or the Rhino plugin. |
-| [tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) | Manual test list for the Windows script (there is no PowerShell on the Mac side). |
+| [tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) | Manual test list for the Windows script (the Mac side only checks its syntax). |
+| [rhino-plugin/](rhino-plugin) | The Rhino plug-in for pairing (C#, .NET 8), its pairing library, unit tests and a test driver. |
+| [scripts/package-yak.sh](scripts/package-yak.sh) | Builds the plug-in's Yak package and its SHA-256 file into `dist/`. |
+| [tests/test-pair.sh](tests/test-pair.sh) | Tests `pair.sh` against a fake plug-in, or with `PAIR_CLIENT=dotnet` against the plug-in's own pairing code. |
+| [tests/rhino-plugin-checklist.md](tests/rhino-plugin-checklist.md) | Manual test list for the plug-in in Rhino. |
 | [scripts/rhino-tunnel.sh](scripts/rhino-tunnel.sh) | Keeps the SSH port forward up: reconnects with backoff, refuses a busy port, warns when Codex's `RHINO_MCP_PORT` doesn't match. |
 | [tests/test-rhino-tunnel.sh](tests/test-rhino-tunnel.sh) | Tests the tunnel script against a fake `ssh`; needs no Windows PC. |
 | [experiments/](experiments/) | `mcp_stdio_probe.py`, a small MCP client for checking a server end to end, and the notes from testing Option 1. |
@@ -118,11 +151,15 @@ tests/test-install.sh        # ~10 s
 tests/test-setup.sh          # ~4 s
 tests/test-doctor.sh         # ~6 s, local ports 29941–29942
 tests/test-rhino-tunnel.sh   # ~40 s, local ports 29931–29936
+tests/test-pair.sh           # ~25 s, local ports 29951–29952
+dotnet test rhino-plugin/Meshlink.Pairing.Tests   # needs the .NET SDK
 ```
 
-They use a fake `ssh` and `codex` and a temporary home, and need `python3`.
-They don't touch `~/.ssh`, Codex's config or any real host. The Windows script
-is tested by hand with [tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md).
+They use a fake `ssh`, `codex` and `dns-sd` and a temporary home, and need
+`python3`. They don't touch `~/.ssh`, Codex's config or any real host. The
+Windows script and the plug-in are tested by hand with
+[tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) and
+[tests/rhino-plugin-checklist.md](tests/rhino-plugin-checklist.md).
 
 ## Security
 
