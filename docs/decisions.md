@@ -84,7 +84,7 @@ agent 的改动与手动建模共用同一个 undo 栈，可能互相撤销。
 MIT 许可证，署名 `Cheng Yuan`。英文主 README + 中文 `README.zh-CN.md`；开发记录
 （本文）保持中文。
 
-### D-7 上游文档 PR #63（2026-09-28 提交）
+### D-7 上游文档 PR #63（2026-09-28 提交）（已被 D-30 替代）
 
 - [jingcheng-chen/rhinomcp#63](https://github.com/jingcheng-chen/rhinomcp/pull/63)，
   标题 `docs: add guide for using RhinoMCP from another computer`。
@@ -444,3 +444,14 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
 - 影响：新增 `.github/workflows/tests.yml`：推送到 `main` 与每个 PR 时，用系统 bash 3.2
   （放在 PATH 最前）做语法检查并运行五组 bash 测试，装 .NET 8 与 10 后运行 .NET 测试、
   dotnet 模式的配对测试并编译插件。打包（`package-yak.sh` 需要 yak）不在 CI 里。
+
+### D-30 关闭上游 PR #63、删除 fork，项目结束后再定是否提交（2026-10-08，用户决定）
+
+- 背景：PR #63（D-7）自 2026-09-28 提交后无回复；meshlink 不依赖它，§7 一直留着“跟进”和“约两周后
+  留言”两项。fork `rigelmansid/rhinomcp` 只为它存在：`main` 与上游相同，`harness` 分支没有自己的提交。
+- 选项：A 继续开着并跟进 / B 开着不管 / C 关闭 PR、删除 fork，项目结束后再看是否重新提交
+- 选择：C
+- 理由：没有回应时持续跟进只占待办；指南全文在 `docs/remote-setup.md`，以后重新 fork 并提交只需几分钟。
+- 影响：2026-10-08 关闭 PR 并留言说明以后可能重新提交；fork 由用户在网页删除；本机的临时 clone
+  （已为空）删除。§7 删去“跟进 PR #63”，文章不再等 PR；AGENTS.md 删去与 PR 保持一致的规定；
+  `docs/remote-setup.md` 开头改注 PR 已关闭。

@@ -1,7 +1,8 @@
 # Using RhinoMCP from another computer
 
 > The same guide was submitted to rhinomcp as
-> [PR #63](https://github.com/jingcheng-chen/rhinomcp/pull/63).
+> [PR #63](https://github.com/jingcheng-chen/rhinomcp/pull/63), closed
+> unmerged on 2026-10-08.
 
 [RhinoMCP](https://github.com/jingcheng-chen/rhinomcp) is designed for an AI
 client and Rhino on the same machine. This guide covers the common case where

@@ -4,17 +4,16 @@
 
 ## 进行中
 
-更新：2026-10-08 11:11
-- 任务：§7 剩余项。本次：Ctrl-C 记录（已推送 `bb980fc`）；探测脚本 stderr 默认移到临时目录；
-  隧道遇沙箱错误退出（坑 13）；CI（D-29）；AGENTS.md 精简到 200 行；roadmap 过时处、CHANGELOG；
-  用户在 PC 上重装插件包，三处小改动通过（一次 `Blocking plug-in`，重新启用后正常）
-- 停在：`bb980fc` 之后的改动都未提交；CI 还没有在 GitHub 上运行过
-- 本次决策：D-29
-- 待用户确认：提交与推送（推送即触发 CI 首次运行）；PR #63 是否不再跟进（拟记 D-30）；
-  插件随 GitHub Release 发还是推送公共 Yak、首个公开版本号（D-26）
-- 下一步：1. 推送后看 CI 首次运行结果；2. UAC 开启路径与 W1 剩余验收随全新 Windows 做（暂缓，D-18）
-- 不要重复：探针 P1–P4、插件 R1–R10 与 R12–R14、清单 G、三处小改动、隧道真实终端 Ctrl-C（tee
-  改动前后各一次）已在原环境做过；`client codex` 新做法已用真实 Codex 0.160.0 在临时目录验证
+更新：2026-10-08 11:40
+- 任务：§7 剩余项。已推送（`57cfe98`）：探测脚本 stderr、隧道遇沙箱错误退出（坑 13）、CI（D-29，
+  首次运行通过）、AGENTS.md 精简、CHANGELOG；本次：关闭上游 PR #63、删本机临时 clone（D-30）
+- 停在：CI 结果与 D-30 的文档改动已提交，未推送；fork `rigelmansid/rhinomcp` 待用户在网页删除
+- 本次决策：D-29、D-30
+- 待用户确认：推送；插件发布方式与首个公开版本号（D-26）
+- 下一步：1. 用户删 fork 后用 `gh api repos/rigelmansid/rhinomcp` 确认（应为 404）；2. UAC 开启
+  路径与 W1 剩余验收随全新 Windows 做（暂缓，D-18）
+- 不要重复：PR #63 已关闭（不要再跟进或留言）；推送 workflow 文件要用 gh 的令牌；探针 P1–P4、插件
+  R1–R10 与 R12–R14、清单 G、三处小改动、隧道真实终端 Ctrl-C（tee 改动前后）已在原环境做过
 
 ## 项目概况
 
@@ -42,7 +41,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [CHANGELOG.md](../CHANGELOG.md) | 面向使用者的变更记录（英文，2026-10-08 新增）。 |
 | [.github/workflows/tests.yml](../.github/workflows/tests.yml) | CI（D-29）：在 macOS 上用系统 bash 3.2 运行全部自动化测试并编译插件。 |
 | [AGENTS.md](../AGENTS.md)、`CLAUDE.md` | 面向 AI agent 与维护者的工作规则；`CLAUDE.md` 是指向 `AGENTS.md` 的符号链接。 |
-| [docs/remote-setup.md](remote-setup.md) | 英文连接指南（两种 SSH 方式、Windows OpenSSH 配置、排障、安全）。内容与上游 PR #63 的 `docs/REMOTE.md` 相同。 |
+| [docs/remote-setup.md](remote-setup.md) | 英文连接指南（两种 SSH 方式、Windows OpenSSH 配置、排障、安全）。曾提交为上游 PR #63，2026-10-08 关闭（D-30）。 |
 | `docs/project-notes.md` | 进行中的工作、现状、架构、配置、待办与规划（本文）。 |
 | [docs/decisions.md](decisions.md) | 决策记录 D-1 起：背景、选项、选择、理由、影响。 |
 | [docs/pitfalls.md](pitfalls.md) | 踩过的坑 1–21：现象、原因、修法、启示。 |
@@ -73,7 +72,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 0.2 开发中的配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
 真实配对（2026-10-06）。自动化测试：五组 bash 测试（install 39、setup 85、doctor 48、
 tunnel 34、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/tests.yml`（D-29，
-2026-10-08 写好，尚未在 GitHub 上运行）；尚无依赖清单。
+2026-10-08 首次运行通过）；尚无依赖清单。
 
 仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，
 本地 `main` 与 `public-presquash` 永不推送（D-8）。预发布 `v0.1.0-dev`（2026-10-02）落后于
@@ -410,10 +409,7 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
       改由别的方式取得主机公钥），以及 `runas` 弹 UAC、用户拒绝时得到 1223。
 - [ ] **补测选项 1 的其他断线情形**（可选）：Mac 端断网或睡眠、Windows 睡眠、长时间
       断网。目前只测了断开 Windows Wi-Fi；断线后 Codex 的恢复方式已测（坑 17）。
-- [ ] **跟进 PR #63**：作者要求修改时，在本地 clone 的 `docs/remote-setup` 分支修改后
-      推送到 fork，PR 自动更新；约两周无回应再考虑留言提醒。本地工作副本位置与恢复
-      方法见 `private-notes.md`。
-- [ ] **写踩坑总结文章**：等 PR #63 有结果后再写，文中链接上游文档。
+- [ ] **写踩坑总结文章**：时机未定；文中链接本仓库的连接指南（PR #63 已关闭，D-30）。
 
 ### 原环境遗留问题
 
