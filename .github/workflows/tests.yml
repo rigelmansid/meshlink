@@ -1,0 +1,67 @@
+# Runs every automated test on macOS (D-29). The tests use fake ssh, codex and
+# dns-sd and a temporary home; nothing here reaches a real PC or Rhino.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # The scripts promise macOS's own bash 3.2; put it first on PATH so that
+      # `#!/usr/bin/env bash` cannot pick up a newer one the runner may have.
+      - name: Use the system bash 3.2
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          ln -s /bin/bash "$RUNNER_TEMP/bin/bash"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Versions
+        run: |
+          bash --version | head -1
+          sw_vers
+          python3 --version
+
+      - name: Syntax check
+        run: |
+          for f in bin/meshlink $(git ls-files '*.sh'); do
+            bash -n "$f" || exit 1
+          done
+
+      - name: Tunnel
+        run: tests/test-rhino-tunnel.sh
+      - name: Doctor
+        run: tests/test-doctor.sh
+      - name: Setup and client codex
+        run: tests/test-setup.sh
+      - name: Install
+        run: tests/test-install.sh
+      - name: Pairing (Python stand-in for the PC)
+        run: tests/test-pair.sh
+
+      # The projects target net8.0 (D-21); the maintainer builds with a newer
+      # SDK, so install both and let the newest build, as on the Mac.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: .NET tests
+        run: dotnet test rhino-plugin/Meshlink.Pairing.Tests
+      - name: Pairing (the C# side)
+        run: |
+          dotnet build rhino-plugin/Meshlink.Pairing.Driver -c Release
+          PAIR_CLIENT=dotnet tests/test-pair.sh
+      - name: Build the Rhino plug-in
+        run: dotnet build rhino-plugin/Meshlink.Rhino -c Release
