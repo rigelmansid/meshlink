@@ -59,7 +59,7 @@ tests/test-install.sh                # ~10 s, expects "passed: 39  failed: 0"
 tests/test-pair.sh                   # ~25 s, expects "passed: 118  failed: 0"
 scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
 
-dotnet test rhino-plugin/Meshlink.Pairing.Tests       # ~10 s, expects "Passed: 54"
+dotnet test rhino-plugin/Meshlink.Pairing.Tests       # ~10 s, expects "Passed: 62"
 dotnet build rhino-plugin/Meshlink.Pairing.Driver -c Release
 PAIR_CLIENT=dotnet tests/test-pair.sh                  # ~20 s, expects "passed: 98  failed: 0"
 dotnet build rhino-plugin/Meshlink.Rhino -c Release   # the plug-in, for Rhino on the PC

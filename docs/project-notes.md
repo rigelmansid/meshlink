@@ -1,19 +1,21 @@
 # meshlink 开发与维护记录
 
-最后更新：2026-10-07。
+最后更新：2026-10-08。
 
 ## 进行中
 
-更新：2026-10-07 22:56
-- 任务：§7 剩余项。已完成：`client codex` 直接编辑 `config.toml`、保留原有设置（坑 19，D-27）；
-  核实 rhinomcp 0.4.1.1 已把每次改动包成一步撤销，改写 AGENTS.md 规则（D-28）
-- 停在：已提交并推送；隧道脚本的真实终端 Ctrl-C 检查已交给用户，结果未报告
+更新：2026-10-08 10:28
+- 任务：§7 剩余项。已完成并推送：`client codex` 保留原有设置（坑 19，D-27）、rhinomcp 撤销记录
+  核实（D-28）。已完成：隧道脚本真实终端 Ctrl-C 检查（用户 2026-10-08 报告四步通过）
+- 停在：Ctrl-C 结果已记入 log、§7 删去该项，顺带改正过时的测试数；这些文档改动未提交
 - 本次决策：D-26、D-27、D-28
-- 待用户确认：Yak 包何时推送到公共服务器、首个公开版本号（D-26）
-- 下一步：1. 记录 Ctrl-C 检查结果，通过则删去 §7 该项；2. 下次重装新插件包时看三处小改动；
-  3. UAC 开启路径与 W1 剩余验收随全新 Windows 做（暂缓，D-18）
-- 不要重复：探针 P1–P4、插件 R1–R14、清单 G 已在原环境做过；`client codex` 新做法已用真实
-  Codex 0.160.0 在临时目录验证；原环境 Rhino 装着插件包、启动时 `mcpstart`（用户保留）
+- 待用户确认：是否提交本次文档改动；Yak 包何时推送、首个公开版本号（D-26）；探测脚本
+  `--stderr` 默认写到当前目录，是否改到临时目录
+- 下一步：1. 下次重装新插件包时看三处小改动；2. UAC 开启路径与 W1 剩余验收随全新 Windows 做
+  （暂缓，D-18）；3. PR #63 约 2026-10-12 仍无回应时，由用户决定是否留言
+- 不要重复：探针 P1–P4、插件 R1–R10 与 R12–R14、清单 G、隧道真实终端 Ctrl-C 已在原环境做过；
+  `client codex` 新做法已用真实 Codex 0.160.0 在临时目录验证；原环境 Rhino 装着插件包、启动时
+  `mcpstart`（用户保留）
 
 ## 项目概况
 
@@ -52,7 +54,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [scripts/pair.sh](../scripts/pair.sh) | Mac 端配对（2026-10-05，0.2 开发中）：广播、四步交换、显示配对码、写 Host 条目与 known_hosts。协议见 [pairing.md](pairing.md)，计算在 `scripts/lib/pairing.sh`；2026-10-06 与插件在原环境 PC 上配对成功。 |
 | [bin/meshlink](../bin/meshlink) | 统一命令 `meshlink`（2026-10-01）：只做分发，子命令转到 `scripts/` 下的脚本；导出 `MESHLINK_CLI`，让各脚本的提示写成 `meshlink ...`。 |
 | [install.sh](../install.sh)、[uninstall.sh](../uninstall.sh)、[scripts/package.sh](../scripts/package.sh)、`VERSION` | 安装到 `~/.local`、卸载、打包（2026-10-01 首版），职责见 [roadmap.md](roadmap.md) 首版范围。 |
-| [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 8 组场景（37 项断言）。 |
+| [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 8 组场景（39 项断言）。 |
 | [tests/test-setup.sh](../tests/test-setup.sh) | 在临时 HOME 中用 fake ssh、ssh-keyscan、codex 验证 setup 与 client-codex 的 17 组场景（85 项断言）；假 codex 读写 `config.toml`。 |
 | [tests/test-doctor.sh](../tests/test-doctor.sh) | 用 fake codex 与 fake ssh 验证 doctor 的 12 组场景（48 项断言）。 |
 | [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类与重连行为。 |
@@ -68,8 +70,8 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 `pair`、`client codex`、`doctor` 等，实现都在 `scripts/`）、`install.sh` / `uninstall.sh` 与打包
 脚本 `scripts/package.sh`；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试清单；
 0.2 开发中的配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
-真实配对（2026-10-06）。自动化测试：五组 bash 测试（install 39、setup 57、doctor 48、
-tunnel 24、pair 118 项）与 .NET 测试 54 项。尚无依赖清单或 CI。
+真实配对（2026-10-06）。自动化测试：五组 bash 测试（install 39、setup 85、doctor 48、
+tunnel 24、pair 118 项）与 .NET 测试 62 项。尚无依赖清单或 CI。
 
 仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，
 本地 `main` 与 `public-presquash` 永不推送（D-8）。预发布 `v0.1.0-dev`（2026-10-02）落后于
@@ -88,7 +90,8 @@ Windows 11 电脑；方案 A（2026-10-02 至 10-03）已在原环境用新账�
 最近一次确认的端到端可用：选项 2 是 2026-09-25 的真实建模，选项 1 是 2026-09-26 的
 实验。此后环境若有变化（升级、重启、换网络），以一次只读 Rhino 工具调用为准。
 
-最近的真实验证：2026-10-07 插件包安装、撤销配对、卸载与重装（R12–R14，原环境）；
+最近的真实验证：2026-10-08 隧道脚本在真实终端按 `Ctrl-C` 停止、端口释放（原环境，用户报告）；
+2026-10-07 插件包安装、撤销配对、卸载与重装（R12–R14，原环境）；
 2026-10-06 配对插件 R1–R10（原环境，UAC 关闭；配对、Codex 经测试条目
 的只读调用、重启后自动 `mcpstart`），测后清理并以真实配置运行 doctor：9 OK、1 WARN。
 更早：2026-10-02 23:09 至 10-03 00:20 方案 A（原环境上的全新账户，`setup`、
@@ -404,8 +407,6 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
       改由别的方式取得主机公钥），以及 `runas` 弹 UAC、用户拒绝时得到 1223。
 - [ ] **补测选项 1 的其他断线情形**（可选）：Mac 端断网或睡眠、Windows 睡眠、长时间
       断网。目前只测了断开 Windows Wi-Fi；断线后 Codex 的恢复方式已测（坑 17）。
-- [ ] **真实终端 `Ctrl-C` 手动检查**：模拟测试无法投递 SIGINT（见坑 12），需在真实
-      终端运行隧道后按一次 `Ctrl-C`，确认打印 `[tunnel] stopped.` 且端口释放。
 - [ ] **收尾坑 13**：默认已改为选项 1，默认流程里没有常驻隧道。剩余的是选项 2
       备选：隧道脚本识别沙箱类错误（`Operation not permitted`）后是否直接退出。
       优先级低。
