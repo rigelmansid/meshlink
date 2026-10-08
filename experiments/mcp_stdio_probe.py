@@ -4,7 +4,9 @@
 Spawns the given command, speaks newline-delimited JSON-RPC on its stdin/stdout,
 and reports timings. Every stdout line must parse as JSON: anything else (a
 banner, a shell prompt, a pty's \\r) would break a real MCP client, so it is
-reported as stdout pollution. Stderr goes to a file, never mixed in.
+reported as stdout pollution. Stderr goes to a file, never mixed in: by
+default mcp_probe_stderr.log in the system temp directory, so a run from the
+repository leaves nothing in it.
 
 Usage:
   experiments/mcp_stdio_probe.py [--call TOOL[:JSON]]... [--stderr FILE]
@@ -18,9 +20,11 @@ Usage:
 """
 import argparse
 import json
+import os
 import queue
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 
@@ -31,7 +35,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--call", action="append", default=[],
                     help="TOOL or TOOL:{json args}; repeatable")
-    ap.add_argument("--stderr", default="mcp_probe_stderr.log")
+    ap.add_argument("--stderr", metavar="FILE",
+                    default=os.path.join(tempfile.gettempdir(), "mcp_probe_stderr.log"),
+                    help="where the server's stderr goes (default: %(default)s)")
     ap.add_argument("--hold", type=float, default=0, metavar="SECONDS",
                     help="keep the session open this long after the calls")
     ap.add_argument("cmd", nargs=argparse.REMAINDER)
