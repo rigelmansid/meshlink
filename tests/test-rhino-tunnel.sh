@@ -12,6 +12,8 @@
 #   T3  group-wide SIGHUP = the terminal C-c / window-close mechanism
 #   T4  ssh dying on its own: real drop / never connected / flapping
 #       -> reset vs backoff classification + reconnect
+#   T5  ssh refused the network ("Operation not permitted", as in a sandbox)
+#       -> stops with exit 3 instead of retrying forever (pitfall 13)
 #
 # Usage: tests/test-rhino-tunnel.sh
 set -uo pipefail
@@ -19,7 +21,9 @@ set -uo pipefail
 TUNNEL="$(cd "$(dirname "$0")/.." && pwd)/scripts/rhino-tunnel.sh"
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/rhino-tunnel-test.XXXXXX")"
 FAKE_BIN="$WORK/bin"
-mkdir -p "$FAKE_BIN"
+# The tunnel's TMPDIR, to check it leaves no temp file behind.
+TUN_TMP="$WORK/tmp"
+mkdir -p "$FAKE_BIN" "$TUN_TMP"
 : > "$WORK/empty.toml"
 
 command -v python3 >/dev/null 2>&1 || { echo "python3 is required"; exit 2; }
@@ -27,7 +31,7 @@ command -v python3 >/dev/null 2>&1 || { echo "python3 is required"; exit 2; }
 cat > "$FAKE_BIN/ssh" <<'FAKE'
 #!/usr/bin/env bash
 # fake ssh(1): accepts "-N -L bind:port:host:port -o k=v HOST".
-# FAKE_MODE: hold (default) | quick-fail | die-<N>s
+# FAKE_MODE: hold (default) | quick-fail | sandbox | die-<N>s
 [[ -n ${FAKE_ARGS_FILE:-} ]] && printf '%s\n' "$@" >> "$FAKE_ARGS_FILE"
 spec=""
 while (($#)); do
@@ -42,6 +46,7 @@ port=${spec#*:}; port=${port%%:*}
 mode=${FAKE_MODE:-hold}
 case $mode in
   quick-fail) sleep 0.3; exit 255 ;;
+  sandbox)    echo "ssh: connect to host win-fake port 22: Operation not permitted" >&2; exit 255 ;;
   die-*s)    life=${mode#die-}; life=${life%s} ;;
   *)         life=0 ;;
 esac
@@ -76,6 +81,7 @@ assert_contains() { # file substring desc
 
 port_is_listening() { lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
 port_is_free()     { ! port_is_listening "$1"; }
+tmp_is_empty()     { [[ -z $(ls -A "$TUN_TMP") ]]; }
 
 wait_until() { # predicate... -- true within TIMEOUT seconds
   local i=0
@@ -100,7 +106,7 @@ spawn() {
   local log=$1
   env PATH="$FAKE_BIN:$PATH" \
       FAKE_MODE="$MODE" FAKE_ARGS_FILE="$WORK/args.log" \
-      HOST=win-fake LOCAL_PORT="$PORT" REMOTE_PORT=1999 \
+      HOST=win-fake LOCAL_PORT="$PORT" REMOTE_PORT=1999 TMPDIR="$TUN_TMP" \
       BASE_DELAY="$BASE" MAX_DELAY="$MAX" CODEX_CONFIG="$WORK/empty.toml" \
       "$TUNNEL" >"$log" 2>&1 &
   TPID=$!
@@ -137,6 +143,7 @@ t1_term_while_up() {
   else ok "ssh child killed and reaped (T1)"; fi
   port_is_free "$PORT" && ok "local port released (T1)" || bad "local port still held (T1)"
   assert_contains "$log" "[tunnel] stopped." "stop message printed (T1)"
+  tmp_is_empty && ok "temp file removed (T1)" || bad "temp file left in $TUN_TMP (T1)"
   stop_tunnel
 }
 
@@ -177,7 +184,7 @@ t3_sigint_to_group() {
   python3 -c 'import os, sys; os.setsid(); os.execvp(sys.argv[1], sys.argv[1:])' \
     env PATH="$FAKE_BIN:$PATH" \
         FAKE_MODE="$MODE" FAKE_ARGS_FILE="$WORK/args.log" \
-        HOST=win-fake LOCAL_PORT="$PORT" REMOTE_PORT=1999 \
+        HOST=win-fake LOCAL_PORT="$PORT" REMOTE_PORT=1999 TMPDIR="$TUN_TMP" \
         BASE_DELAY="$BASE" MAX_DELAY="$MAX" CODEX_CONFIG="$WORK/empty.toml" \
         "$TUNNEL" >"$log" 2>&1 &
   TPID=$!
@@ -196,6 +203,7 @@ t3_sigint_to_group() {
   else ok "ssh child gone after group signal (T3)"; fi
   port_is_free "$PORT" && ok "local port released (T3)" || bad "local port still held (T3)"
   assert_contains "$log" "[tunnel] stopped." "stop message printed (T3)"
+  tmp_is_empty && ok "temp file removed (T3)" || bad "temp file left in $TUN_TMP (T3)"
   stop_tunnel
 }
 
@@ -235,15 +243,39 @@ t4_reconnect() {
   assert_contains "$log" "retrying in 2s" "flapping backs off instead of resetting (T4c)"
 }
 
+t5_sandbox() {
+  echo "T5: ssh may not use the network (sandbox) -> stop, no retry"
+  MODE=sandbox PORT=29937 BASE=1 MAX=4
+  local log="$WORK/t5.log" code
+  spawn "$log" || return
+  if gone_within "$TPID" 3; then ok "script stops by itself (T5)"
+  else bad "script still retrying 3s after a sandbox failure (T5)"; stop_tunnel; return; fi
+  wait "$TPID"; code=$?
+  TPID=
+  [[ $code -eq 3 ]] && ok "exit code 3 (T5)" || bad "exit code $code, expected 3 (T5)"
+  assert_contains "$log" "port 22: Operation not permitted" "ssh's own error still shown (T5)"
+  assert_contains "$log" "retrying cannot help" "reason printed (T5)"
+  if grep -qF "retrying in" "$log"; then bad "a retry was scheduled (T5)"
+  else ok "no retry scheduled (T5)"; fi
+  tmp_is_empty && ok "temp file removed (T5)" || bad "temp file left in $TUN_TMP (T5)"
+  if pgrep -f "tee -a $TUN_TMP" >/dev/null; then bad "tee left running (T5)"
+  else ok "no tee left running (T5)"; fi
+}
+
 t1_term_while_up
 t2_term_during_backoff
 t3_sigint_to_group
 t4_reconnect
+t5_sandbox
 
 # Pinned across all six spawns (args.log accumulates one argument per line):
 # the daemon's ssh must never be able to prompt -- a password or host-key
 # question reads from /dev/tty, which this script's terminal window answers.
 assert_contains "$WORK/args.log" "BatchMode=yes" "ssh always invoked with BatchMode=yes"
+# Each spawn runs ssh's stderr through tee; none may outlive its tunnel.
+sleep 0.5
+if pgrep -f "tee -a $TUN_TMP" >/dev/null; then bad "a tee outlived its tunnel"
+else ok "no tee outlived its tunnel"; fi
 
 echo
 echo "passed: $pass  failed: $fail"

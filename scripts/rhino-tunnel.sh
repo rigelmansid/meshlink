@@ -73,6 +73,7 @@ fi
 # gotten the signal, depending on where the terminal sent it -- is left
 # orphaned with LOCAL_PORT still held.
 child_pid=
+errlog=
 
 cleanup() {
   trap - INT TERM HUP
@@ -80,6 +81,7 @@ cleanup() {
     kill "$child_pid" 2>/dev/null
     wait "$child_pid" 2>/dev/null
   fi
+  [[ -n $errlog ]] && rm -f "$errlog"
   echo
   echo "[tunnel] stopped."
   exit 0
@@ -87,6 +89,10 @@ cleanup() {
 trap cleanup INT TERM HUP
 
 echo "[tunnel] 127.0.0.1:$LOCAL_PORT  ->  $HOST:$REMOTE_PORT   (ctrl-c to stop)"
+
+# ssh's stderr is copied here as well as shown, so that a failure no retry can
+# fix is recognised below (pitfall 13).
+errlog=$(mktemp "${TMPDIR:-/tmp}/rhino-tunnel.XXXXXX") || exit 1
 
 delay=$BASE_DELAY
 while true; do
@@ -119,8 +125,12 @@ while true; do
   # probe below then classifies and backs off from. Confirming a new machine's
   # fingerprint is a manual install step (`ssh rhino-pc` once), not this
   # daemon's job.
+  #
+  # stderr goes through tee into errlog; $! is still ssh itself, since bash
+  # sets up the redirection in the forked child.
+  : >"$errlog"
   ssh -N -L "127.0.0.1:$LOCAL_PORT:127.0.0.1:$REMOTE_PORT" \
-      -o ExitOnForwardFailure=yes -o BatchMode=yes "$HOST" &
+      -o ExitOnForwardFailure=yes -o BatchMode=yes "$HOST" 2> >(tee -a "$errlog" >&2) &
   child_pid=$!
 
   # ssh only sets the local end of a forward up after connecting and
@@ -143,6 +153,24 @@ while true; do
   child_pid=
 
   ran=$(( SECONDS - started ))
+
+  # "Operation not permitted" before any bind: this process may not use the
+  # network at all (an agent's sandbox, a firewall). Retrying never helps, and
+  # a sandboxed copy once retried for hours unnoticed (pitfall 13), so stop.
+  # tee may still be writing; give it up to a second to let go of the file.
+  if [[ $bound == no ]]; then
+    i=0
+    while (( i < 10 )) && lsof -t "$errlog" >/dev/null 2>&1; do
+      sleep 0.1; i=$((i + 1))
+    done
+    if grep -q 'Operation not permitted' "$errlog"; then
+      echo "[tunnel] ssh may not use the network here (Operation not permitted)."
+      echo "[tunnel] something blocks this process, such as a sandbox or a firewall,"
+      echo "[tunnel] so retrying cannot help. Start the tunnel from your own terminal."
+      rm -f "$errlog"
+      exit 3
+    fi
+  fi
 
   # A session that bound and stayed up a while was a real drop worth retrying
   # promptly; one that never bound, or died within seconds of binding, means
