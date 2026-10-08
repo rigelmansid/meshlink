@@ -432,3 +432,15 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
   RhinoCommon 文档说明记录已在进行时 `BeginUndoRecord` 返回 0、不开新记录。脚本自己再包
   一层不起作用。
 - 影响：AGENTS.md 的建模安全规则改写；rhinomcp 升级后要重新核对（坑 14）。
+
+### D-29 用 GitHub Actions 在 macOS 上跑全部自动化测试（2026-10-08，用户决定）
+
+- 背景：roadmap 阶段 4（测试与 CI）未开始，五组 bash 测试和 .NET 测试只在维护者本机运行。
+  用户同意先做 CI。
+- 选项：A 继续只在本机跑 / B GitHub Actions，macOS runner / C 同时加 Linux runner
+- 选择：B
+- 理由：项目只支持 macOS，测试依赖 macOS 的 `lsof`、`nc` 与系统 bash 3.2；公开仓库的
+  macOS runner 免费。Linux 上通过不说明任何支持（roadmap 实现边界），先不加。
+- 影响：新增 `.github/workflows/tests.yml`：推送到 `main` 与每个 PR 时，用系统 bash 3.2
+  （放在 PATH 最前）做语法检查并运行五组 bash 测试，装 .NET 8 与 10 后运行 .NET 测试、
+  dotnet 模式的配对测试并编译插件。打包（`package-yak.sh` 需要 yak）不在 CI 里。

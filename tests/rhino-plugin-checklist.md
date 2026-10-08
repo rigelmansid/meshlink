@@ -35,6 +35,13 @@ still does, close Rhino and delete the registry key named
 `HKEY_CURRENT_USER\Software\McNeel\Rhinoceros\8.0\Plug-Ins` (export it first).
 The plug-in's settings are kept under the same ID, so they survive the switch.
 
+To replace an installed package with a new build of the same version,
+uninstall it in Package Manager, restart Rhino, then drag the new `.yak` in and
+restart again. If the command line then shows `Blocking plug-in Meshlink.` and
+no `[meshlink]` line, Rhino has the plug-in disabled: tick Enabled for
+Meshlink in `PlugInManager` and restart (seen once on 2026-10-08, cause not
+established).
+
 Pair under a test alias with a test key, so the working Host entry and key stay
 as they are, and give Codex a temporary config:
 
@@ -82,6 +89,9 @@ administrator), pairing the dedicated account, which already had rhinomcp; see
 R12 to R14 on the same PC on 2026-10-07: the package installed by drag and
 drop after the drag-and-drop install was removed, unpaired, uninstalled and
 installed again.
+On 2026-10-08 a rebuilt package of the same version was installed over it as
+above; the three small changes (Off notice at startup, the Esc message, the
+Mac hint naming `MeshlinkPair`) were checked by hand.
 
 ## Not covered yet
 

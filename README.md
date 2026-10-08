@@ -87,11 +87,13 @@ delete the Host entry `meshlink pair` added to `~/.ssh/config`.
 | [scripts/package-yak.sh](scripts/package-yak.sh) | Builds the plug-in's Yak package and its SHA-256 file into `dist/`. |
 | [tests/test-pair.sh](tests/test-pair.sh) | Tests `pair.sh` against a fake plug-in, or with `PAIR_CLIENT=dotnet` against the plug-in's own pairing code. |
 | [tests/rhino-plugin-checklist.md](tests/rhino-plugin-checklist.md) | Manual test list for the plug-in in Rhino. |
-| [scripts/rhino-tunnel.sh](scripts/rhino-tunnel.sh) | Keeps the SSH port forward up: reconnects with backoff, refuses a busy port, warns when Codex's `RHINO_MCP_PORT` doesn't match. |
+| [scripts/rhino-tunnel.sh](scripts/rhino-tunnel.sh) | Keeps the SSH port forward up: reconnects with backoff, refuses a busy port, warns when Codex's `RHINO_MCP_PORT` doesn't match, and stops (exit 3) when ssh may not use the network at all, as inside a sandbox. |
 | [tests/test-rhino-tunnel.sh](tests/test-rhino-tunnel.sh) | Tests the tunnel script against a fake `ssh`; needs no Windows PC. |
 | [experiments/](experiments/) | `mcp_stdio_probe.py`, a small MCP client for checking a server end to end, and the notes from testing Option 1. |
 | [docs/project-notes.md](docs/project-notes.md) | Developer notes in Chinese: current status, todo list. Alongside it: the [roadmap](docs/roadmap.md), [decisions](docs/decisions.md), every [pitfall](docs/pitfalls.md) hit so far, and the [stage and verification log](docs/log.md). |
 | [AGENTS.md](AGENTS.md) | Working rules for AI agents and contributors in this repository. |
+| [CHANGELOG.md](CHANGELOG.md) | What changed in each version. |
+| [.github/workflows/tests.yml](.github/workflows/tests.yml) | Runs every automated test on macOS for each push to `main` and each pull request. |
 
 ## Two ways to connect
 
@@ -150,13 +152,14 @@ chain, ask the agent to call a read-only tool such as `get_document_summary`.
 tests/test-install.sh        # ~10 s
 tests/test-setup.sh          # ~4 s
 tests/test-doctor.sh         # ~6 s, local ports 29941–29942
-tests/test-rhino-tunnel.sh   # ~40 s, local ports 29931–29936
+tests/test-rhino-tunnel.sh   # ~40 s, local ports 29931–29937
 tests/test-pair.sh           # ~25 s, local ports 29951–29952
 dotnet test rhino-plugin/Meshlink.Pairing.Tests   # needs the .NET SDK
 ```
 
 They use a fake `ssh`, `codex` and `dns-sd` and a temporary home, and need
-`python3`. They don't touch `~/.ssh`, Codex's config or any real host. The
+`python3`. They don't touch `~/.ssh`, Codex's config or any real host. GitHub
+Actions runs them on macOS with the system bash 3.2. The
 Windows script and the plug-in are tested by hand with
 [tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) and
 [tests/rhino-plugin-checklist.md](tests/rhino-plugin-checklist.md).

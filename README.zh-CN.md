@@ -79,11 +79,13 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 | [scripts/package-yak.sh](scripts/package-yak.sh) | 把插件打成 Yak 包，连同 SHA-256 校验文件输出到 `dist/`。 |
 | [tests/test-pair.sh](tests/test-pair.sh) | 用假的插件端测试 `pair.sh`；加 `PAIR_CLIENT=dotnet` 时改用插件自己的配对代码。 |
 | [tests/rhino-plugin-checklist.md](tests/rhino-plugin-checklist.md) | 插件在 Rhino 里的手动测试清单（英文）。 |
-| [scripts/rhino-tunnel.sh](scripts/rhino-tunnel.sh) | 维持 SSH 端口转发：断线后按退避策略重连；端口被占用时拒绝启动；Codex 配置里的 `RHINO_MCP_PORT` 不一致时发出警告。 |
+| [scripts/rhino-tunnel.sh](scripts/rhino-tunnel.sh) | 维持 SSH 端口转发：断线后按退避策略重连；端口被占用时拒绝启动；Codex 配置里的 `RHINO_MCP_PORT` 不一致时发出警告；ssh 完全不能联网时（例如在沙箱里）停止并以退出码 3 结束。 |
 | [tests/test-rhino-tunnel.sh](tests/test-rhino-tunnel.sh) | 用假的 `ssh` 测试隧道脚本，不需要 Windows 电脑。 |
 | [experiments/](experiments/) | `mcp_stdio_probe.py`：一个小型 MCP 客户端，用来端到端检查服务是否可用；以及方式一的测试记录。 |
 | [docs/project-notes.md](docs/project-notes.md) | 开发记录：当前状态、待办。同目录还有[开发规划](docs/roadmap.md)、[设计决策](docs/decisions.md)、[踩过的全部坑](docs/pitfalls.md)和[阶段与验证记录](docs/log.md)。 |
 | [AGENTS.md](AGENTS.md) | 在本仓库工作的 AI agent 与贡献者需要遵守的规则（英文）。 |
+| [CHANGELOG.md](CHANGELOG.md) | 各版本的变更记录（英文）。 |
+| [.github/workflows/tests.yml](.github/workflows/tests.yml) | 每次推送到 `main` 和每个 PR 时，在 macOS 上运行全部自动化测试。 |
 
 ## 两种连接方式
 
@@ -137,13 +139,14 @@ MCP 服务显示已连接，并不代表 Rhino 真的连得上。要检查整条
 tests/test-install.sh        # 约 10 秒
 tests/test-setup.sh          # 约 4 秒
 tests/test-doctor.sh         # 约 6 秒，使用本地端口 29941–29942
-tests/test-rhino-tunnel.sh   # 约 40 秒，使用本地端口 29931–29936
+tests/test-rhino-tunnel.sh   # 约 40 秒，使用本地端口 29931–29937
 tests/test-pair.sh           # 约 25 秒，使用本地端口 29951–29952
 dotnet test rhino-plugin/Meshlink.Pairing.Tests   # 需要 .NET SDK
 ```
 
 测试使用假的 `ssh`、`codex`、`dns-sd` 和临时 HOME，需要 `python3`；不会读写 `~/.ssh`
-和 Codex 的配置，也不会连接任何真实主机。Windows 脚本和插件分别按
+和 Codex 的配置，也不会连接任何真实主机。GitHub Actions 会在 macOS 上用系统自带的
+bash 3.2 运行它们。Windows 脚本和插件分别按
 [tests/prepare-windows-checklist.md](tests/prepare-windows-checklist.md) 和
 [tests/rhino-plugin-checklist.md](tests/rhino-plugin-checklist.md) 手动测试。
 

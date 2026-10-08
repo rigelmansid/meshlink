@@ -4,18 +4,17 @@
 
 ## 进行中
 
-更新：2026-10-08 10:28
-- 任务：§7 剩余项。已完成并推送：`client codex` 保留原有设置（坑 19，D-27）、rhinomcp 撤销记录
-  核实（D-28）。已完成：隧道脚本真实终端 Ctrl-C 检查（用户 2026-10-08 报告四步通过）
-- 停在：Ctrl-C 结果已记入 log、§7 删去该项，顺带改正过时的测试数；这些文档改动未提交
-- 本次决策：D-26、D-27、D-28
-- 待用户确认：是否提交本次文档改动；Yak 包何时推送、首个公开版本号（D-26）；探测脚本
-  `--stderr` 默认写到当前目录，是否改到临时目录
-- 下一步：1. 下次重装新插件包时看三处小改动；2. UAC 开启路径与 W1 剩余验收随全新 Windows 做
-  （暂缓，D-18）；3. PR #63 约 2026-10-12 仍无回应时，由用户决定是否留言
-- 不要重复：探针 P1–P4、插件 R1–R10 与 R12–R14、清单 G、隧道真实终端 Ctrl-C 已在原环境做过；
-  `client codex` 新做法已用真实 Codex 0.160.0 在临时目录验证；原环境 Rhino 装着插件包、启动时
-  `mcpstart`（用户保留）
+更新：2026-10-08 11:11
+- 任务：§7 剩余项。本次：Ctrl-C 记录（已推送 `bb980fc`）；探测脚本 stderr 默认移到临时目录；
+  隧道遇沙箱错误退出（坑 13）；CI（D-29）；AGENTS.md 精简到 200 行；roadmap 过时处、CHANGELOG；
+  用户在 PC 上重装插件包，三处小改动通过（一次 `Blocking plug-in`，重新启用后正常）
+- 停在：`bb980fc` 之后的改动都未提交；CI 还没有在 GitHub 上运行过
+- 本次决策：D-29
+- 待用户确认：提交与推送（推送即触发 CI 首次运行）；PR #63 是否不再跟进（拟记 D-30）；
+  插件随 GitHub Release 发还是推送公共 Yak、首个公开版本号（D-26）
+- 下一步：1. 推送后看 CI 首次运行结果；2. UAC 开启路径与 W1 剩余验收随全新 Windows 做（暂缓，D-18）
+- 不要重复：探针 P1–P4、插件 R1–R10 与 R12–R14、清单 G、三处小改动、隧道真实终端 Ctrl-C（tee
+  改动前后各一次）已在原环境做过；`client codex` 新做法已用真实 Codex 0.160.0 在临时目录验证
 
 ## 项目概况
 
@@ -40,13 +39,15 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | 文件 | 用途 |
 |---|---|
 | [README.md](../README.md)、[README.zh-CN.md](../README.zh-CN.md) | 面向使用者的入口。 |
+| [CHANGELOG.md](../CHANGELOG.md) | 面向使用者的变更记录（英文，2026-10-08 新增）。 |
+| [.github/workflows/tests.yml](../.github/workflows/tests.yml) | CI（D-29）：在 macOS 上用系统 bash 3.2 运行全部自动化测试并编译插件。 |
 | [AGENTS.md](../AGENTS.md)、`CLAUDE.md` | 面向 AI agent 与维护者的工作规则；`CLAUDE.md` 是指向 `AGENTS.md` 的符号链接。 |
 | [docs/remote-setup.md](remote-setup.md) | 英文连接指南（两种 SSH 方式、Windows OpenSSH 配置、排障、安全）。内容与上游 PR #63 的 `docs/REMOTE.md` 相同。 |
 | `docs/project-notes.md` | 进行中的工作、现状、架构、配置、待办与规划（本文）。 |
 | [docs/decisions.md](decisions.md) | 决策记录 D-1 起：背景、选项、选择、理由、影响。 |
 | [docs/pitfalls.md](pitfalls.md) | 踩过的坑 1–21：现象、原因、修法、启示。 |
 | [docs/log.md](log.md) | 阶段记录与验证记录（原 §9 与原「验证范围」表），只追加。 |
-| [scripts/rhino-tunnel.sh](../scripts/rhino-tunnel.sh) | 选项 2 的 SSH 隧道守护脚本：端口占用检查、端口配置不一致警告、断线退避重连、信号清理。 |
+| [scripts/rhino-tunnel.sh](../scripts/rhino-tunnel.sh) | 选项 2 的 SSH 隧道守护脚本：端口占用检查、端口配置不一致警告、断线退避重连、信号清理；ssh 完全不能联网（沙箱）时以退出码 3 结束（坑 13）。 |
 | [scripts/doctor.sh](../scripts/doctor.sh) | 只读诊断（2026-10-01 首版）：从 `codex mcp get --json` 读取 Codex 实际使用的命令，逐段检查到一次真实的 MCP 工具调用。设计见 [roadmap.md](roadmap.md) 首版范围。 |
 | [scripts/prepare-windows.ps1](../scripts/prepare-windows.ps1) | W1 Windows 准备脚本（2026-10-01 首版），由用户在 Windows 管理员 PowerShell 中运行，职责见 D-12。 |
 | [tests/prepare-windows-checklist.md](../tests/prepare-windows-checklist.md) | W1 脚本的手动测试清单，以及尚未实测的路径。 |
@@ -57,7 +58,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 8 组场景（39 项断言）。 |
 | [tests/test-setup.sh](../tests/test-setup.sh) | 在临时 HOME 中用 fake ssh、ssh-keyscan、codex 验证 setup 与 client-codex 的 17 组场景（85 项断言）；假 codex 读写 `config.toml`。 |
 | [tests/test-doctor.sh](../tests/test-doctor.sh) | 用 fake codex 与 fake ssh 验证 doctor 的 12 组场景（48 项断言）。 |
-| [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类与重连行为。 |
+| [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类、重连与沙箱错误退出的 5 组场景（34 项断言）。 |
 | [rhino-plugin/](../rhino-plugin) | Windows 端（2026-10-05，0.2 开发中，D-19–D-23）：`Meshlink.Pairing` 协议库（四步会话、配对码、校验、Windows mDNS 发现）、`Meshlink.Pairing.Tests`（含 `prepare-windows.ps1` 语法检查）、`Meshlink.Pairing.Driver`（供 `PAIR_CLIENT=dotnet tests/test-pair.sh`）、`Meshlink.Rhino`（插件 `Meshlink.rhp`：配对弹窗、提权运行 `prepare-windows.ps1`、启动时 `mcpstart`、`MeshlinkUnpair`）。在 Mac 上用 .NET SDK 编译；2026-10-06 在原环境 PC 上按清单 R1–R10 测试通过（UAC 关闭）。 |
 | [scripts/package-yak.sh](../scripts/package-yak.sh) | 用官方 `yak`（D-24，维护者机器上在 `../materials/scratch/tools/yak`）把插件打成 `dist/meshlink-<版本>-rh8_17-win.yak`（2026-10-07）。2026-10-07 在原环境 PC 上验证了从包安装、撤销配对与卸载（清单 R12–R14）。 |
 | [tests/rhino-plugin-checklist.md](../tests/rhino-plugin-checklist.md) | 插件的手动测试清单（PC 上执行）。 |
@@ -71,7 +72,8 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 脚本 `scripts/package.sh`；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试清单；
 0.2 开发中的配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
 真实配对（2026-10-06）。自动化测试：五组 bash 测试（install 39、setup 85、doctor 48、
-tunnel 24、pair 118 项）与 .NET 测试 62 项。尚无依赖清单或 CI。
+tunnel 34、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/tests.yml`（D-29，
+2026-10-08 写好，尚未在 GitHub 上运行）；尚无依赖清单。
 
 仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，
 本地 `main` 与 `public-presquash` 永不推送（D-8）。预发布 `v0.1.0-dev`（2026-10-02）落后于
@@ -90,7 +92,8 @@ Windows 11 电脑；方案 A（2026-10-02 至 10-03）已在原环境用新账�
 最近一次确认的端到端可用：选项 2 是 2026-09-25 的真实建模，选项 1 是 2026-09-26 的
 实验。此后环境若有变化（升级、重启、换网络），以一次只读 Rhino 工具调用为准。
 
-最近的真实验证：2026-10-08 隧道脚本在真实终端按 `Ctrl-C` 停止、端口释放（原环境，用户报告）；
+最近的真实验证：2026-10-08 PC 上重装插件包、三处小改动（用户报告）与 doctor（除 UAC 警告外全部
+OK）；同日隧道脚本在真实终端按 `Ctrl-C` 停止、端口释放（原环境，用户报告，tee 改动前后各一次）；
 2026-10-07 插件包安装、撤销配对、卸载与重装（R12–R14，原环境）；
 2026-10-06 配对插件 R1–R10（原环境，UAC 关闭；配对、Codex 经测试条目
 的只读调用、重启后自动 `mcpstart`），测后清理并以真实配置运行 doctor：9 OK、1 WARN。
@@ -395,8 +398,8 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
 
 - [ ] **配对：发布与剩余检查**（Phase 3 已于 2026-10-07 在原环境验证 R12–R14）：Yak 包暂不
       推送（D-26），以后再定推送时机与首个公开版本号（预发布标签按字母排序，`dev` 之后改用
-      `beta` 会被当成更旧）；下次装新包时确认三处小改动（ListenForPairing
-      为 Off 时的启动提示、`MeshlinkOptions` 按 Esc 的提示、Mac 端提示里的 `MeshlinkPair`）。G 已于 2026-10-07 做过（见 log）。
+      `beta` 会被当成更旧）；发布方式可随 GitHub Release 附 `.yak`，或推送公共 Yak
+      （2026-10-08 讨论，倾向先用前者，未定）。G、三处小改动已做过（见 log）。
 - [ ] **W1 脚本剩余路径的验收**（暂缓，D-18；正式 `0.1.0` 仍以它为前提，D-17）：方案 A（2026-10-02，见验证范围）已在原环境用新账户覆盖了
       一部分；`tests/prepare-windows-checklist.md` 的 “Not covered yet” 列出剩下的：未装
       OpenSSH、22 端口完全没有入站规则、管理员公钥文件多余权限、改动正在使用的
@@ -407,9 +410,6 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
       改由别的方式取得主机公钥），以及 `runas` 弹 UAC、用户拒绝时得到 1223。
 - [ ] **补测选项 1 的其他断线情形**（可选）：Mac 端断网或睡眠、Windows 睡眠、长时间
       断网。目前只测了断开 Windows Wi-Fi；断线后 Codex 的恢复方式已测（坑 17）。
-- [ ] **收尾坑 13**：默认已改为选项 1，默认流程里没有常驻隧道。剩余的是选项 2
-      备选：隧道脚本识别沙箱类错误（`Operation not permitted`）后是否直接退出。
-      优先级低。
 - [ ] **跟进 PR #63**：作者要求修改时，在本地 clone 的 `docs/remote-setup` 分支修改后
       推送到 fork，PR 自动更新；约两周无回应再考虑留言提醒。本地工作副本位置与恢复
       方法见 `private-notes.md`。

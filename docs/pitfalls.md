@@ -158,6 +158,12 @@
     **2026-10-01 更新**：默认连接方式定为选项 1（§5），默认流程里不再有常驻隧道。
     选项 2 作为备选时，上述约定和未实施的对策仍然适用。
 
+    **2026-10-08 更新**：已实施“识别沙箱错误后退出”。ssh 的 stderr 经 `tee` 同时写入
+    临时文件；转发从未绑定且其中有 `Operation not permitted` 时，脚本说明原因并以退出码
+    3 结束，不再重试（`test-rhino-tunnel.sh` T5）。用 `sandbox-exec` 禁网运行 ssh 实测，
+    报错为 `ssh: connect to host <地址> port 22: Operation not permitted`，与匹配的文字一致。
+    这只覆盖“完全不能联网”的沙箱；能联网但不能绑定本地端口等其他限制未见过，未处理。
+
 14. **Codex CLI 自动升级中途失败，`codex` 命令消失**（2026-09-26 22:19 发生）——
     `@openai/codex` 从 0.155.1 被升到 0.157.1，但只做了一半：`bin/codex` 链接未建立
     （只剩 npm 临时链接 `.codex-XXXXXXXX`），新包缺 `@openai/codex-darwin-arm64`，
