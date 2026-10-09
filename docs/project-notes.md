@@ -1,17 +1,19 @@
 # meshlink 开发与维护记录
 
-最后更新：2026-10-08。
+最后更新：2026-10-09。
 
 ## Handoff
 
-Updated: 2026-10-09 12:15
-- Task: 无，上一个工作单元：复查后的修正推送，`v0.3.0-dev` 第二次原地更新（D-34）
-- Stopped at: 全部已推送，标签 `v0.3.0-dev` 指向 `ed86ad4`，CI 通过；本机 Mac 已是最新内容
-- Decisions: D-32、D-33、D-34
-- Waiting on user: PC 上试 `ms-settings:optionalfeatures`；博客（第 1 节口述，草稿里的数字要更新）；准备全新 Windows
-- Next: 1. 全新 Windows 验收（UAC 开启、README 的 OpenSSH 一行命令、W1 剩余、Windows 11）；2. 通过后发正式 `0.3.0`，
-  不再原地替换
-- Don't repeat: PC 插件无需重装（插件代码自第一次原地更新后未变）；不要自行推送或发布；不要再做装插件的 Windows 脚本
+Updated: 2026-10-09 12:20
+- Task: 无，上一个工作单元：简化两端安装（D-32、D-33），demo 预发布 `v0.3.0-dev` 两次原地更新（D-31、D-34）
+- Stopped at: 全部已推送（`fad045c`），标签 `v0.3.0-dev` 指向 `ed86ad4`，CI 通过；两端都装着最新内容；收尾的文档改动已在本地提交，未推送
+- Decisions: D-29–D-34
+- Waiting on user: 推送本地提交；准备全新 Windows（虚拟机即可）；PC 上试 `ms-settings:optionalfeatures`；
+  博客第 1 节口述（草稿 `../materials/scratch/post-draft/`，数字与安装方式要按现状更新）
+- Next: 1. 有全新 Windows 后，按 `tests/prepare-windows-checklist.md` 与 `tests/rhino-plugin-checklist.md`
+  的未覆盖项（含 R11、README 的 OpenSSH 一行命令、Windows 11）整理分步验收说明；2. 通过后发正式 `0.3.0`，不再原地替换
+- Don't repeat: 不要自行推送、发布或改用户电脑上的安装；不要再做装插件的 Windows 脚本；查最新版用 releases.atom（坑 23）；
+  推送 workflow 改动用 gh 的令牌（坑 22）；`gh release create --target` 用完整哈希
 
 ## 项目概况
 
@@ -42,7 +44,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [docs/remote-setup.md](remote-setup.md) | 英文连接指南（两种 SSH 方式、Windows OpenSSH 配置、排障、安全）。曾提交为上游 PR #63，2026-10-08 关闭（D-30）。 |
 | `docs/project-notes.md` | 进行中的工作、现状、架构、配置、待办与规划（本文）。 |
 | [docs/decisions.md](decisions.md) | 决策记录 D-1 起：背景、选项、选择、理由、影响。 |
-| [docs/pitfalls.md](pitfalls.md) | 踩过的坑 1–22：现象、原因、修法、启示。 |
+| [docs/pitfalls.md](pitfalls.md) | 踩过的坑 1–23：现象、原因、修法、启示。 |
 | [docs/log.md](log.md) | 阶段记录与验证记录（原 §9 与原「验证范围」表），只追加。 |
 | [scripts/rhino-tunnel.sh](../scripts/rhino-tunnel.sh) | 选项 2 的 SSH 隧道守护脚本：端口占用检查、端口配置不一致警告、断线退避重连、信号清理；ssh 完全不能联网（沙箱）时以退出码 3 结束（坑 13）。 |
 | [scripts/doctor.sh](../scripts/doctor.sh) | 只读诊断（2026-10-01 首版）：从 `codex mcp get --json` 读取 Codex 实际使用的命令，逐段检查到一次真实的 MCP 工具调用。设计见 [roadmap.md](roadmap.md) 首版范围。 |
@@ -410,7 +412,9 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
       断网。目前只测了断开 Windows Wi-Fi；断线后 Codex 的恢复方式已测（坑 17）。
 - [ ] **Mac 端双击安装的 `.pkg`**（D-32 记为完整形态）：需要 Apple 开发者账号（年费）签名与公证，
       否则 macOS 拦截；还要定证书怎么保存、CI 里怎么公证。现在用一行命令 `get.sh`。
-- [ ] **写踩坑总结文章**：时机未定；文中链接本仓库的连接指南（PR #63 已关闭，D-30）。
+- [ ] **写踩坑总结文章**：英文博客草稿在 `../materials/scratch/post-draft/`（2026-10-08，大纲已定，标题
+      “Driving Rhino on a Windows PC from an AI agent on my Mac”）；用户决定等 `v0.3.0-dev` 验证没问题再写，第 1 节
+      由用户口述。文中链接本仓库的连接指南（PR #63 已关闭，D-30）。
 
 ### 原环境遗留问题
 

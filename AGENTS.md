@@ -12,7 +12,7 @@ This file says *how to work*. Project content lives in `docs/`, all in Chinese:
 - [roadmap.md](docs/roadmap.md): first-release scope, product shape, phases,
   open questions and risks.
 - [decisions.md](docs/decisions.md): decisions D-1 onward, with their reasons.
-- [pitfalls.md](docs/pitfalls.md): pitfalls 坑 1–22.
+- [pitfalls.md](docs/pitfalls.md): pitfalls 坑 1–23.
 - [log.md](docs/log.md): stage log and verification records.
 - [pairing.md](docs/pairing.md): the pairing protocol.
 

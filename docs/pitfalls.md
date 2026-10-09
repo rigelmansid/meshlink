@@ -274,3 +274,11 @@
     → 用户运行 `gh auth refresh -h github.com -s workflow` 给 gh 的令牌加权限，之后只在
     改动 workflow 文件的那次推送里临时改用 gh 的令牌，不改 `~/.gitconfig`：
     `git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin public:main`。
+
+23. **GitHub REST API 对匿名请求限流，共享网络很快用完**（2026-10-09 发现）—— 写 `get.sh` 时
+    用 `api.github.com/repos/.../releases` 查最新版，直接得到 403：`API rate limit exceeded`，
+    `x-ratelimit-limit: 60`、`remaining: 0`。匿名请求按出口地址每小时 60 次，同一网络里的
+    其他人和工具也在消耗；办公室、学校等共享出口的用户会随机碰到。
+
+    → 安装脚本找最新版改读 `https://github.com/<repo>/releases.atom`（含预发布，最新在前，
+    条目 id 以标签结尾），不走 REST API（D-32）。`/releases/latest` 不含预发布，也不能用。
