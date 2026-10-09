@@ -42,8 +42,9 @@ Run these in an elevated PowerShell on Windows.
    ```
 
    If `Add-WindowsCapability` hangs (it downloads from Windows Update, which a
-   disabled update service or WSUS can block), use **Settings → Optional
-   features** or `winget install Microsoft.OpenSSH.Beta`.
+   disabled update service or WSUS can block), add it under Optional features
+   instead (**Win + R**, `ms-settings:optionalfeatures`; the menu path differs
+   between Windows versions) or use `winget install Microsoft.OpenSSH.Beta`.
 
 2. Allow inbound SSH. Without this rule the PC looks the same as one with no
    SSH server at all:

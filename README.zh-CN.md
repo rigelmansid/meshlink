@@ -22,8 +22,9 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 
 ## 快速开始
 
-1. Windows 上：安装 OpenSSH Server（**设置 → 应用 → 可选功能**），并在 Rhino 8 中
-   安装 RhinoMCP 插件。
+1. Windows 上：安装 OpenSSH Server，并在 Rhino 8 中安装 RhinoMCP 插件。安装 OpenSSH
+   Server 时按 **Win + R**，输入 `ms-settings:optionalfeatures` 打开“可选功能”（也可以在
+   设置里搜索“可选功能”），再添加 **OpenSSH 服务器**。各版本 Windows 的菜单位置不同。
 2. Mac 上，在解压后的发布包或克隆下来的仓库目录里运行 `./install.sh`。它安装到
    `~/.local`，不需要 `sudo`。
 3. 运行 `meshlink setup --address <pc-address> --user <windows-user>`。它会打印一条

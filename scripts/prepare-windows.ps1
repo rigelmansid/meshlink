@@ -153,7 +153,7 @@ if (-not $RemoveKey) {
   $svc = Get-Service sshd -ErrorAction SilentlyContinue
   if (-not $svc) {
     Fail 'OpenSSH Server is not installed'
-    Hint 'Settings > Apps > Optional features > Add a feature > OpenSSH Server, then run this again'
+    Hint 'press Win+R, run ms-settings:optionalfeatures, add OpenSSH Server, then run this again'
     Hint 'Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0 also works, but can hang for a long time when Windows Update is blocked'
     Finish
   }

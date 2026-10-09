@@ -3,6 +3,15 @@
 What changed in each version of meshlink, newest first. Versions follow
 [SemVer](https://semver.org/); dates are YYYY-MM-DD.
 
+## Unreleased
+
+### Changed
+
+- Where to install OpenSSH Server on the PC is now given as **Win + R**,
+  `ms-settings:optionalfeatures`, in the READMEs, the setup guide, the hint of
+  `prepare-windows.ps1` and the plug-in's error message. The menu path
+  "Settings → Apps → Optional features" does not exist on every Windows 10.
+
 ## 0.3.0-dev - 2026-10-09
 
 Demo prerelease: the Mac package and the Rhino plug-in's package, with the same

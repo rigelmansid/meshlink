@@ -47,7 +47,7 @@ namespace Meshlink.Plugin
             catch (Exception e) when (e is FileNotFoundException || e is DirectoryNotFoundException)
             {
                 throw new PairingException("this PC has no SSH host key yet (" + path + "): install OpenSSH Server " +
-                                           "(Settings > Apps > Optional features) and start the sshd service once, then pair again");
+                                           "(Win+R, ms-settings:optionalfeatures) and start the sshd service once, then pair again");
             }
             catch (UnauthorizedAccessException)
             {

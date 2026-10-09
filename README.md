@@ -25,8 +25,10 @@ safely, and the setup problems that fail without an error message.
 
 ## Quick start
 
-1. On the PC: install OpenSSH Server (**Settings → Apps → Optional features**)
-   and, in Rhino 8, the RhinoMCP plugin.
+1. On the PC: install OpenSSH Server and, in Rhino 8, the RhinoMCP plugin. For
+   OpenSSH Server, press **Win + R** and run `ms-settings:optionalfeatures` (or
+   search Settings for "optional features"), then add **OpenSSH Server**. The
+   menu path differs between Windows versions.
 2. On the Mac, from an unpacked release or a clone of this repository:
    `./install.sh`. It installs into `~/.local` and needs no `sudo`.
 3. `meshlink setup --address <pc-address> --user <windows-user>`. It prints the
