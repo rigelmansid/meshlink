@@ -4,16 +4,16 @@
 
 ## Handoff
 
-Updated: 2026-10-09 09:51
-- Task: 无，上一个工作单元：demo 预发布 `v0.3.0-dev`（D-31）发布并在两端装好验证
-- Stopped at: Mac 从发布包升级、PC 从 GitHub 下载 `.yak` 覆盖安装，doctor 正常；记录已提交，未推送
-- Decisions: D-31（替代 D-17）
-- Waiting on user: 推送本次记录；博客（草稿在 `../materials/scratch/post-draft/`，第 1 节等用户口述）；
-  准备全新 Windows（虚拟机即可）
-- Next: 1. 用户确认后继续博客：补第 1 节、加下载链接 `releases/tag/v0.3.0-dev`；2. 全新 Windows 验收
-  （UAC 开启、W1 剩余、Windows 11），之后发正式 `0.3.0`
-- Don't repeat: 两端都已是 0.3.0-dev，不要再装；不再单独发 0.1.0 / 0.2.x；`gh release create --target` 用
-  完整哈希；推送 workflow 文件要用 gh 的令牌（坑 22）；PR #63 已关闭、fork 已删
+Updated: 2026-10-09 10:39
+- Task: Mac 端一行命令安装 `get.sh`（D-32），并修 `--help`、OpenSSH 安装入口与卸载提示
+- Stopped at: 已提交到本地，未推送（领先 3 个提交）；README 的一行命令要推送后才可用
+- Decisions: D-31、D-32（`.pkg` 记为完整形态）
+- Waiting on user: 推送（含 workflow 改动，要用 gh 的令牌，坑 22）；推送后是否在 `v0.3.0-dev` 发布说明里
+  加一行命令；PC 上试 `ms-settings:optionalfeatures`；博客暂缓
+- Next: 1. 推送后看 CI，并在临时 HOME 里用真实的 `curl … main/get.sh | bash` 试一次；2. 下一版发布带上
+  这些修复；3. 全新 Windows 验收后发正式 `0.3.0`
+- Don't repeat: 查最新版不要用 REST API（匿名额度易用完，用 releases.atom）；两端都已是 0.3.0-dev；
+  `gh release create --target` 用完整哈希；PR #63 已关闭、fork 已删
 
 ## 项目概况
 
@@ -54,7 +54,9 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [scripts/pair.sh](../scripts/pair.sh) | Mac 端配对（2026-10-05，随 `v0.3.0-dev` 预发布）：广播、四步交换、显示配对码、写 Host 条目与 known_hosts。协议见 [pairing.md](pairing.md)，计算在 `scripts/lib/pairing.sh`；2026-10-06 与插件在原环境 PC 上配对成功。 |
 | [bin/meshlink](../bin/meshlink) | 统一命令 `meshlink`（2026-10-01）：只做分发，子命令转到 `scripts/` 下的脚本；导出 `MESHLINK_CLI`，让各脚本的提示写成 `meshlink ...`。 |
 | [install.sh](../install.sh)、[uninstall.sh](../uninstall.sh)、[scripts/package.sh](../scripts/package.sh)、`VERSION` | 安装到 `~/.local`、卸载、打包（2026-10-01 首版），职责见 [roadmap.md](roadmap.md) 首版范围。 |
-| [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 8 组场景（41 项断言）。 |
+| [get.sh](../get.sh) | Mac 端一行命令安装（2026-10-09，D-32）：从 GitHub 发布列表找最新版，下载、核对 SHA-256、运行包内 `install.sh`，必要时把 `~/.local/bin` 写进 shell 启动文件。 |
+| [tests/test-get.sh](../tests/test-get.sh) | 用 fake curl 与临时 HOME 验证 `get.sh` 的 9 组场景（33 项断言）。 |
+| [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 9 组场景（45 项断言）。 |
 | [tests/test-setup.sh](../tests/test-setup.sh) | 在临时 HOME 中用 fake ssh、ssh-keyscan、codex 验证 setup 与 client-codex 的 17 组场景（85 项断言）；假 codex 读写 `config.toml`。 |
 | [tests/test-doctor.sh](../tests/test-doctor.sh) | 用 fake codex 与 fake ssh 验证 doctor 的 12 组场景（48 项断言）。 |
 | [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类、重连、沙箱错误退出与选项处理的 6 组场景（38 项断言）。 |
@@ -70,7 +72,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 `pair`、`client codex`、`doctor` 等，实现都在 `scripts/`）、`install.sh` / `uninstall.sh` 与打包
 脚本 `scripts/package.sh`；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试清单；
 配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
-真实配对（2026-10-06）。自动化测试：五组 bash 测试（install 41、setup 85、doctor 48、
+真实配对（2026-10-06）。自动化测试：六组 bash 测试（install 45、get 33、setup 85、doctor 48、
 tunnel 38、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/tests.yml`（D-29，
 2026-10-08 首次运行通过）；尚无依赖清单。
 
@@ -407,6 +409,8 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
       改由别的方式取得主机公钥），以及 `runas` 弹 UAC、用户拒绝时得到 1223。
 - [ ] **补测选项 1 的其他断线情形**（可选）：Mac 端断网或睡眠、Windows 睡眠、长时间
       断网。目前只测了断开 Windows Wi-Fi；断线后 Codex 的恢复方式已测（坑 17）。
+- [ ] **Mac 端双击安装的 `.pkg`**（D-32 记为完整形态）：需要 Apple 开发者账号（年费）签名与公证，
+      否则 macOS 拦截；还要定证书怎么保存、CI 里怎么公证。现在用一行命令 `get.sh`。
 - [ ] **写踩坑总结文章**：时机未定；文中链接本仓库的连接指南（PR #63 已关闭，D-30）。
 
 ### 原环境遗留问题

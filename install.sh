@@ -87,4 +87,4 @@ case ":$PATH:" in
     echo "  echo 'export PATH=\"$BIN:\$PATH\"' >> ~/.zshrc && exec zsh" ;;
 esac
 echo
-echo "next: meshlink setup --help"
+echo "next: meshlink pair (with the meshlink plug-in in Rhino on the PC), or meshlink setup --help"

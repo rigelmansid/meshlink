@@ -160,6 +160,17 @@ ls "$H/.codex" | grep -q '^config.toml.bak-' && ok "config.toml backed up first"
 in_home "$WORK/i8b.log" -- "$REL/uninstall.sh"
 exit_is "$rc" 1 "second uninstall: nothing to remove"
 
+echo "I9 uninstall after pair and get.sh"
+in_home "$WORK/i9a.log" -- "$REL/install.sh"
+printf '# Added by scripts/pair.sh on x\nHost rhino-pc\n' >"$H/.ssh/config"
+printf '\n# Added by meshlink get.sh\nexport PATH="$HOME/.local/bin:$PATH"\n' >"$H/.zshrc"
+cp "$H/.zshrc" "$WORK/zshrc.before"
+in_home "$WORK/i9.log" -- "$H/.local/bin/meshlink" uninstall <<<"no"
+exit_is "$rc" 0 "exit 0"
+has "$WORK/i9.log" "added by setup or pair" "a Host entry from pair is listed"
+has "$WORK/i9.log" "the PATH line in ~/.zshrc" "the PATH line from get.sh is listed"
+cmp -s "$H/.zshrc" "$WORK/zshrc.before" && ok "~/.zshrc untouched" || bad "~/.zshrc untouched"
+
 echo
 echo "passed: $pass  failed: $fail"
 ((fail == 0))

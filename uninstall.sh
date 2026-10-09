@@ -67,12 +67,22 @@ case $DEST in
 esac
 
 # ------------------------------------------------------------ left as is
+left=()
 ssh_cfg="$HOME/.ssh/config"
-if [[ -f $ssh_cfg ]] && grep -q '^# Added by scripts/setup.sh' "$ssh_cfg"; then
+if [[ -f $ssh_cfg ]] && grep -qE '^# Added by scripts/(setup|pair)\.sh' "$ssh_cfg"; then
+  left+=("Host entries in ~/.ssh/config added by setup or pair (each starts with '# Added by scripts/setup.sh' or '# Added by scripts/pair.sh')"
+         "the key ~/.ssh/id_ed25519_rhino(.pub), if setup or pair created it"
+         "the PC's line in ~/.ssh/known_hosts (ssh-keygen -R <pc-address>)"
+         "on the PC: the public key (MeshlinkUnpair in Rhino removes a paired Mac's), the firewall rule and the sshd_config settings")
+fi
+# get.sh adds ~/.local/bin to PATH; other tools may install there too.
+for rc in "$HOME/.zshrc" "$HOME/.bash_profile"; do
+  if grep -qxF '# Added by meshlink get.sh' "$rc" 2>/dev/null; then
+    left+=("the PATH line in ${rc/#$HOME/~} after '# Added by meshlink get.sh' (other tools in ~/.local/bin may use it)")
+  fi
+done
+if ((${#left[@]})); then
   echo
   echo "Left in place (remove by hand if you no longer need them):"
-  echo "  Host entries in ~/.ssh/config added by setup (each starts with '# Added by scripts/setup.sh')"
-  echo "  the key ~/.ssh/id_ed25519_rhino(.pub), if setup created it"
-  echo "  the PC's line in ~/.ssh/known_hosts (ssh-keygen -R <pc-address>)"
-  echo "  on the PC: the public key, the firewall rule and the sshd_config settings"
+  printf '  %s\n' "${left[@]}"
 fi

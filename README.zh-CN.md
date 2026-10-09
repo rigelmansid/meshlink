@@ -25,8 +25,15 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 1. Windows 上：安装 OpenSSH Server，并在 Rhino 8 中安装 RhinoMCP 插件。安装 OpenSSH
    Server 时按 **Win + R**，输入 `ms-settings:optionalfeatures` 打开“可选功能”（也可以在
    设置里搜索“可选功能”），再添加 **OpenSSH 服务器**。各版本 Windows 的菜单位置不同。
-2. Mac 上，在解压后的发布包或克隆下来的仓库目录里运行 `./install.sh`。它安装到
-   `~/.local`，不需要 `sudo`。
+2. Mac 上，在“终端”里用一行命令安装 meshlink：
+
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/rigelmansid/meshlink/main/get.sh | bash
+   ```
+
+   它会下载最新的发布版、核对 SHA-256、安装到 `~/.local`（不需要 `sudo`），并把
+   `~/.local/bin` 加进 PATH；装完后打开一个新的终端窗口。想先看看 [get.sh](get.sh) 的内容，
+   可以下载后再运行 `bash get.sh`。不用它的话：解压发布包（或克隆本仓库），运行 `./install.sh`。
 3. 运行 `meshlink setup --address <pc-address> --user <windows-user>`。它会打印一条
    要在 Windows 管理员 PowerShell 里执行的命令（`meshlink windows-script` 显示脚本
    位置），之后和你一起核对 Windows 的主机指纹。
@@ -68,6 +75,8 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 | [bin/meshlink](bin/meshlink) | `meshlink` 命令。只负责转发到下面的各个脚本，这些脚本也可以单独运行。 |
 | [install.sh](install.sh)、[uninstall.sh](uninstall.sh) | 安装到 `~/.local`（重新运行即升级），以及卸载。两者都不改 `~/.ssh`；卸载时删除 Codex 条目前会先询问。 |
 | [scripts/package.sh](scripts/package.sh) | 生成 `dist/meshlink-<版本>.tar.gz` 及其 SHA-256 校验文件。 |
+| [get.sh](get.sh) | 一行命令安装：找到最新的发布版，核对后运行其中的 `install.sh`，并把 `~/.local/bin` 加进 PATH。 |
+| [tests/test-get.sh](tests/test-get.sh) | 用假的 `curl` 在临时 HOME 中测试 `get.sh`。 |
 | [tests/test-install.sh](tests/test-install.sh) | 在临时 HOME 中测试打包、安装、升级、卸载和 `meshlink` 命令。 |
 | [scripts/setup.sh](scripts/setup.sh) | Mac 端首次配置：SSH 密钥、`~/.ssh/config` 中的 Host 条目、要在 Windows 上执行的完整命令、对照 Windows 报告核对主机指纹、测试登录。不会覆盖已有的密钥或 Host 条目。 |
 | [scripts/pair.sh](scripts/pair.sh) | `meshlink pair`：在局域网里宣告本机，带 Rhino 插件走完 [docs/pairing.md](docs/pairing.md) 的四步，双方都确认后添加 Host 条目。 |
@@ -139,6 +148,7 @@ MCP 服务显示已连接，并不代表 Rhino 真的连得上。要检查整条
 
 ```sh
 tests/test-install.sh        # 约 10 秒
+tests/test-get.sh            # 约 8 秒
 tests/test-setup.sh          # 约 4 秒
 tests/test-doctor.sh         # 约 6 秒，使用本地端口 29941–29942
 tests/test-rhino-tunnel.sh   # 约 40 秒，使用本地端口 29931–29937

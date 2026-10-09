@@ -47,7 +47,8 @@ for f in bin/meshlink $(git ls-files '*.sh'); do bash -n "$f"; done   # syntax
 tests/test-rhino-tunnel.sh           # ~40 s, expects "passed: 38  failed: 0"
 tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
 tests/test-setup.sh                  # ~5 s, expects "passed: 85  failed: 0"
-tests/test-install.sh                # ~10 s, expects "passed: 41  failed: 0"
+tests/test-install.sh                # ~10 s, expects "passed: 45  failed: 0"
+tests/test-get.sh                    # ~8 s, expects "passed: 33  failed: 0"
 tests/test-pair.sh                   # ~25 s, expects "passed: 118  failed: 0"
 scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
 
@@ -58,14 +59,13 @@ dotnet build rhino-plugin/Meshlink.Rhino -c Release   # the plug-in, for Rhino o
 YAK=<path to yak> scripts/package-yak.sh               # dist/meshlink-<version>-rh8_17-win.yak
 ```
 
-`yak` is McNeel's standalone tool; on the maintainer's Mac it is
-`../materials/scratch/tools/yak` (D-24). Pushing a package to the public Yak
-server is an outward-facing step that needs the user's explicit go.
+`yak` is McNeel's standalone tool, on the maintainer's Mac at `../materials/scratch/tools/yak`
+(D-24). Pushing a package to the public Yak server needs the user's explicit go.
 
 The tests need `python3`, `lsof`, `pgrep`, `ps` and free local ports
 29931–29937 (tunnel), 29941–29942 (doctor) and 29951–29952 (pair); check the
-ports are free before running. They use a fake `ssh`, `codex` and `dns-sd`
-and, where they write files, a temporary home; they never touch `~/.ssh`,
+ports are free before running. They use a fake `ssh`, `codex`, `dns-sd` and
+`curl` and a temporary home where they write files; they never touch `~/.ssh`,
 `~/.local`, the Codex config, a real host or port 1999. A test that reads `$?`
 after a function must not run that function on the right of a pipe (it runs
 in a subshell; see `test-install.sh` I7). Assertion T4a is timing-sensitive

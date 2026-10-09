@@ -29,8 +29,16 @@ safely, and the setup problems that fail without an error message.
    OpenSSH Server, press **Win + R** and run `ms-settings:optionalfeatures` (or
    search Settings for "optional features"), then add **OpenSSH Server**. The
    menu path differs between Windows versions.
-2. On the Mac, from an unpacked release or a clone of this repository:
-   `./install.sh`. It installs into `~/.local` and needs no `sudo`.
+2. On the Mac, install meshlink with one command in Terminal:
+
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/rigelmansid/meshlink/main/get.sh | bash
+   ```
+
+   It downloads the newest release, checks its SHA-256, installs into `~/.local`
+   (no `sudo`) and adds `~/.local/bin` to your PATH; open a new terminal window
+   afterwards. To read [get.sh](get.sh) first, download it and run `bash get.sh`.
+   Without it: unpack a release (or clone this repository) and run `./install.sh`.
 3. `meshlink setup --address <pc-address> --user <windows-user>`. It prints the
    command to run on the PC in an elevated PowerShell (`meshlink windows-script`
    shows where the script is), then checks the PC's host key with you.
@@ -75,6 +83,8 @@ delete the Host entry `meshlink pair` added to `~/.ssh/config`.
 | [bin/meshlink](bin/meshlink) | The `meshlink` command. It only dispatches to the scripts below, which also run on their own. |
 | [install.sh](install.sh), [uninstall.sh](uninstall.sh) | Install into `~/.local` (rerun to upgrade) and remove again. Neither touches `~/.ssh`; uninstall asks before removing Codex's entry. |
 | [scripts/package.sh](scripts/package.sh) | Builds `dist/meshlink-<version>.tar.gz` and its SHA-256 file. |
+| [get.sh](get.sh) | The one-line installer: finds the newest release, checks it, runs its `install.sh` and adds `~/.local/bin` to PATH. |
+| [tests/test-get.sh](tests/test-get.sh) | Tests `get.sh` against a fake `curl` in a temporary home. |
 | [tests/test-install.sh](tests/test-install.sh) | Tests packaging, install, upgrade, uninstall and the `meshlink` command in a temporary home. |
 | [scripts/setup.sh](scripts/setup.sh) | First-time setup on the Mac: SSH key, a Host entry in `~/.ssh/config`, the exact command to run on the PC, the PC's host key checked against what the PC reports, and a test login. Never overwrites an existing key or Host entry. |
 | [scripts/pair.sh](scripts/pair.sh) | `meshlink pair`: announces this Mac on the local network, takes the Rhino plug-in through the four steps of [docs/pairing.md](docs/pairing.md), and adds the Host entry once both sides have confirmed. |
@@ -151,6 +161,7 @@ chain, ask the agent to call a read-only tool such as `get_document_summary`.
 
 ```sh
 tests/test-install.sh        # ~10 s
+tests/test-get.sh            # ~8 s
 tests/test-setup.sh          # ~4 s
 tests/test-doctor.sh         # ~6 s, local ports 29941–29942
 tests/test-rhino-tunnel.sh   # ~40 s, local ports 29931–29937

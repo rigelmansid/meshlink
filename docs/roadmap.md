@@ -67,6 +67,9 @@ Windows 客户端、Homebrew、图形界面、后台自启动、自动发现与�
   检查 Rhino 8、rhinomcp 插件和 `mcpstart` 监听；选项 1 时安装 uv 与固定版本的
   rhinomcp；输出主机地址、用户、指纹供 Mac 端初始化。系统修改要明确提示，支持
   `-WhatIf` 预览并可重复执行。
+- **安装形态**（D-32）：现在 Mac 端用一行命令 `get.sh` 安装（下载、校验、安装、加 PATH），
+  Windows 端把插件的 `.yak` 拖进 Rhino。Mac 端的完整形态是双击安装的 `.pkg`：需要 Apple
+  开发者账号签名与公证，否则 macOS 会拦截；以后朝这个方向优化。
 - **连接层**：MCP 客户端和 rhinomcp 永远只连 127.0.0.1，跨机一跳只走 SSH（D-1）。
   Windows 不为 rhinomcp 开放任何入站端口。
 
@@ -147,7 +150,7 @@ Mac 端发起连接，Windows 弹出确认，用户同意后两边建立连接�
 | Windows 自动化程度 | W1：PowerShell 准备脚本负责 SSH 配置、公钥、uv 与 rhinomcp、检查报告；OpenSSH 安装、插件、`mcpstart`、指纹仍手动，见 D-12。 | 已定（2026-10-01） |
 | Windows 登录账户类型 | 推荐专用普通账户只用于 SSH（方案 B），兼容管理员账户；收益取决于 UAC 是否开启，见 D-13。 | 已定（2026-10-01） |
 | 实现语言、配置格式与 CLI | bash 3.2；不设项目配置文件；子命令 `setup`、`client codex`、`doctor`，见上方首版范围。命令名 `meshlink`。 | 已定（2026-10-01） |
-| 安装路径、分发与升级 | Release 压缩包 + `install.sh` / `uninstall.sh`，装到 `~/.local/bin`，见上方首版范围。 | 已定（2026-10-01） |
+| 安装路径、分发与升级 | Release 压缩包 + `install.sh` / `uninstall.sh`，装到 `~/.local/bin`；Mac 端可用一行命令 `curl … get.sh \| bash` 安装（D-32）。完整形态为双击安装的 `.pkg`（需签名与公证，以后做）。 | 已定（2026-10-01，2026-10-09 补充） |
 | 首版版本号与发布时间 | `0.1.0-dev` 预发布（2026-10-02，同日仓库公开）；demo 预发布 `0.3.0-dev`（2026-10-09，Mac、插件与 GitHub 统一版本号，D-31，替代 D-17）。不再单独发 0.1.0 或 0.2.x；全新 Windows / Windows 11 验收后发正式 `0.3.0`。 | 已定（2026-10-09） |
 
 ## 风险：上游变化

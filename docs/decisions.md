@@ -470,3 +470,18 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
   附 Mac 压缩包、`.yak` 与两者的校验文件；发布说明写明只在一台 UAC 关闭的 Windows 10 上验证。
   原规划的 0.2（发现与配对，D-18）并入此版；之后不再单独发 0.1.0 或 0.2.x（版本号会低于已发布的
   `0.3.0-dev`），全新 Windows 验收后的正式版为 `0.3.0`。Yak 仍不推送到公共服务器（D-26）。
+
+### D-32 Mac 端用一行命令安装（`get.sh`），双击安装的 `.pkg` 作为完整形态（2026-10-09，用户决定）
+
+- 背景：首次安装要五步：下载、双击解压、在终端 `cd` 进去、运行 `./install.sh`、按提示把
+  `~/.local/bin` 加进 PATH。用户希望简化。
+- 选项：A 一行命令 `curl … get.sh | bash` / B Homebrew tap / C 只让 `install.sh` 自动加 PATH /
+  D 双击安装的 `.pkg`（需要 Apple 开发者账号签名与公证，否则 macOS 拦截）
+- 选择：现在做 A（含 C 的自动加 PATH）；D 记为完整形态，以后朝这个方向优化。
+- 理由：A 不需要新账号或新仓库，能用测试覆盖，一步完成；D 对非开发者最友好，但要先解决签名与
+  公证（年费、证书、CI 中的公证流程）。
+- 影响：新增仓库根目录的 `get.sh`：从 GitHub 发布列表（`releases.atom`，含预发布；不用 REST API，
+  它对匿名请求每个地址每小时只允许 60 次）找到最新版，下载并核对 SHA-256，运行包内 `install.sh`，
+  PATH 里没有 `~/.local/bin` 时写入 `~/.zshrc` 或 `~/.bash_profile`（`MESHLINK_NO_MODIFY_PATH=1`
+  可关闭）。手动解压安装仍保留。新增 `tests/test-get.sh` 并加入 CI。roadmap 产品形态与 §7 记下 D。
+  替代 roadmap 待确定事项“安装路径、分发与升级”中“只用 Release 压缩包 + `install.sh`”的说法。

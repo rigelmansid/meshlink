@@ -5,7 +5,17 @@ What changed in each version of meshlink, newest first. Versions follow
 
 ## Unreleased
 
+### Added
+
+- `get.sh`: install on the Mac with one command,
+  `curl -fsSL https://raw.githubusercontent.com/rigelmansid/meshlink/main/get.sh | bash`.
+  It finds the newest release, checks its SHA-256, runs its `install.sh` and
+  adds `~/.local/bin` to PATH in `~/.zshrc` or `~/.bash_profile`.
+
 ### Changed
+
+- After installing, the next step named is `meshlink pair` as well as
+  `meshlink setup`.
 
 - Where to install OpenSSH Server on the PC is now given as **Win + R**,
   `ms-settings:optionalfeatures`, in the READMEs, the setup guide, the hint of
@@ -17,6 +27,8 @@ What changed in each version of meshlink, newest first. Versions follow
 - `meshlink tunnel --help` started the tunnel and `meshlink doctor --help` ran
   the check; both now print their usage, and an unknown option exits with
   code 2.
+- `meshlink uninstall` now also lists Host entries added by `meshlink pair`
+  (only those from `setup` were listed) and the PATH line `get.sh` added.
 
 ## 0.3.0-dev - 2026-10-09
 

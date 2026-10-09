@@ -46,6 +46,8 @@ jobs:
         run: tests/test-setup.sh
       - name: Install
         run: tests/test-install.sh
+      - name: One-line installer
+        run: tests/test-get.sh
       - name: Pairing (Python stand-in for the PC)
         run: tests/test-pair.sh
 
