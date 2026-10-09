@@ -497,3 +497,13 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
 - 影响：README（中英）快速开始：Windows 上装 Rhino 8 与 RhinoMCP、下载 `.yak` 拖进 Rhino、在管理员
   PowerShell 运行 `Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Set-Service sshd -StartupType Automatic; Start-Service sshd`；Mac 上 `get.sh`，然后配对。启动一次 sshd 才会生成配对要读的主机公钥；防火墙
   规则与公钥仍在配对时由 `prepare-windows.ps1` 设置。手动 `setup` 移到“不用配对”。
+
+### D-34 `v0.3.0-dev` 原地更新，不升版本号（2026-10-09，用户决定）
+
+- 背景：`v0.3.0-dev` 发布后又有一行命令安装（D-32）、OpenSSH 一行命令（D-33）、`--help` 与卸载提示的修复。
+- 选项：A 发新的预发布（如 `0.3.0-dev.2`）/ B 原地更新 `v0.3.0-dev`：标签移到最新提交，替换附件与发布说明
+- 选择：B
+- 理由：用户决定，demo 阶段只保留一个最新的预发布。
+- 影响：强制移动已公开的标签 `v0.3.0-dev`，重传 4 个附件（`--clobber`），重写发布说明；CHANGELOG 把这些
+  改动并入 `0.3.0-dev`。之前下载过的人拿到的是同名的旧内容：Mac 端重跑 `get.sh` 或 `install.sh` 即可更新；
+  PC 上同版本的 `.yak` 要先在 Package Manager 卸载再装。以后发正式版时不再这样原地替换。
