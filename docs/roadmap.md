@@ -67,8 +67,8 @@ Windows 客户端、Homebrew、图形界面、后台自启动、自动发现与�
   检查 Rhino 8、rhinomcp 插件和 `mcpstart` 监听；选项 1 时安装 uv 与固定版本的
   rhinomcp；输出主机地址、用户、指纹供 Mac 端初始化。系统修改要明确提示，支持
   `-WhatIf` 预览并可重复执行。
-- **安装形态**（D-32）：现在 Mac 端用一行命令 `get.sh` 安装（下载、校验、安装、加 PATH），
-  Windows 端把插件的 `.yak` 拖进 Rhino。Mac 端的完整形态是双击安装的 `.pkg`：需要 Apple
+- **安装形态**（D-32、D-33）：现在 Mac 端用一行命令 `get.sh` 安装（下载、校验、安装、加 PATH）；
+  Windows 端把插件的 `.yak` 拖进 Rhino，OpenSSH Server 在管理员 PowerShell 里用一行命令装好并启动。Mac 端的完整形态是双击安装的 `.pkg`：需要 Apple
   开发者账号签名与公证，否则 macOS 会拦截；以后朝这个方向优化。
 - **连接层**：MCP 客户端和 rhinomcp 永远只连 127.0.0.1，跨机一跳只走 SSH（D-1）。
   Windows 不为 rhinomcp 开放任何入站端口。

@@ -22,50 +22,67 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 
 ## 快速开始
 
-1. Windows 上：安装 OpenSSH Server，并在 Rhino 8 中安装 RhinoMCP 插件。安装 OpenSSH
-   Server 时按 **Win + R**，输入 `ms-settings:optionalfeatures` 打开“可选功能”（也可以在
-   设置里搜索“可选功能”），再添加 **OpenSSH 服务器**。各版本 Windows 的菜单位置不同。
-2. Mac 上，在“终端”里用一行命令安装 meshlink：
+目前只在一台 UAC 关闭的 Windows 10 电脑上测试过。
+
+**Windows 上**
+
+1. 安装 Rhino 8（8.17 或更新），再在 Rhino 里安装 RhinoMCP 插件：
+   **Tools → Package Manager**，搜索 `rhinomcp`。
+2. 从[发布页面](https://github.com/rigelmansid/meshlink/releases)下载 `meshlink-<版本>-rh8_17-win.yak`，拖进 Rhino 窗口，然后重启 Rhino。
+3. 安装并启动 OpenSSH Server。以管理员身份打开 PowerShell（按 **Win + X**，选
+   “Windows PowerShell（管理员）”或“终端（管理员）”），运行这一行：
+
+   ```powershell
+   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Set-Service sshd -StartupType Automatic; Start-Service sshd
+   ```
+
+   安装可能要几分钟。如果一直没有反应（它要从 Windows 更新下载），可以改在“可选功能”里
+   添加 OpenSSH 服务器：按 **Win + R**，输入 `ms-settings:optionalfeatures`。防火墙规则和
+   Mac 的公钥会在之后配对时自动设置。
+
+**Mac 上**
+
+4. 还没装 [Codex CLI](https://github.com/openai/codex) 的话先装好，然后安装 meshlink：
 
    ```sh
    curl -fsSL https://raw.githubusercontent.com/rigelmansid/meshlink/main/get.sh | bash
    ```
 
    它会下载最新的发布版、核对 SHA-256、安装到 `~/.local`（不需要 `sudo`），并把
-   `~/.local/bin` 加进 PATH；装完后打开一个新的终端窗口。想先看看 [get.sh](get.sh) 的内容，
-   可以下载后再运行 `bash get.sh`。不用它的话：解压发布包（或克隆本仓库），运行 `./install.sh`。
-3. 运行 `meshlink setup --address <pc-address> --user <windows-user>`。它会打印一条
+   `~/.local/bin` 加进 PATH。装完后打开一个新的终端窗口。想先看看 [get.sh](get.sh) 的内容，
+   可以下载后运行 `bash get.sh`；也可以从发布页面下载 Mac 端压缩包，解压后运行 `./install.sh`。
+5. Windows 上的 Rhino 开着时，在 Mac 上运行 `meshlink pair`。几秒内 Rhino 会弹出配对
+   请求。确认两边显示同一个 6 位配对码，选择 Mac 要登录的 Windows 账户（专用的普通账户
+   更安全），然后在两边确认。
+6. 运行 `meshlink client codex`，然后重启 Codex。此后每次打开 Rhino，插件都会自动运行
+   `mcpstart`。
+
+之后随时可以用 `meshlink doctor` 检查整条链路；`meshlink uninstall` 从 Mac 上卸载
+meshlink。在 Rhino 里运行 `MeshlinkUnpair` 可以删掉配对时装给某台 Mac 的公钥。
+
+## 配对是怎么工作的
+
+`meshlink pair` 在局域网里广播这台 Mac；Rhino 里的 meshlink 插件发现它后主动连出，所以
+配对本身不需要 Windows 开放新的入站端口。两边屏幕会显示由两台电脑的密钥算出的同一个
+6 位配对码。双方都确认后，插件安装 Mac 的 SSH 公钥（以管理员身份运行 `prepare-windows.ps1`：
+防火墙规则、公钥、`sshd_config`），Mac 核对 Windows 的主机公钥并添加 Host 条目。只要有一方
+没有确认，两台电脑都不会有任何改动。协议见 [docs/pairing.md](docs/pairing.md)。
+
+## 不用配对
+
+如果两台电脑在网络上互相发现不了（有些路由器和访客网络会屏蔽），可以改为手动配置，
+代替上面的第 5、6 步。OpenSSH Server 仍要按第 3 步装好。
+
+1. 运行 `meshlink setup --address <pc-address> --user <windows-user>`。它会打印一条
    要在 Windows 管理员 PowerShell 里执行的命令（`meshlink windows-script` 显示脚本
    位置），之后和你一起核对 Windows 的主机指纹。
-4. 运行 `meshlink client codex`。它把 Codex 指向 Windows 上的 `rhinomcp`，然后运行
+2. 运行 `meshlink client codex`。它把 Codex 指向 Windows 上的 `rhinomcp`，然后运行
    `meshlink doctor`。
-5. 在 Rhino 里运行 `mcpstart`，然后重启 Codex。
+3. 在 Rhino 里运行 `mcpstart`，然后重启 Codex。
 
-之后随时可以用 `meshlink doctor` 检查整条链路；`meshlink uninstall` 用于卸载。
-
-## 配对
-
-可以不做第 3 到 5 步，改由 Windows 上的 meshlink Rhino 插件和 Mac 上的
-`meshlink pair` 在局域网里完成配对。两边屏幕会显示同一个 6 位配对码；双方都确认后，
-插件安装 Mac 的 SSH 公钥（以管理员身份运行 `prepare-windows.ps1`），Mac 核对 Windows
-的主机公钥并添加 Host 条目。只要有一方没有确认，两台电脑都不会有任何改动。协议见
-[docs/pairing.md](docs/pairing.md)。
-
-目前只在一台 UAC 关闭的 Windows 10 电脑上测试过。试用方法：
-
-1. 从 [0.3.0-dev 预发布版](https://github.com/rigelmansid/meshlink/releases/tag/v0.3.0-dev)下载 `meshlink-<版本>-rh8_17-win.yak`。想自己打包的话，
-   需要 .NET SDK 和 McNeel 的
-   [`yak` 工具](https://developer.rhino3d.com/guides/yak/yak-cli-reference/)：
-   `YAK=/path/to/yak scripts/package-yak.sh` 会把它生成到 `dist/`。
-2. 在 Windows 上按第 1 步装好 OpenSSH Server 和 RhinoMCP，再把 `.yak` 文件拖进
-   Rhino 8（8.17 或更新），然后重启 Rhino。
-3. 在 Mac 上运行 `meshlink pair`。几秒内 Rhino 会弹出配对请求。核对两边的配对码，
-   选择 Mac 要登录的 Windows 账户（专用的普通账户更安全），然后在两边确认。
-4. 和上面第 4 步一样运行 `meshlink client codex`。此后每次打开 Rhino，插件都会自动
-   运行 `mcpstart`；在 Rhino 里用 `MeshlinkOptions` 可以关掉。
-
-在 Rhino 里运行 `MeshlinkUnpair` 可以删掉配对时装给某台 Mac 的公钥；Mac 上再删掉
-`meshlink pair` 在 `~/.ssh/config` 里添加的 Host 条目。
+想自己打包插件的话，需要 .NET SDK 和 McNeel 的
+[`yak` 工具](https://developer.rhino3d.com/guides/yak/yak-cli-reference/)：
+`YAK=/path/to/yak scripts/package-yak.sh` 会把它生成到 `dist/`。
 
 ## 仓库内容
 

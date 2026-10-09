@@ -25,55 +25,78 @@ safely, and the setup problems that fail without an error message.
 
 ## Quick start
 
-1. On the PC: install OpenSSH Server and, in Rhino 8, the RhinoMCP plugin. For
-   OpenSSH Server, press **Win + R** and run `ms-settings:optionalfeatures` (or
-   search Settings for "optional features"), then add **OpenSSH Server**. The
-   menu path differs between Windows versions.
-2. On the Mac, install meshlink with one command in Terminal:
+So far this has been tested on one Windows 10 PC with UAC off.
+
+**On the PC**
+
+1. Install Rhino 8 (8.17 or later) and, in Rhino, the RhinoMCP plugin:
+   **Tools → Package Manager**, search `rhinomcp`.
+2. Download `meshlink-<version>-rh8_17-win.yak` from the [releases](https://github.com/rigelmansid/meshlink/releases),
+   drag it onto the Rhino window and restart Rhino.
+3. Install and start OpenSSH Server. Open PowerShell as administrator
+   (**Win + X**, then "Windows PowerShell (Admin)" or "Terminal (Admin)") and
+   run this one line:
+
+   ```powershell
+   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Set-Service sshd -StartupType Automatic; Start-Service sshd
+   ```
+
+   Installing can take a few minutes. If it hangs (it downloads from Windows
+   Update), add OpenSSH Server under Optional features instead: **Win + R**,
+   `ms-settings:optionalfeatures`. The firewall rule and the Mac's key are set
+   up later, when the Mac pairs.
+
+**On the Mac**
+
+4. Install [Codex CLI](https://github.com/openai/codex) if you haven't, then
+   install meshlink:
 
    ```sh
    curl -fsSL https://raw.githubusercontent.com/rigelmansid/meshlink/main/get.sh | bash
    ```
 
    It downloads the newest release, checks its SHA-256, installs into `~/.local`
-   (no `sudo`) and adds `~/.local/bin` to your PATH; open a new terminal window
-   afterwards. To read [get.sh](get.sh) first, download it and run `bash get.sh`.
-   Without it: unpack a release (or clone this repository) and run `./install.sh`.
-3. `meshlink setup --address <pc-address> --user <windows-user>`. It prints the
+   (no `sudo`) and adds `~/.local/bin` to your PATH. Open a new terminal window
+   afterwards. To read [get.sh](get.sh) first, download it and run `bash get.sh`;
+   or unpack the Mac archive from the releases and run `./install.sh`.
+5. With Rhino open on the PC, run `meshlink pair`. Rhino shows the request
+   within a few seconds. Check that both screens show the same six-digit code,
+   choose the Windows account the Mac logs in as (a dedicated standard account
+   is safer), and confirm on both sides.
+6. Run `meshlink client codex`, then restart Codex. From then on the plug-in
+   runs `mcpstart` whenever Rhino opens.
+
+`meshlink doctor` checks the whole link at any time; `meshlink uninstall`
+removes meshlink from the Mac. `MeshlinkUnpair` in Rhino removes the key a paired
+Mac was given.
+
+## How pairing works
+
+`meshlink pair` announces the Mac on the local network; the meshlink plug-in in
+Rhino finds it and connects out, so Windows opens no new inbound port for it.
+Both screens show a six-digit code derived from both machines' keys. Once both
+people confirm it, the plug-in installs the Mac's SSH key (it runs
+`prepare-windows.ps1` as administrator: firewall rule, key, `sshd_config`), and
+the Mac checks the PC's host key and adds a Host entry. Nothing changes on
+either machine unless both confirm. The protocol is in
+[docs/pairing.md](docs/pairing.md).
+
+## Without pairing
+
+If the two machines cannot see each other on the network (some routers and
+guest networks block it), set up by hand instead of steps 5 and 6. OpenSSH
+Server must be installed as in step 3.
+
+1. `meshlink setup --address <pc-address> --user <windows-user>`. It prints the
    command to run on the PC in an elevated PowerShell (`meshlink windows-script`
    shows where the script is), then checks the PC's host key with you.
-4. `meshlink client codex`. It points Codex at `rhinomcp` on the PC and runs
+2. `meshlink client codex`. It points Codex at `rhinomcp` on the PC and runs
    `meshlink doctor`.
-5. Run `mcpstart` in Rhino and restart Codex.
+3. Run `mcpstart` in Rhino and restart Codex.
 
-`meshlink doctor` checks the whole link again at any time; `meshlink uninstall`
-removes meshlink.
-
-## Pairing
-
-Instead of steps 3 to 5, the meshlink Rhino plug-in on the PC and `meshlink pair`
-on the Mac can pair the two machines over the local network. Both screens show
-the same six-digit code. Once both people confirm it, the plug-in installs the
-Mac's SSH key (it runs `prepare-windows.ps1` as administrator), and the Mac checks
-the PC's host key and adds a Host entry. Nothing changes on either machine
-unless both confirm. The protocol is in [docs/pairing.md](docs/pairing.md).
-
-So far this has been tested on one Windows 10 PC with UAC off. To try it:
-
-1. Download `meshlink-<version>-rh8_17-win.yak` from the
-   [0.3.0-dev prerelease](https://github.com/rigelmansid/meshlink/releases/tag/v0.3.0-dev). To build it yourself you need the .NET SDK and
-   McNeel's [`yak` tool](https://developer.rhino3d.com/guides/yak/yak-cli-reference/):
-   `YAK=/path/to/yak scripts/package-yak.sh` writes it into `dist/`.
-2. On the PC, install OpenSSH Server and RhinoMCP as in step 1, then drag the
-   `.yak` file onto Rhino 8 (8.17 or later) and restart Rhino.
-3. On the Mac, run `meshlink pair`. Rhino shows the request within a few seconds.
-   Compare the codes, choose the Windows account the Mac logs in as (a dedicated
-   standard account is safer), and confirm on both sides.
-4. Run `meshlink client codex`, as in step 4 above. From then on the plug-in runs
-   `mcpstart` when Rhino opens; `MeshlinkOptions` in Rhino turns that off.
-
-`MeshlinkUnpair` in Rhino removes the key a paired Mac was given. On the Mac,
-delete the Host entry `meshlink pair` added to `~/.ssh/config`.
+To build the plug-in's package yourself you need the .NET SDK and McNeel's
+[`yak` tool](https://developer.rhino3d.com/guides/yak/yak-cli-reference/):
+`YAK=/path/to/yak scripts/package-yak.sh` writes it into `dist/`.
 
 ## What's here
 

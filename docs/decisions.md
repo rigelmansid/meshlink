@@ -485,3 +485,15 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
   PATH 里没有 `~/.local/bin` 时写入 `~/.zshrc` 或 `~/.bash_profile`（`MESHLINK_NO_MODIFY_PATH=1`
   可关闭）。手动解压安装仍保留。新增 `tests/test-get.sh` 并加入 CI。roadmap 产品形态与 §7 记下 D。
   替代 roadmap 待确定事项“安装路径、分发与升级”中“只用 Release 压缩包 + `install.sh`”的说法。
+
+### D-33 Windows 端：插件仍下载 `.yak` 手动安装，OpenSSH Server 用一条命令装好并启动（2026-10-09，用户决定）
+
+- 背景：D-32 之后 Mac 端一行命令即可安装。Windows 端要在“可选功能”里找 OpenSSH Server（Windows 10
+  的菜单位置各版本不同），再把 `.yak` 拖进 Rhino。
+- 选项：A 一行命令 `irm … get.ps1 | iex` 同时装 OpenSSH 与插件（已写成并测过语法与纯函数，未在
+  Windows 运行）/ B 插件仍手动下载 `.yak` 安装，OpenSSH 用管理员 PowerShell 里的一行内置命令
+- 选择：B。A 的脚本由用户撤回，存于仓库外 `../materials/scratch/withdrawn/`，未进入仓库。
+- 理由：用户决定。B 不需要下载和信任额外脚本，命令本身就是 Windows 自带的三条，可重复运行。
+- 影响：README（中英）快速开始：Windows 上装 Rhino 8 与 RhinoMCP、下载 `.yak` 拖进 Rhino、在管理员
+  PowerShell 运行 `Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Set-Service sshd -StartupType Automatic; Start-Service sshd`；Mac 上 `get.sh`，然后配对。启动一次 sshd 才会生成配对要读的主机公钥；防火墙
+  规则与公钥仍在配对时由 `prepare-windows.ps1` 设置。手动 `setup` 移到“不用配对”。

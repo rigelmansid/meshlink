@@ -14,6 +14,9 @@ What changed in each version of meshlink, newest first. Versions follow
 
 ### Changed
 
+- The README's quick start is now: on the PC, install the plug-in's `.yak` and
+  OpenSSH Server (one command in an elevated PowerShell); on the Mac, `get.sh`;
+  then pair. The manual `setup` route is under "Without pairing".
 - After installing, the next step named is `meshlink pair` as well as
   `meshlink setup`.
 

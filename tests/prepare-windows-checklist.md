@@ -54,7 +54,8 @@ absent; `-ResultFile` held the same lines. See `docs/log.md`.
 
 Run these on a fresh PC or VM before claiming they work:
 
-- OpenSSH Server not installed
+- OpenSSH Server not installed, including the README's one-line command
+  (`Add-WindowsCapability ...; Set-Service ...; Start-Service sshd`) followed by pairing
 - no inbound rule for TCP 22 at all. Before disabling rules for this case, list
   every rule on port 22 (`Get-NetFirewallPortFilter -Protocol TCP | Where-Object
   LocalPort -eq 22 | Get-NetFirewallRule`) and restore exactly those afterwards:

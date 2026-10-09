@@ -4,16 +4,15 @@
 
 ## Handoff
 
-Updated: 2026-10-09 10:39
-- Task: Mac 端一行命令安装 `get.sh`（D-32），并修 `--help`、OpenSSH 安装入口与卸载提示
-- Stopped at: 已提交到本地，未推送（领先 3 个提交）；README 的一行命令要推送后才可用
-- Decisions: D-31、D-32（`.pkg` 记为完整形态）
-- Waiting on user: 推送（含 workflow 改动，要用 gh 的令牌，坑 22）；推送后是否在 `v0.3.0-dev` 发布说明里
-  加一行命令；PC 上试 `ms-settings:optionalfeatures`；博客暂缓
-- Next: 1. 推送后看 CI，并在临时 HOME 里用真实的 `curl … main/get.sh | bash` 试一次；2. 下一版发布带上
-  这些修复；3. 全新 Windows 验收后发正式 `0.3.0`
-- Don't repeat: 查最新版不要用 REST API（匿名额度易用完，用 releases.atom）；两端都已是 0.3.0-dev；
-  `gh release create --target` 用完整哈希；PR #63 已关闭、fork 已删
+Updated: 2026-10-09 10:53
+- Task: 简化安装：Mac 一行命令 `get.sh`（D-32）；Windows 插件手动装 `.yak`、OpenSSH 一行命令（D-33）
+- Stopped at: 改动都在本地，未推送；`get.ps1` 方案已撤回（存于 `../materials/scratch/withdrawn/`）
+- Decisions: D-31、D-32、D-33
+- Waiting on user: 确认全部改动后再推送与发布（用户要求；下一版版本号待定）；PC 上试
+  `ms-settings:optionalfeatures`；博客暂缓
+- Next: 1. 用户确认后推送（含 workflow，用 gh 令牌，坑 22），看 CI，用真实的 `get.sh` 一行命令装一次，
+  发下一版并更新发布说明；2. 全新 Windows 验收（含 README 的 OpenSSH 一行命令）后发正式 `0.3.0`
+- Don't repeat: 不要自行推送或发布；不要再做装插件的 Windows 脚本（用户撤回）；查最新版用 releases.atom
 
 ## 项目概况
 
