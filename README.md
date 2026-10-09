@@ -17,11 +17,11 @@ The modeling tools come from [RhinoMCP](https://github.com/jingcheng-chen/rhinom
 This project covers the part RhinoMCP leaves to you: connecting the two machines
 safely, and the setup problems that fail without an error message.
 
-> **Status: early.** What exists today is a tested setup guide, the `meshlink`
-> command for the Mac (setup, Codex configuration, a read-only `doctor`), a
-> Windows preparation script, an installer, and tests; pairing through a Rhino
-> plug-in is in development. No stable release has been published yet. The
-> project covers Rhino 8 only.
+> **Status: early.** The [0.3.0-dev prerelease](https://github.com/rigelmansid/meshlink/releases/tag/v0.3.0-dev) is a demo: the
+> `meshlink` command for the Mac (setup, pairing, Codex configuration, a
+> read-only `doctor`) with its installer, and the meshlink Rhino plug-in for the
+> PC. It has been tested on one Windows 10 PC with UAC off only. No stable
+> release has been published yet. The project covers Rhino 8 only.
 
 ## Quick start
 
@@ -39,7 +39,7 @@ safely, and the setup problems that fail without an error message.
 `meshlink doctor` checks the whole link again at any time; `meshlink uninstall`
 removes meshlink.
 
-## Pairing (0.2, in development)
+## Pairing
 
 Instead of steps 3 to 5, the meshlink Rhino plug-in on the PC and `meshlink pair`
 on the Mac can pair the two machines over the local network. Both screens show
@@ -48,13 +48,12 @@ Mac's SSH key (it runs `prepare-windows.ps1` as administrator), and the Mac chec
 the PC's host key and adds a Host entry. Nothing changes on either machine
 unless both confirm. The protocol is in [docs/pairing.md](docs/pairing.md).
 
-So far this has been tested on one Windows 10 PC with UAC off, and it is not in
-any release. To try it:
+So far this has been tested on one Windows 10 PC with UAC off. To try it:
 
-1. On the Mac, build the plug-in's package. This needs the .NET SDK and McNeel's
-   [`yak` tool](https://developer.rhino3d.com/guides/yak/yak-cli-reference/):
-   `YAK=/path/to/yak scripts/package-yak.sh` writes
-   `dist/meshlink-<version>-rh8_17-win.yak`.
+1. Download `meshlink-<version>-rh8_17-win.yak` from the
+   [0.3.0-dev prerelease](https://github.com/rigelmansid/meshlink/releases/tag/v0.3.0-dev). To build it yourself you need the .NET SDK and
+   McNeel's [`yak` tool](https://developer.rhino3d.com/guides/yak/yak-cli-reference/):
+   `YAK=/path/to/yak scripts/package-yak.sh` writes it into `dist/`.
 2. On the PC, install OpenSSH Server and RhinoMCP as in step 1, then drag the
    `.yak` file onto Rhino 8 (8.17 or later) and restart Rhino.
 3. On the Mac, run `meshlink pair`. Rhino shows the request within a few seconds.

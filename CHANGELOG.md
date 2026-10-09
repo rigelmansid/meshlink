@@ -3,20 +3,23 @@
 What changed in each version of meshlink, newest first. Versions follow
 [SemVer](https://semver.org/); dates are YYYY-MM-DD.
 
-## Unreleased
+## 0.3.0-dev - 2026-10-09
 
-Not released yet. 0.1.0 waits for a test on a fresh Windows PC; pairing is
-planned for 0.2 and so far tested on one PC only.
+Demo prerelease: the Mac package and the Rhino plug-in's package, with the same
+version number. Tested on one Windows 10 PC with UAC off only; Windows 11 and a
+fresh PC are not tested yet. Pairing was planned as 0.2 and ships here; there
+will be no separate 0.1.0 or 0.2 release, and the first stable release will be
+0.3.0.
 
 ### Added
 
-- Pairing (0.2, in development): `meshlink pair` on the Mac and a Rhino
+- Pairing: `meshlink pair` on the Mac and a Rhino
   plug-in on the PC (commands `MeshlinkPair`, `MeshlinkOptions`,
   `MeshlinkUnpair`) replace the manual key and fingerprint steps of `setup`.
   Both screens show the same six-digit code. See the Pairing section of the
   README and [docs/pairing.md](docs/pairing.md).
-- `scripts/package-yak.sh` builds the plug-in's Yak package locally. It is not
-  on the public Yak server.
+- The plug-in's Yak package is attached to the release (drag it onto Rhino);
+  `scripts/package-yak.sh` builds it. It is not on the public Yak server.
 - `prepare-windows.ps1 -ResultFile` writes a machine-readable result, and
   `-RemoveKey` removes a Mac's key without touching anything else.
 - Tests run on GitHub Actions (macOS, with the system bash 3.2) for every push

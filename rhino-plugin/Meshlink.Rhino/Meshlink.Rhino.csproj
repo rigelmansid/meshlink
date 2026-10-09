@@ -10,7 +10,7 @@
     <RootNamespace>Meshlink.Plugin</RootNamespace>
     <TargetExt>.rhp</TargetExt>
     <EnableDynamicLoading>true</EnableDynamicLoading>
-    <Version>0.2.0-dev</Version>
+    <Version>0.3.0-dev</Version>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <!-- RhinoCommon ships net48 reference assemblies only; Rhino 8 loads them on .NET 8. -->

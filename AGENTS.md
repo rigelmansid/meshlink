@@ -14,7 +14,7 @@ This file says *how to work*. Project content lives in `docs/`, all in Chinese:
 - [decisions.md](docs/decisions.md): decisions D-1 onward, with their reasons.
 - [pitfalls.md](docs/pitfalls.md): pitfalls 坑 1–22.
 - [log.md](docs/log.md): stage log and verification records.
-- [pairing.md](docs/pairing.md): the 0.2 pairing protocol (draft).
+- [pairing.md](docs/pairing.md): the pairing protocol.
 
 Do not copy project content into this file.
 

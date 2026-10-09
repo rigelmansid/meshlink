@@ -15,9 +15,10 @@ AI 客户端 ── rhinomcp ── 127.0.0.1:1999 ══ SSH ══► 127.0.0.
 建模能力来自 [RhinoMCP](https://github.com/jingcheng-chen/rhinomcp)。本项目负责
 RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出错时不报错的配置问题。
 
-> **状态：早期。** 目前有一份实测过的配置指南、Mac 端的 `meshlink` 命令（首次配置、
-> Codex 配置、只读的 `doctor` 诊断）、Windows 准备脚本、安装脚本，以及它们的测试；
-> 通过 Rhino 插件配对的功能正在开发。还没有发布正式版本。项目只支持 Rhino 8。
+> **状态：早期。** [0.3.0-dev 预发布版](https://github.com/rigelmansid/meshlink/releases/tag/v0.3.0-dev)是一个 demo：Mac 端的 `meshlink` 命令
+> （首次配置、配对、Codex 配置、只读的 `doctor` 诊断）及其安装脚本，以及 Windows 端的
+> meshlink Rhino 插件。只在一台 UAC 关闭的 Windows 10 电脑上测试过。还没有发布正式版本。
+> 项目只支持 Rhino 8。
 
 ## 快速开始
 
@@ -34,7 +35,7 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 
 之后随时可以用 `meshlink doctor` 检查整条链路；`meshlink uninstall` 用于卸载。
 
-## 配对（0.2，开发中）
+## 配对
 
 可以不做第 3 到 5 步，改由 Windows 上的 meshlink Rhino 插件和 Mac 上的
 `meshlink pair` 在局域网里完成配对。两边屏幕会显示同一个 6 位配对码；双方都确认后，
@@ -42,12 +43,12 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
 的主机公钥并添加 Host 条目。只要有一方没有确认，两台电脑都不会有任何改动。协议见
 [docs/pairing.md](docs/pairing.md)。
 
-目前只在一台 UAC 关闭的 Windows 10 电脑上测试过，还没有包含在任何发布版本里。试用方法：
+目前只在一台 UAC 关闭的 Windows 10 电脑上测试过。试用方法：
 
-1. 在 Mac 上打包插件。需要 .NET SDK 和 McNeel 的
+1. 从 [0.3.0-dev 预发布版](https://github.com/rigelmansid/meshlink/releases/tag/v0.3.0-dev)下载 `meshlink-<版本>-rh8_17-win.yak`。想自己打包的话，
+   需要 .NET SDK 和 McNeel 的
    [`yak` 工具](https://developer.rhino3d.com/guides/yak/yak-cli-reference/)：
-   `YAK=/path/to/yak scripts/package-yak.sh` 生成
-   `dist/meshlink-<版本>-rh8_17-win.yak`。
+   `YAK=/path/to/yak scripts/package-yak.sh` 会把它生成到 `dist/`。
 2. 在 Windows 上按第 1 步装好 OpenSSH Server 和 RhinoMCP，再把 `.yak` 文件拖进
    Rhino 8（8.17 或更新），然后重启 Rhino。
 3. 在 Mac 上运行 `meshlink pair`。几秒内 Rhino 会弹出配对请求。核对两边的配对码，

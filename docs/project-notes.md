@@ -52,14 +52,14 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [scripts/prepare-windows.ps1](../scripts/prepare-windows.ps1) | W1 Windows 准备脚本（2026-10-01 首版），由用户在 Windows 管理员 PowerShell 中运行，职责见 D-12。 |
 | [tests/prepare-windows-checklist.md](../tests/prepare-windows-checklist.md) | W1 脚本的手动测试清单，以及尚未实测的路径。 |
 | [scripts/setup.sh](../scripts/setup.sh)、[scripts/client-codex.sh](../scripts/client-codex.sh) | Mac 端首次配置与 Codex 配置（2026-10-01 首版），职责见 [roadmap.md](roadmap.md) 首版范围；共用代码在 `scripts/lib/common.sh`（doctor 也用）；密钥、Host 条目、主机公钥三步在 `scripts/lib/sshcfg.sh`，供以后的配对复用（2026-10-04）。 |
-| [scripts/pair.sh](../scripts/pair.sh) | Mac 端配对（2026-10-05，0.2 开发中）：广播、四步交换、显示配对码、写 Host 条目与 known_hosts。协议见 [pairing.md](pairing.md)，计算在 `scripts/lib/pairing.sh`；2026-10-06 与插件在原环境 PC 上配对成功。 |
+| [scripts/pair.sh](../scripts/pair.sh) | Mac 端配对（2026-10-05，随 `v0.3.0-dev` 预发布）：广播、四步交换、显示配对码、写 Host 条目与 known_hosts。协议见 [pairing.md](pairing.md)，计算在 `scripts/lib/pairing.sh`；2026-10-06 与插件在原环境 PC 上配对成功。 |
 | [bin/meshlink](../bin/meshlink) | 统一命令 `meshlink`（2026-10-01）：只做分发，子命令转到 `scripts/` 下的脚本；导出 `MESHLINK_CLI`，让各脚本的提示写成 `meshlink ...`。 |
 | [install.sh](../install.sh)、[uninstall.sh](../uninstall.sh)、[scripts/package.sh](../scripts/package.sh)、`VERSION` | 安装到 `~/.local`、卸载、打包（2026-10-01 首版），职责见 [roadmap.md](roadmap.md) 首版范围。 |
 | [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 8 组场景（39 项断言）。 |
 | [tests/test-setup.sh](../tests/test-setup.sh) | 在临时 HOME 中用 fake ssh、ssh-keyscan、codex 验证 setup 与 client-codex 的 17 组场景（85 项断言）；假 codex 读写 `config.toml`。 |
 | [tests/test-doctor.sh](../tests/test-doctor.sh) | 用 fake codex 与 fake ssh 验证 doctor 的 12 组场景（48 项断言）。 |
 | [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类、重连与沙箱错误退出的 5 组场景（34 项断言）。 |
-| [rhino-plugin/](../rhino-plugin) | Windows 端（2026-10-05，0.2 开发中，D-19–D-23）：`Meshlink.Pairing` 协议库（四步会话、配对码、校验、Windows mDNS 发现）、`Meshlink.Pairing.Tests`（含 `prepare-windows.ps1` 语法检查）、`Meshlink.Pairing.Driver`（供 `PAIR_CLIENT=dotnet tests/test-pair.sh`）、`Meshlink.Rhino`（插件 `Meshlink.rhp`：配对弹窗、提权运行 `prepare-windows.ps1`、启动时 `mcpstart`、`MeshlinkUnpair`）。在 Mac 上用 .NET SDK 编译；2026-10-06 在原环境 PC 上按清单 R1–R10 测试通过（UAC 关闭）。 |
+| [rhino-plugin/](../rhino-plugin) | Windows 端（2026-10-05，随 `v0.3.0-dev` 预发布，D-19–D-23）：`Meshlink.Pairing` 协议库（四步会话、配对码、校验、Windows mDNS 发现）、`Meshlink.Pairing.Tests`（含 `prepare-windows.ps1` 语法检查）、`Meshlink.Pairing.Driver`（供 `PAIR_CLIENT=dotnet tests/test-pair.sh`）、`Meshlink.Rhino`（插件 `Meshlink.rhp`：配对弹窗、提权运行 `prepare-windows.ps1`、启动时 `mcpstart`、`MeshlinkUnpair`）。在 Mac 上用 .NET SDK 编译；2026-10-06 在原环境 PC 上按清单 R1–R10 测试通过（UAC 关闭）。 |
 | [scripts/package-yak.sh](../scripts/package-yak.sh) | 用官方 `yak`（D-24，维护者机器上在 `../materials/scratch/tools/yak`）把插件打成 `dist/meshlink-<版本>-rh8_17-win.yak`（2026-10-07）。2026-10-07 在原环境 PC 上验证了从包安装、撤销配对与卸载（清单 R12–R14）。 |
 | [tests/rhino-plugin-checklist.md](../tests/rhino-plugin-checklist.md) | 插件的手动测试清单（PC 上执行）。 |
 | [tests/test-pair.sh](../tests/test-pair.sh) | 配对：对照 [测试向量](../tests/pairing-vectors.txt) 检查承诺值与配对码；用 Python 假 Rhino 端、fake dns-sd / ssh / ssh-keyscan 和真实 `nc` 验证 `pair.sh` 的 15 组场景（共 118 项断言）。 |
@@ -70,16 +70,16 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 现有内容：实测过的连接指南；Mac 端统一命令 `meshlink`（`bin/meshlink`，子命令 `setup`、
 `pair`、`client codex`、`doctor` 等，实现都在 `scripts/`）、`install.sh` / `uninstall.sh` 与打包
 脚本 `scripts/package.sh`；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试清单；
-0.2 开发中的配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
+配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
 真实配对（2026-10-06）。自动化测试：五组 bash 测试（install 39、setup 85、doctor 48、
 tunnel 34、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/tests.yml`（D-29，
 2026-10-08 首次运行通过）；尚无依赖清单。
 
 仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，
-本地 `main` 与 `public-presquash` 永不推送（D-8）。预发布 `v0.1.0-dev`（2026-10-02）落后于
-`main`：之后又推送了 5 个提交，其中修复有密钥注释、重跑 `setup` 的密钥、远端报错换行、
-Windows 报告去掉 `-l`；不发中间预发布，等全新 Windows 验收后发正式 `0.1.0`（D-17）。原环境（§2）已从发布包安装 meshlink
-并在使用，Codex 经专用普通账户以选项 1 连接。
+本地 `main` 与 `public-presquash` 永不推送（D-8）。预发布：`v0.1.0-dev`（2026-10-02）与 demo
+`v0.3.0-dev`（2026-10-09，Mac 压缩包与插件 `.yak`，D-31）；全新 Windows 验收后发正式 `0.3.0`，
+不再单独发 0.1.0 或 0.2.x。原环境（§2）从 `0.1.0-dev` 发布包安装了 meshlink 并在使用，Codex 经专用
+普通账户以选项 1 连接。
 
 默认连接方式为选项 1（SSH stdio），前提是 Windows sshd 设置 `ClientAliveInterval`
 （§3、坑 16）。首版范围已定（[roadmap.md](roadmap.md)）。用户没有全新 Windows 或
@@ -396,11 +396,9 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
 
 ### 近期可执行任务
 
-- [ ] **配对：发布与剩余检查**（Phase 3 已于 2026-10-07 在原环境验证 R12–R14）：Yak 包暂不
-      推送（D-26），以后再定推送时机与首个公开版本号（预发布标签按字母排序，`dev` 之后改用
-      `beta` 会被当成更旧）；发布方式可随 GitHub Release 附 `.yak`，或推送公共 Yak
-      （2026-10-08 讨论，倾向先用前者，未定）。G、三处小改动已做过（见 log）。
-- [ ] **W1 脚本剩余路径的验收**（暂缓，D-18；正式 `0.1.0` 仍以它为前提，D-17）：方案 A（2026-10-02，见验证范围）已在原环境用新账户覆盖了
+- [ ] **插件是否推送公共 Yak**（D-26）：`v0.3.0-dev` 起 `.yak` 随 GitHub 预发布提供（D-31）；
+      推送公共 Yak 以后再定。预发布标签按字母排序（`dev` 之后改用 `beta` 会被当成更旧）。
+- [ ] **W1 脚本剩余路径的验收**（暂缓，D-18；正式 `0.3.0` 以它为前提，D-31）：方案 A（2026-10-02，见验证范围）已在原环境用新账户覆盖了
       一部分；`tests/prepare-windows-checklist.md` 的 “Not covered yet” 列出剩下的：未装
       OpenSSH、22 端口完全没有入站规则、管理员公钥文件多余权限、改动正在使用的
       `sshd_config` 并重启 sshd、为当前账户从零安装 uv 与 rhinomcp、`net localgroup`

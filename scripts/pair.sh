@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # Pairs this Mac with a PC over the local network, in place of setup.sh's
 # Windows command and fingerprint check. The meshlink Rhino plug-in on the PC
-# (planned for 0.2, not available yet) finds this Mac, both screens show the
-# same six-digit code, and once both people confirm, the PC installs this
-# Mac's key and this Mac trusts the PC's host key. The SSH link itself is
-# unchanged. Protocol: docs/pairing.md.
+# finds this Mac, both screens show the same six-digit code, and once both
+# people confirm, the PC installs this Mac's key and this Mac trusts the PC's
+# host key. The SSH link itself is unchanged. Protocol: docs/pairing.md.
 #
 # Nothing is written to ~/.ssh until both sides have confirmed and the PC
 # reports the key installed; only the key itself is created first if missing,
