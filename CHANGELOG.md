@@ -12,6 +12,12 @@ What changed in each version of meshlink, newest first. Versions follow
   `prepare-windows.ps1` and the plug-in's error message. The menu path
   "Settings → Apps → Optional features" does not exist on every Windows 10.
 
+### Fixed
+
+- `meshlink tunnel --help` started the tunnel and `meshlink doctor --help` ran
+  the check; both now print their usage, and an unknown option exits with
+  code 2.
+
 ## 0.3.0-dev - 2026-10-09
 
 Demo prerelease: the Mac package and the Rhino plug-in's package, with the same

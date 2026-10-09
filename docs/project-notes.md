@@ -54,10 +54,10 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [scripts/pair.sh](../scripts/pair.sh) | Mac 端配对（2026-10-05，随 `v0.3.0-dev` 预发布）：广播、四步交换、显示配对码、写 Host 条目与 known_hosts。协议见 [pairing.md](pairing.md)，计算在 `scripts/lib/pairing.sh`；2026-10-06 与插件在原环境 PC 上配对成功。 |
 | [bin/meshlink](../bin/meshlink) | 统一命令 `meshlink`（2026-10-01）：只做分发，子命令转到 `scripts/` 下的脚本；导出 `MESHLINK_CLI`，让各脚本的提示写成 `meshlink ...`。 |
 | [install.sh](../install.sh)、[uninstall.sh](../uninstall.sh)、[scripts/package.sh](../scripts/package.sh)、`VERSION` | 安装到 `~/.local`、卸载、打包（2026-10-01 首版），职责见 [roadmap.md](roadmap.md) 首版范围。 |
-| [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 8 组场景（39 项断言）。 |
+| [tests/test-install.sh](../tests/test-install.sh) | 在临时 HOME 中验证打包、安装、升级、卸载与 `meshlink` 分发的 8 组场景（41 项断言）。 |
 | [tests/test-setup.sh](../tests/test-setup.sh) | 在临时 HOME 中用 fake ssh、ssh-keyscan、codex 验证 setup 与 client-codex 的 17 组场景（85 项断言）；假 codex 读写 `config.toml`。 |
 | [tests/test-doctor.sh](../tests/test-doctor.sh) | 用 fake codex 与 fake ssh 验证 doctor 的 12 组场景（48 项断言）。 |
-| [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类、重连与沙箱错误退出的 5 组场景（34 项断言）。 |
+| [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类、重连、沙箱错误退出与选项处理的 6 组场景（38 项断言）。 |
 | [rhino-plugin/](../rhino-plugin) | Windows 端（2026-10-05，随 `v0.3.0-dev` 预发布，D-19–D-23）：`Meshlink.Pairing` 协议库（四步会话、配对码、校验、Windows mDNS 发现）、`Meshlink.Pairing.Tests`（含 `prepare-windows.ps1` 语法检查）、`Meshlink.Pairing.Driver`（供 `PAIR_CLIENT=dotnet tests/test-pair.sh`）、`Meshlink.Rhino`（插件 `Meshlink.rhp`：配对弹窗、提权运行 `prepare-windows.ps1`、启动时 `mcpstart`、`MeshlinkUnpair`）。在 Mac 上用 .NET SDK 编译；2026-10-06 在原环境 PC 上按清单 R1–R10 测试通过（UAC 关闭）。 |
 | [scripts/package-yak.sh](../scripts/package-yak.sh) | 用官方 `yak`（D-24，维护者机器上在 `../materials/scratch/tools/yak`）把插件打成 `dist/meshlink-<版本>-rh8_17-win.yak`（2026-10-07）。2026-10-07 在原环境 PC 上验证了从包安装、撤销配对与卸载（清单 R12–R14）。 |
 | [tests/rhino-plugin-checklist.md](../tests/rhino-plugin-checklist.md) | 插件的手动测试清单（PC 上执行）。 |
@@ -70,8 +70,8 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 `pair`、`client codex`、`doctor` 等，实现都在 `scripts/`）、`install.sh` / `uninstall.sh` 与打包
 脚本 `scripts/package.sh`；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试清单；
 配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
-真实配对（2026-10-06）。自动化测试：五组 bash 测试（install 39、setup 85、doctor 48、
-tunnel 34、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/tests.yml`（D-29，
+真实配对（2026-10-06）。自动化测试：五组 bash 测试（install 41、setup 85、doctor 48、
+tunnel 38、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/tests.yml`（D-29，
 2026-10-08 首次运行通过）；尚无依赖清单。
 
 仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，

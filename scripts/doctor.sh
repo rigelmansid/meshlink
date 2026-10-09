@@ -18,6 +18,13 @@
 # a working SSH login or "connected" in /mcp each prove one segment only.
 set -uo pipefail
 
+# Settings come from the environment; the only option is --help.
+case ${1:-} in
+  "") ;;
+    -h|--help) sed -n '2,/^set -uo/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
+  *) echo "unknown option: $1 (see --help)" >&2; exit 2 ;;
+esac
+
 SERVER="${SERVER:-rhino}"
 TIMEOUT="${TIMEOUT:-30}"
 TOOL=get_document_summary

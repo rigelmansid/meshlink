@@ -14,6 +14,7 @@
 #       -> reset vs backoff classification + reconnect
 #   T5  ssh refused the network ("Operation not permitted", as in a sandbox)
 #       -> stops with exit 3 instead of retrying forever (pitfall 13)
+#   T6  --help prints usage and an unknown option exits 2, neither runs ssh
 #
 # Usage: tests/test-rhino-tunnel.sh
 set -uo pipefail
@@ -262,11 +263,39 @@ t5_sandbox() {
   else ok "no tee left running (T5)"; fi
 }
 
+t6_options() {
+  echo "T6: --help and unknown options never start ssh"
+  local before after code arg log
+  before=$(wc -l <"$WORK/args.log" 2>/dev/null || echo 0)
+  # Should a regression start the tunnel, it must not hang the run or touch
+  # port 1999: a test port, a failing fake ssh and a 3s limit.
+  for arg in --help --bogus; do
+    log="$WORK/t6${arg#--}.log"
+    env PATH="$FAKE_BIN:$PATH" FAKE_MODE=quick-fail FAKE_ARGS_FILE="$WORK/args.log" \
+        LOCAL_PORT=29937 TMPDIR="$TUN_TMP" CODEX_CONFIG="$WORK/empty.toml" \
+        "$TUNNEL" "$arg" >"$log" 2>&1 &
+    TPID=$!
+    if gone_within "$TPID" 3; then
+      wait "$TPID"; code=$?; TPID=
+    else
+      bad "$arg did not return within 3s (T6)"; stop_tunnel; continue
+    fi
+    case $arg in
+      --help) [[ $code -eq 0 ]] && ok "--help exits 0 (T6)" || bad "--help exit code $code (T6)"
+              assert_contains "$log" "Usage:" "--help prints usage (T6)" ;;
+      *)      [[ $code -eq 2 ]] && ok "unknown option exits 2 (T6)" || bad "unknown option exit code $code (T6)" ;;
+    esac
+  done
+  after=$(wc -l <"$WORK/args.log" 2>/dev/null || echo 0)
+  [[ $before -eq $after ]] && ok "ssh not run for options (T6)" || bad "ssh ran for --help or an unknown option (T6)"
+}
+
 t1_term_while_up
 t2_term_during_backoff
 t3_sigint_to_group
 t4_reconnect
 t5_sandbox
+t6_options
 
 # Pinned across all six spawns (args.log accumulates one argument per line):
 # the daemon's ssh must never be able to prompt -- a password or host-key

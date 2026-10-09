@@ -105,6 +105,9 @@ exit_is "$rc" 1 "doctor runs (and fails: no rhino entry)"
 has "$WORK/i3e.log" "add one with meshlink client codex" "hints name meshlink commands"
 in_home "$WORK/i3f.log" -- "$M" setup --help
 has "$WORK/i3f.log" "First-time setup on the Mac" "setup --help"
+in_home "$WORK/i3g.log" -- "$M" doctor --help
+exit_is "$rc" 0 "doctor --help exits 0"
+has "$WORK/i3g.log" "Read-only health check" "doctor --help prints usage, not a check"
 
 echo "I4 reinstall and upgrade"
 cp -R "$REL" "$WORK/rel2"

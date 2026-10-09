@@ -44,10 +44,10 @@ Do not copy project content into this file.
 
 ```sh
 for f in bin/meshlink $(git ls-files '*.sh'); do bash -n "$f"; done   # syntax
-tests/test-rhino-tunnel.sh           # ~40 s, expects "passed: 34  failed: 0"
+tests/test-rhino-tunnel.sh           # ~40 s, expects "passed: 38  failed: 0"
 tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
 tests/test-setup.sh                  # ~5 s, expects "passed: 85  failed: 0"
-tests/test-install.sh                # ~10 s, expects "passed: 39  failed: 0"
+tests/test-install.sh                # ~10 s, expects "passed: 41  failed: 0"
 tests/test-pair.sh                   # ~25 s, expects "passed: 118  failed: 0"
 scripts/package.sh                   # builds dist/ (git-ignored); test-install removes it
 

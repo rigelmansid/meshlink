@@ -20,6 +20,14 @@
 #         LOCAL_PORT=2999 scripts/rhino-tunnel.sh    # plus the same edit in codex config
 set -uo pipefail
 
+# Settings come from the environment; the only option is --help, handled
+# before anything that could start ssh.
+case ${1:-} in
+  "") ;;
+    -h|--help) sed -n '2,/^set -uo/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
+  *) echo "[tunnel] unknown option: $1 (see --help)" >&2; exit 2 ;;
+esac
+
 HOST="${HOST:-rhino-pc}"
 LOCAL_PORT="${LOCAL_PORT:-1999}"
 REMOTE_PORT="${REMOTE_PORT:-1999}"
