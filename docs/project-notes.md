@@ -4,17 +4,16 @@
 
 ## Handoff
 
-Updated: 2026-10-08 11:52
-- Task: 无，上一个工作单元：§7 剩余项收尾（探测脚本 stderr、隧道沙箱退出、CI、文档整理、关闭 PR #63）
-- Stopped at: 全部已推送到 `2952f17`，CI 两次运行通过；本次 /wrap 的文档改动未提交
-- Decisions: D-29、D-30
-- Waiting on user: 提交本次文档改动（可与下次改动一起）；准备一台全新 Windows（虚拟机即可）；
-  插件发布方式（随 GitHub Release 附 `.yak`，或推送公共 Yak）与首个公开版本号（D-26）
-- Next: 1. 有全新 Windows 后，按 `tests/prepare-windows-checklist.md` 的 “Not covered yet” 与
-  `tests/rhino-plugin-checklist.md` 的 R11 整理一份分步验收说明给用户；2. 验收通过后定 0.1.0 / 0.2
-  的发布与插件发布方式
-- Don't repeat: PR #63 已关闭、fork 已删，不再跟进；推送 `.github/workflows/` 的改动要用 gh 的令牌
-  （坑 22）；插件 R1–R10 与 R12–R14、清单 G、三处小改动、隧道真实终端 Ctrl-C 已在原环境做过
+Updated: 2026-10-09 09:45
+- Task: demo 预发布 `v0.3.0-dev`（D-31）已发到 GitHub，附 Mac 压缩包与插件 `.yak`
+- Stopped at: 发布完成（目标 `bde59d4`，CI 通过，下载校验一致）；本条与 log 的记录已提交、未推送
+- Decisions: D-31（替代 D-17）
+- Waiting on user: 在 PC 上从 GitHub 用浏览器下载 `.yak` 覆盖安装 0.3.0-dev；是否升级本机 Mac 上的
+  meshlink（现为 0.1.0-dev，`~/.local`）；推送本次记录；博客第 1 节口述（草稿在 `../materials/scratch/post-draft/`）
+- Next: 1. 用户装好后核对 Package Manager 显示 0.3.0-dev、启动时的 `[meshlink]` 行，再跑 `meshlink doctor`；
+  2. 全新 Windows 验收（UAC 开启、W1 剩余、Windows 11），之后发正式 `0.3.0`
+- Don't repeat: 不再单独发 0.1.0 / 0.2.x；`gh release create --target` 要用完整 40 位哈希；推送 workflow 文件要用
+  gh 的令牌（坑 22）；PR #63 已关闭、fork 已删
 
 ## 项目概况
 

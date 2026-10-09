@@ -60,6 +60,7 @@
 | 2026-10-08，关闭上游 PR #63 | 按 D-30 关闭 jingcheng-chen/rhinomcp#63（11:38，留言说明以后可能重新提交），fork `rigelmansid/rhinomcp` 由用户在网页删除；本机临时 clone `/tmp/rhinomcp-upstream` 已被系统清空（0 字节），删除；`private-notes.md` 删去其恢复方法。D-7 标为已被替代；§7 删去“跟进 PR #63”；AGENTS.md、remote-setup.md、roadmap、当前状态相应改写。 | 关闭前核对 fork：`main` 与上游相同，`harness` 无自己的提交；PR 中的 `docs/REMOTE.md` 与本仓库 `docs/remote-setup.md` 正文相同（本仓库只多三处说明）。`gh pr view` 确认 CLOSED。fork 删除尚待用户操作。 |
 | 2026-10-08，推送 `2952f17` | 用户在网页删除 fork 后推送；CI 第二次运行（run 37724142797）通过。 | `gh api repos/rigelmansid/rhinomcp` 返回 404，确认 fork 已删除。 |
 | 2026-10-08，收尾 | project-notes 的「进行中」改为 Handoff 格式（D-42），AGENTS.md 的引用同步；新增坑 22（推送 workflow 文件需要 `workflow` 权限）。 | 仅文档改动。 |
+| 2026-10-09，demo 预发布 `v0.3.0-dev` | 按 D-31：`VERSION` 与插件 `<Version>` 改为 `0.3.0-dev`；CHANGELOG、README（中英）、roadmap、pairing.md、当前状态与待办改写（原 0.2 并入，正式版为 `0.3.0`）。GitHub 预发布 `v0.3.0-dev`（目标 `bde59d4`），附 Mac 压缩包、`.yak` 与两者的 `.sha256`；发布说明写在仓库外。 | 本机：install 39、setup 85、doctor 48、pair 118、`dotnet test` 62；CI（run 37870401425）通过后才创建发布。压缩包 16 个文件与 `bde59d4` 逐一比对一致，属主 `root:wheel`、无扩展属性与用户名；从压缩包在临时 HOME 安装后 `meshlink version` 为 `0.3.0-dev`；`.yak` 的 manifest 版本 `0.3.0-dev`，其中脚本与仓库一致；从 GitHub 重新下载后校验值一致。未在 PC 上安装 `0.3.0-dev` 的 `.yak`，未经浏览器下载测试。 |
 
 ## 验证记录
 
