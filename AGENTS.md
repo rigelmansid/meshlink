@@ -1,4 +1,3 @@
-<!-- profile: code -->
 # AGENTS.md
 
 Working rules for AI agents (Claude Code, Codex and others) and maintainers of

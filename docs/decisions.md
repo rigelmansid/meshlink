@@ -507,3 +507,13 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
 - 影响：强制移动已公开的标签 `v0.3.0-dev`，重传 4 个附件（`--clobber`），重写发布说明；CHANGELOG 把这些
   改动并入 `0.3.0-dev`。之前下载过的人拿到的是同名的旧内容：Mac 端重跑 `get.sh` 或 `install.sh` 即可更新；
   PC 上同版本的 `.yak` 要先在 Package Manager 卸载再装。以后发正式版时不再这样原地替换。
+
+### D-35 去掉 code profile 声明，接入后的文件全部保留（2026-10-09，用户决定）
+
+- 背景：agent-system 收敛为 RULE.md 和 /adopt、/pickup、/wrap、/private 四个命令，删除了 profile
+  （agent-system D-62）；有 `docs/project-notes.md` 就算接入，AGENTS.md 第一行的 profile 声明不再起作用。
+- 选项：A 保留这行声明 / B 删掉声明，接入后的文件全部保留
+- 选择：B
+- 理由：用户决定；不起作用的声明留着，会让人以为还在按 code profile 工作。
+- 影响：AGENTS.md 第一行。code profile 的规则不再自动加载，测试、提交、验证、发布等规则 AGENTS.md 里已有；`log.md` 照
+  AGENTS.md「Keeping docs current」一节继续更新；新记的坑按 agent-system RULE.md 第 2 节的格式，旧条目不改；pre-commit 钩子不变。
