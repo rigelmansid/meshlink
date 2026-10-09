@@ -4,15 +4,15 @@
 
 ## Handoff
 
-Updated: 2026-10-09 10:53
-- Task: 简化安装：Mac 一行命令 `get.sh`（D-32）；Windows 插件手动装 `.yak`、OpenSSH 一行命令（D-33）
-- Stopped at: 改动都在本地，未推送；`get.ps1` 方案已撤回（存于 `../materials/scratch/withdrawn/`）
-- Decisions: D-31、D-32、D-33
-- Waiting on user: 确认全部改动后再推送与发布（用户要求；下一版版本号待定）；PC 上试
-  `ms-settings:optionalfeatures`；博客暂缓
-- Next: 1. 用户确认后推送（含 workflow，用 gh 令牌，坑 22），看 CI，用真实的 `get.sh` 一行命令装一次，
-  发下一版并更新发布说明；2. 全新 Windows 验收（含 README 的 OpenSSH 一行命令）后发正式 `0.3.0`
-- Don't repeat: 不要自行推送或发布；不要再做装插件的 Windows 脚本（用户撤回）；查最新版用 releases.atom
+Updated: 2026-10-09 11:17
+- Task: 无，上一个工作单元：简化安装（D-32、D-33）并原地更新 `v0.3.0-dev`（D-34）
+- Stopped at: 全部已推送；标签 `v0.3.0-dev` 指向 `99e5f1f`，附件与发布说明已换新；真实的 `get.sh` 一行命令已验证
+- Decisions: D-32、D-33、D-34
+- Waiting on user: 是否用 `get.sh` 更新本机 Mac 的 meshlink（现为更新前的 0.3.0-dev）、PC 上是否重装新 `.yak`
+  （同版本需先卸载）；PC 上试 `ms-settings:optionalfeatures`；博客（第 1 节口述）
+- Next: 1. 按用户意见更新两端安装并跑 `meshlink doctor`；2. 全新 Windows 验收（UAC 开启、OpenSSH 一行命令、
+  W1 剩余、Windows 11）后发正式 `0.3.0`，正式版不再原地替换
+- Don't repeat: 不要自行推送或发布；推送 workflow 改动用 gh 令牌（坑 22）；不要再做装插件的 Windows 脚本
 
 ## 项目概况
 
@@ -77,7 +77,7 @@ tunnel 38、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/te
 
 仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，
 本地 `main` 与 `public-presquash` 永不推送（D-8）。预发布：`v0.1.0-dev`（2026-10-02）与 demo
-`v0.3.0-dev`（2026-10-09，Mac 压缩包与插件 `.yak`，D-31）；全新 Windows 验收后发正式 `0.3.0`，
+`v0.3.0-dev`（2026-10-09，Mac 压缩包与插件 `.yak`，D-31；同日原地更新，D-34）；全新 Windows 验收后发正式 `0.3.0`，
 不再单独发 0.1.0 或 0.2.x。原环境（§2）装着 meshlink（2026-10-09 升级到 `0.3.0-dev`）并在使用，Codex 经专用
 普通账户以选项 1 连接。
 
