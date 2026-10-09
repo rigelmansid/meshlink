@@ -5,7 +5,8 @@
 # Codex's MCP entry is removed only after a yes (or --remove-codex). Like
 # `codex mcp add`, `codex mcp remove` rewrites config.toml without its comments
 # (pitfall 19), so a backup is made first. ~/.ssh is never changed; the entries
-# and key that `meshlink setup` made are listed so they can be removed by hand.
+# and key that `meshlink setup` or `meshlink pair` made, and the PATH line that
+# get.sh added, are listed so they can be removed by hand.
 #
 # Usage:  meshlink uninstall [--remove-codex | --keep-codex] [--name rhino]
 set -uo pipefail

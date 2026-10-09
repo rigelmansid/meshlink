@@ -19,7 +19,7 @@ usage: meshlink <command> [options]
 
   setup            first-time setup: SSH key, ~/.ssh/config entry, the PC's host key
   pair             the same over the local network, confirmed by a code on both screens
-                   (needs the meshlink Rhino plug-in, which is not released yet)
+                   (needs the meshlink plug-in in Rhino on the PC)
   client codex     point Codex's MCP entry at rhinomcp on the PC
   doctor           read-only check of the whole link, ending with one tool call
   windows-script   print the path of prepare-windows.ps1, to copy to the PC

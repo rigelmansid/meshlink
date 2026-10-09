@@ -3,6 +3,13 @@
 What changed in each version of meshlink, newest first. Versions follow
 [SemVer](https://semver.org/); dates are YYYY-MM-DD.
 
+## Unreleased
+
+### Fixed
+
+- `meshlink --help` no longer says the Rhino plug-in is unreleased, and
+  `uninstall`'s own description names what `pair` and `get.sh` add.
+
 ## 0.3.0-dev - 2026-10-09
 
 Demo prerelease: the Mac package and the Rhino plug-in's package, with the same
