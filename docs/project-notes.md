@@ -4,16 +4,16 @@
 
 ## Handoff
 
-Updated: 2026-10-09 09:45
-- Task: demo 预发布 `v0.3.0-dev`（D-31）已发到 GitHub，附 Mac 压缩包与插件 `.yak`
-- Stopped at: 发布完成（目标 `bde59d4`，CI 通过，下载校验一致）；本条与 log 的记录已提交、未推送
+Updated: 2026-10-09 09:51
+- Task: 无，上一个工作单元：demo 预发布 `v0.3.0-dev`（D-31）发布并在两端装好验证
+- Stopped at: Mac 从发布包升级、PC 从 GitHub 下载 `.yak` 覆盖安装，doctor 正常；记录已提交，未推送
 - Decisions: D-31（替代 D-17）
-- Waiting on user: 在 PC 上从 GitHub 用浏览器下载 `.yak` 覆盖安装 0.3.0-dev；是否升级本机 Mac 上的
-  meshlink（现为 0.1.0-dev，`~/.local`）；推送本次记录；博客第 1 节口述（草稿在 `../materials/scratch/post-draft/`）
-- Next: 1. 用户装好后核对 Package Manager 显示 0.3.0-dev、启动时的 `[meshlink]` 行，再跑 `meshlink doctor`；
-  2. 全新 Windows 验收（UAC 开启、W1 剩余、Windows 11），之后发正式 `0.3.0`
-- Don't repeat: 不再单独发 0.1.0 / 0.2.x；`gh release create --target` 要用完整 40 位哈希；推送 workflow 文件要用
-  gh 的令牌（坑 22）；PR #63 已关闭、fork 已删
+- Waiting on user: 推送本次记录；博客（草稿在 `../materials/scratch/post-draft/`，第 1 节等用户口述）；
+  准备全新 Windows（虚拟机即可）
+- Next: 1. 用户确认后继续博客：补第 1 节、加下载链接 `releases/tag/v0.3.0-dev`；2. 全新 Windows 验收
+  （UAC 开启、W1 剩余、Windows 11），之后发正式 `0.3.0`
+- Don't repeat: 两端都已是 0.3.0-dev，不要再装；不再单独发 0.1.0 / 0.2.x；`gh release create --target` 用
+  完整哈希；推送 workflow 文件要用 gh 的令牌（坑 22）；PR #63 已关闭、fork 已删
 
 ## 项目概况
 
@@ -77,7 +77,7 @@ tunnel 34、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/te
 仓库 `rigelmansid/meshlink` 已公开（2026-10-02）。开发与推送都在本地 `public` 分支，
 本地 `main` 与 `public-presquash` 永不推送（D-8）。预发布：`v0.1.0-dev`（2026-10-02）与 demo
 `v0.3.0-dev`（2026-10-09，Mac 压缩包与插件 `.yak`，D-31）；全新 Windows 验收后发正式 `0.3.0`，
-不再单独发 0.1.0 或 0.2.x。原环境（§2）从 `0.1.0-dev` 发布包安装了 meshlink 并在使用，Codex 经专用
+不再单独发 0.1.0 或 0.2.x。原环境（§2）装着 meshlink（2026-10-09 升级到 `0.3.0-dev`）并在使用，Codex 经专用
 普通账户以选项 1 连接。
 
 默认连接方式为选项 1（SSH stdio），前提是 Windows sshd 设置 `ClientAliveInterval`
@@ -150,7 +150,7 @@ MCP 客户端 ──stdio──► rhinomcp ──127.0.0.1:1999──► ssh -L
 | Mac | 与 Windows 同一局域网，macOS 26（arm64） |
 | Windows | `<pc-address>`，用户 `<windows-user>`，Win10 22H2 build 19045.6466 |
 | SSH 登录账户 | 2026-10-01 起 Codex 用专用普通账户 `rhino-agent` 登录（方案 B，D-13）；15:53 起由 `setup.sh` 在 `~/.ssh/config` 新增 `Host rhino-agent`，Codex 参数不再带 `-l`，uv 与 rhinomcp 0.4.1.1 装在该账户目录下；另有一个 Host 条目供维护和诊断 |
-| meshlink | 2026-10-01 起从发布包安装 0.1.0-dev：文件在 `~/.local/share/meshlink`，命令 `~/.local/bin/meshlink` |
+| meshlink | 2026-10-09 从 GitHub 预发布 `v0.3.0-dev` 的压缩包升级（原为 2026-10-01 安装的 0.1.0-dev）：文件在 `~/.local/share/meshlink`，命令 `~/.local/bin/meshlink` |
 | Rhino | 8（插件仅支持 8，7 装不上）；2026-09-25 观察到 8.35.26237.11001 |
 | rhinomcp | 0.4.1.1（PyPI）；Mac 上用 `uv tool install` 安装，Windows 上 2026-09-26 同版本安装在用户目录 |
 | Codex | 2026-09-25/26 会话为 CLI 0.155.1（npm 安装，经 nvm 的 Node）；2026-10-01 上午 0.159.2，15:09 已自动升到 0.159.3（坑 14） |
