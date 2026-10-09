@@ -263,3 +263,13 @@
     `--no-xattrs --no-mac-metadata`；`tests/test-install.sh` 断言属主是 `root:wheel`、
     压缩包里没有扩展属性。发布前的个人信息检查要包括压缩包的元数据。
 
+
+22. **推送 workflow 文件被拒：令牌没有 `workflow` 权限**（2026-10-08 发现）—— 首次推送
+    `.github/workflows/tests.yml` 时 GitHub 拒绝：`refusing to allow a Personal Access Token to
+    create or update workflow ... without workflow scope`，整个推送没有生效。git 的凭据来自
+    macOS 钥匙串（`credential.helper=osxkeychain`），其中的令牌和 gh 的令牌都只有 `repo` 等
+    权限。普通文件的推送不受影响，所以平时看不出来。
+
+    → 用户运行 `gh auth refresh -h github.com -s workflow` 给 gh 的令牌加权限，之后只在
+    改动 workflow 文件的那次推送里临时改用 gh 的令牌，不改 `~/.gitconfig`：
+    `git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin public:main`。

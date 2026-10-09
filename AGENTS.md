@@ -6,13 +6,13 @@ this repository. `CLAUDE.md` is a symlink to this file; edit `AGENTS.md` only.
 
 This file says *how to work*. Project content lives in `docs/`, all in Chinese:
 
-- [project-notes.md](docs/project-notes.md): 进行中 (work in progress), current
+- [project-notes.md](docs/project-notes.md): Handoff (work in progress), current
   status, architecture, config, daily use, §7 todo list. Section numbers (§)
   below refer to this file.
 - [roadmap.md](docs/roadmap.md): first-release scope, product shape, phases,
   open questions and risks.
 - [decisions.md](docs/decisions.md): decisions D-1 onward, with their reasons.
-- [pitfalls.md](docs/pitfalls.md): pitfalls 坑 1–21.
+- [pitfalls.md](docs/pitfalls.md): pitfalls 坑 1–22.
 - [log.md](docs/log.md): stage log and verification records.
 - [pairing.md](docs/pairing.md): the 0.2 pairing protocol (draft).
 
@@ -20,7 +20,7 @@ Do not copy project content into this file.
 
 ## Getting started
 
-1. Read project-notes 进行中 and the §7 todo list, and restate the state to the
+1. Read project-notes Handoff and the §7 todo list, and restate the state to the
    user before changing anything. Decide whether the task is development or
    restoring a working setup.
 2. Restoring a setup: check environment, config and startup against §2–§4, then
@@ -74,6 +74,7 @@ and can flake on a busy machine; rerun before assuming a regression.
 CI (`.github/workflows/tests.yml`, D-29) runs the syntax check and every test
 above except the packaging on macOS, with the system bash 3.2, for each push
 to `main` and each pull request. There is no build step or package manifest.
+Pushing a change to the workflow needs a token with the `workflow` scope (坑 22).
 
 `scripts/prepare-windows.ps1` has no automated run, only a syntax check in
 `Meshlink.Pairing.Tests`: run `tests/prepare-windows-checklist.md` by hand on
@@ -160,7 +161,7 @@ comments and in the pitfalls cited. Do not "simplify" them away.
   user choices and non-obvious agent choices, not implementation detail. Cite
   the number in rules, code comments and commit bodies (`Why: D-14`). A changed
   decision gets a new entry, and the old heading "（已被 D-n 替代）".
-- After a unit of work: overwrite the 进行中 block in project-notes (task,
+- After a unit of work: overwrite the Handoff block in project-notes (task,
   where it stopped, decisions, what needs the user, next steps, what not to
   repeat; at most 15 lines); update 当前状态 and 验证现状 and the §7 todo list;
   append a row to the stage log in `docs/log.md` and, for real checks, to its

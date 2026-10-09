@@ -2,18 +2,19 @@
 
 最后更新：2026-10-08。
 
-## 进行中
+## Handoff
 
-更新：2026-10-08 11:40
-- 任务：§7 剩余项。已推送（`57cfe98`）：探测脚本 stderr、隧道遇沙箱错误退出（坑 13）、CI（D-29，
-  首次运行通过）、AGENTS.md 精简、CHANGELOG；本次：关闭上游 PR #63、删本机临时 clone（D-30）
-- 停在：CI 结果与 D-30 的文档改动已提交，未推送；fork `rigelmansid/rhinomcp` 待用户在网页删除
-- 本次决策：D-29、D-30
-- 待用户确认：推送；插件发布方式与首个公开版本号（D-26）
-- 下一步：1. 用户删 fork 后用 `gh api repos/rigelmansid/rhinomcp` 确认（应为 404）；2. UAC 开启
-  路径与 W1 剩余验收随全新 Windows 做（暂缓，D-18）
-- 不要重复：PR #63 已关闭（不要再跟进或留言）；推送 workflow 文件要用 gh 的令牌；探针 P1–P4、插件
-  R1–R10 与 R12–R14、清单 G、三处小改动、隧道真实终端 Ctrl-C（tee 改动前后）已在原环境做过
+Updated: 2026-10-08 11:52
+- Task: 无，上一个工作单元：§7 剩余项收尾（探测脚本 stderr、隧道沙箱退出、CI、文档整理、关闭 PR #63）
+- Stopped at: 全部已推送到 `2952f17`，CI 两次运行通过；本次 /wrap 的文档改动未提交
+- Decisions: D-29、D-30
+- Waiting on user: 提交本次文档改动（可与下次改动一起）；准备一台全新 Windows（虚拟机即可）；
+  插件发布方式（随 GitHub Release 附 `.yak`，或推送公共 Yak）与首个公开版本号（D-26）
+- Next: 1. 有全新 Windows 后，按 `tests/prepare-windows-checklist.md` 的 “Not covered yet” 与
+  `tests/rhino-plugin-checklist.md` 的 R11 整理一份分步验收说明给用户；2. 验收通过后定 0.1.0 / 0.2
+  的发布与插件发布方式
+- Don't repeat: PR #63 已关闭、fork 已删，不再跟进；推送 `.github/workflows/` 的改动要用 gh 的令牌
+  （坑 22）；插件 R1–R10 与 R12–R14、清单 G、三处小改动、隧道真实终端 Ctrl-C 已在原环境做过
 
 ## 项目概况
 
@@ -44,7 +45,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [docs/remote-setup.md](remote-setup.md) | 英文连接指南（两种 SSH 方式、Windows OpenSSH 配置、排障、安全）。曾提交为上游 PR #63，2026-10-08 关闭（D-30）。 |
 | `docs/project-notes.md` | 进行中的工作、现状、架构、配置、待办与规划（本文）。 |
 | [docs/decisions.md](decisions.md) | 决策记录 D-1 起：背景、选项、选择、理由、影响。 |
-| [docs/pitfalls.md](pitfalls.md) | 踩过的坑 1–21：现象、原因、修法、启示。 |
+| [docs/pitfalls.md](pitfalls.md) | 踩过的坑 1–22：现象、原因、修法、启示。 |
 | [docs/log.md](log.md) | 阶段记录与验证记录（原 §9 与原「验证范围」表），只追加。 |
 | [scripts/rhino-tunnel.sh](../scripts/rhino-tunnel.sh) | 选项 2 的 SSH 隧道守护脚本：端口占用检查、端口配置不一致警告、断线退避重连、信号清理；ssh 完全不能联网（沙箱）时以退出码 3 结束（坑 13）。 |
 | [scripts/doctor.sh](../scripts/doctor.sh) | 只读诊断（2026-10-01 首版）：从 `codex mcp get --json` 读取 Codex 实际使用的命令，逐段检查到一次真实的 MCP 工具调用。设计见 [roadmap.md](roadmap.md) 首版范围。 |
