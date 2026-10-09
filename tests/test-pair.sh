@@ -202,7 +202,12 @@ def step(n, lines):
 
 hostkey = key(open(a.hostkey).read())
 if a.stray_first:
-    talk(b"GET / HTTP/1.0\r\n\r\n")
+    # Like a port scan, it does not care how the Mac answers, and nc may reset
+    # it (seen on a CI runner, 2026-10-09).
+    try:
+        talk(b"GET / HTTP/1.0\r\n\r\n")
+    except OSError:
+        pass
 nonce_w = secrets.token_hex(16)
 commit = sha("meshlink-pair-v1 commit\n%s\n%s\n" % (hostkey, nonce_w))
 if a.bad_commit:
