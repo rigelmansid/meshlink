@@ -19,9 +19,8 @@ Do not copy project content into this file.
 
 ## Getting started
 
-1. Read project-notes Handoff and the §7 todo list, and restate the state to the
-   user before changing anything. Decide whether the task is development or
-   restoring a working setup.
+1. Decide whether the task is development or restoring a working setup. The
+   current state is shown when the user types `/pickup`.
 2. Restoring a setup: check environment, config and startup against §2–§4, then
    make one read-only Rhino tool call (see Verification).
 3. Before changing tunnel logic: read the related decisions (D-1, D-4, D-10)
@@ -160,11 +159,9 @@ comments and in the pitfalls cited. Do not "simplify" them away.
   user choices and non-obvious agent choices, not implementation detail. Cite
   the number in rules, code comments and commit bodies (`Why: D-14`). A changed
   decision gets a new entry, and the old heading "（已被 D-n 替代）".
-- After a unit of work: overwrite the Handoff block in project-notes (task,
-  where it stopped, decisions, what needs the user, next steps, what not to
-  repeat; at most 15 lines); update 当前状态 and 验证现状 and the §7 todo list;
-  append a row to the stage log in `docs/log.md` and, for real checks, to its
-  verification records. Do not write a separate handoff file.
+- At `/wrap`, also update 当前状态 and 验证现状 in project-notes, and append a
+  row to the stage log in `docs/log.md` and, for real checks, to its
+  verification records.
 - 当前状态 holds only the latest snapshot; outdated conclusions move to
   `docs/log.md` with their date. Maintain each config and procedure in one
   place and link to it. New pitfalls go at the end of `docs/pitfalls.md`.
