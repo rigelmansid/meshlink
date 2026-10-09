@@ -4,14 +4,14 @@
 
 ## Handoff
 
-Updated: 2026-10-09 11:57
-- Task: 无，上一个工作单元：全面复查并改正（文档一致性、卸载提示、CI 升到 Node 24 的 action 版本）
-- Stopped at: 全部提交在本地，未推送（领先 3 个提交，其中一个改了 workflow，推送要用 gh 的令牌，坑 22）
+Updated: 2026-10-09 12:15
+- Task: 无，上一个工作单元：复查后的修正推送，`v0.3.0-dev` 第二次原地更新（D-34）
+- Stopped at: 全部已推送，标签 `v0.3.0-dev` 指向 `ed86ad4`，CI 通过；本机 Mac 已是最新内容
 - Decisions: D-32、D-33、D-34
-- Waiting on user: 推送；是否把 Unreleased 的修正也原地更新进 `v0.3.0-dev`；PC 上试 `ms-settings:optionalfeatures`；
-  博客（第 1 节口述，草稿里的数字要更新）
-- Next: 1. 推送后看 CI（确认 v5 action 无弃用警告）；2. 全新 Windows 验收后发正式 `0.3.0`
-- Don't repeat: 两端都已是更新后的 0.3.0-dev；不要自行推送或发布；不要再做装插件的 Windows 脚本
+- Waiting on user: PC 上试 `ms-settings:optionalfeatures`；博客（第 1 节口述，草稿里的数字要更新）；准备全新 Windows
+- Next: 1. 全新 Windows 验收（UAC 开启、README 的 OpenSSH 一行命令、W1 剩余、Windows 11）；2. 通过后发正式 `0.3.0`，
+  不再原地替换
+- Don't repeat: PC 插件无需重装（插件代码自第一次原地更新后未变）；不要自行推送或发布；不要再做装插件的 Windows 脚本
 
 ## 项目概况
 
