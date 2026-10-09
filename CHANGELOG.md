@@ -3,16 +3,6 @@
 What changed in each version of meshlink, newest first. Versions follow
 [SemVer](https://semver.org/); dates are YYYY-MM-DD.
 
-## Unreleased
-
-### Fixed
-
-- `meshlink --help` no longer says the Rhino plug-in is unreleased, and
-  `uninstall`'s own description names what `pair` and `get.sh` add.
-- `meshlink uninstall` showed the full path of the shell startup file under a
-  newer bash (from Homebrew, say) instead of `~/.zshrc`.
-- The README no longer lists Windows 11 as supported: it is not tested yet.
-
 ## 0.3.0-dev - 2026-10-09
 
 Demo prerelease: the Mac package and the Rhino plug-in's package, with the same
@@ -76,6 +66,11 @@ for the PC and the fixes listed below.
   code 2.
 - `meshlink uninstall` lists Host entries added by `meshlink pair` as well as
   those from `setup`, and the PATH line `get.sh` added.
+- `meshlink --help` no longer says the Rhino plug-in is unreleased, and
+  `uninstall`'s own description names what `pair` and `get.sh` add.
+- `meshlink uninstall` showed the full path of the shell startup file under a
+  newer bash (from Homebrew, say) instead of `~/.zshrc`.
+- The README no longer lists Windows 11 as supported: it is not tested yet.
 
 ## 0.1.0-dev - 2026-10-02
 
