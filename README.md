@@ -62,7 +62,9 @@ So far this has been tested on one Windows 10 PC with UAC off.
 5. With Rhino open on the PC, run `meshlink pair`. Rhino shows the request
    within a few seconds. Check that both screens show the same six-digit code,
    choose the Windows account the Mac logs in as (a dedicated standard account
-   is safer), and confirm on both sides.
+   is safer), and confirm on both sides. It adds the Host entry `rhino-pc` and
+   stops if that name exists already (a Mac set up before is connected; to pair
+   another PC, add `--host <name>`).
 6. Run `meshlink client codex`, then restart Codex. From then on the plug-in
    runs `mcpstart` whenever Rhino opens.
 
@@ -149,12 +151,12 @@ loopback on both machines.
 
 - **Mac:** macOS with `bash`, `ssh` and `lsof`, which ship with the system.
   Option 2 also needs [`uv`](https://docs.astral.sh/uv/) and `rhinomcp`.
-- **Windows PC:** Windows 10 or 11 with OpenSSH Server, and Rhino 8 with the
+- **Windows PC:** Windows 10 (Windows 11 is not tested yet) with OpenSSH Server, and Rhino 8 with the
   RhinoMCP plugin (**Tools → Package Manager → `rhinomcp`**).
 - **An MCP client** such as Codex CLI or Claude Code.
 
 Tested with macOS 26 (arm64), Windows 10 22H2, Rhino 8.35, rhinomcp 0.4.1.1 and
-Codex CLI 0.155.1 to 0.159.3. Other versions are likely to work but haven't
+Codex CLI 0.155.1 to 0.160.0. Other versions are likely to work but haven't
 been checked.
 
 ## Using the tunnel script (Option 2)

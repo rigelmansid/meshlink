@@ -66,7 +66,7 @@ never connected 走退避，问题打在日志里。这与“密钥无 passphras
 代价：密钥失效时不能顺手输密码，那本来就不该是守护脚本的能力。
 **首次指纹确认是手动安装步骤**：连一台新机器前先手动 `ssh rhino-pc` 一次。
 
-### D-5 暂不设置 `mcpstart` 随 Rhino 自动执行（待定项）（日期未记录）
+### D-5 暂不设置 `mcpstart` 随 Rhino 自动执行（待定项）（日期未记录）（已被 D-23 替代）
 
 Rhino 支持在 `Tools → Options → General → "Run these commands every time Rhino starts"`
 填入 `mcpstart`。**目前不做**，原因是没必要，而不是有害：

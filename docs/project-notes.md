@@ -4,15 +4,14 @@
 
 ## Handoff
 
-Updated: 2026-10-09 11:28
-- Task: 无，上一个工作单元：简化安装（D-32、D-33），原地更新 `v0.3.0-dev`（D-34），两端装上更新后的版本
-- Stopped at: Mac 用 `get.sh` 更新、PC 重装 `.yak`，doctor 正常；本条与 log 已提交，未推送
+Updated: 2026-10-09 11:57
+- Task: 无，上一个工作单元：全面复查并改正（文档一致性、卸载提示、CI 升到 Node 24 的 action 版本）
+- Stopped at: 全部提交在本地，未推送（领先 3 个提交，其中一个改了 workflow，推送要用 gh 的令牌，坑 22）
 - Decisions: D-32、D-33、D-34
-- Waiting on user: 推送本次记录；PC 上试 `ms-settings:optionalfeatures`；博客（第 1 节口述）；准备全新 Windows
-- Next: 1. 全新 Windows 验收（UAC 开启、README 的 OpenSSH 一行命令、W1 剩余、Windows 11）；2. 通过后发正式 `0.3.0`，
-  正式版不再原地替换；3. 博客：补第 1 节，加两条一行命令与下载链接
-- Don't repeat: 两端都已是更新后的 0.3.0-dev；不要自行推送或发布；推送 workflow 改动用 gh 令牌（坑 22）；
-  不要再做装插件的 Windows 脚本
+- Waiting on user: 推送；是否把 Unreleased 的修正也原地更新进 `v0.3.0-dev`；PC 上试 `ms-settings:optionalfeatures`；
+  博客（第 1 节口述，草稿里的数字要更新）
+- Next: 1. 推送后看 CI（确认 v5 action 无弃用警告）；2. 全新 Windows 验收后发正式 `0.3.0`
+- Don't repeat: 两端都已是更新后的 0.3.0-dev；不要自行推送或发布；不要再做装插件的 Windows 脚本
 
 ## 项目概况
 
@@ -71,7 +70,8 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 `pair`、`client codex`、`doctor` 等，实现都在 `scripts/`）、`install.sh` / `uninstall.sh` 与打包
 脚本 `scripts/package.sh`；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试清单；
 配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
-真实配对（2026-10-06）。自动化测试：六组 bash 测试（install 45、get 33、setup 85、doctor 48、
+真实配对（2026-10-06）。安装：Mac 端一行命令 `get.sh`（D-32），Windows 端下载 `.yak` 拖进
+Rhino、OpenSSH Server 用一行命令（D-33）；demo 预发布 `v0.3.0-dev`（D-31、D-34）。自动化测试：六组 bash 测试（install 45、get 33、setup 85、doctor 48、
 tunnel 38、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/tests.yml`（D-29，
 2026-10-08 首次运行通过）；尚无依赖清单。
 
@@ -280,7 +280,7 @@ rhinomcp 与 python 进程。默认值 0 时会残留（坑 16）。
 
 ```bash
 # ① Windows 的 Rhino 命令行
-mcpstart            # 每个 Rhino 会话都要重跑一次
+mcpstart            # 装了 meshlink 插件时 Rhino 启动会自动运行（D-23）；否则每个会话手动运行一次
 
 # ② Mac 终端
 codex               # Codex 经 ssh 在 Windows 上启动 rhinomcp，不需要另开窗口

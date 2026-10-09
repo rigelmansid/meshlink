@@ -79,7 +79,8 @@ fi
 # get.sh adds ~/.local/bin to PATH; other tools may install there too.
 for rc in "$HOME/.zshrc" "$HOME/.bash_profile"; do
   if grep -qxF '# Added by meshlink get.sh' "$rc" 2>/dev/null; then
-    left+=("the PATH line in ${rc/#$HOME/~} after '# Added by meshlink get.sh' (other tools in ~/.local/bin may use it)")
+    # Not ${rc/#$HOME/~}: newer bash expands that ~ back into the full path.
+    left+=("the PATH line in ~${rc#"$HOME"} after '# Added by meshlink get.sh' (other tools in ~/.local/bin may use it)")
   fi
 done
 if ((${#left[@]})); then

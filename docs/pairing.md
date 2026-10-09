@@ -1,4 +1,4 @@
-# 配对协议（草案，版本 1）
+# 配对协议（版本 1）
 
 发现与配对（D-18–D-21；原规划为 0.2，随预发布 `v0.3.0-dev` 发出，D-31）。配对只完成两件事：把 Mac 的公钥装到 Windows，让 Mac
 信任 Windows sshd 的主机公钥。之后的连接仍然走 SSH（D-1），本协议不传输任何建模数据。
@@ -10,7 +10,7 @@
 （Python）检查四步交换与各种失败。Windows 端在 `rhino-plugin/`：协议部分
 （`Meshlink.Pairing`）在 Mac 上有单元测试，并用 `PAIR_CLIENT=dotnet tests/test-pair.sh`
 与真实的 `pair.sh` 对跑；插件已在原环境 PC 上真实配对（2026-10-06，
-`tests/rhino-plugin-checklist.md` R1–R10）。
+`tests/rhino-plugin-checklist.md` R1–R10），随预发布 `v0.3.0-dev` 发布（2026-10-09）。
 
 ## 角色与流程
 

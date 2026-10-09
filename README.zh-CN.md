@@ -53,7 +53,8 @@ RhinoMCP 没有涉及的部分：安全地连通两台电脑，以及那些出�
    可以下载后运行 `bash get.sh`；也可以从发布页面下载 Mac 端压缩包，解压后运行 `./install.sh`。
 5. Windows 上的 Rhino 开着时，在 Mac 上运行 `meshlink pair`。几秒内 Rhino 会弹出配对
    请求。确认两边显示同一个 6 位配对码，选择 Mac 要登录的 Windows 账户（专用的普通账户
-   更安全），然后在两边确认。
+   更安全），然后在两边确认。它会添加名为 `rhino-pc` 的 Host 条目；这个名字已经存在时会
+   停下（以前配置过的 Mac 已经连好了；要再配对另一台电脑，加上 `--host <名字>`）。
 6. 运行 `meshlink client codex`，然后重启 Codex。此后每次打开 Rhino，插件都会自动运行
    `mcpstart`。
 
@@ -132,12 +133,12 @@ meshlink。在 Rhino 里运行 `MeshlinkUnpair` 可以删掉配对时装给某�
 
 - **Mac：** macOS，系统自带 `bash`、`ssh`、`lsof`。方式二还需要
   [`uv`](https://docs.astral.sh/uv/) 和 `rhinomcp`。
-- **Windows 电脑：** Windows 10 或 11，安装 OpenSSH Server；Rhino 8 并安装 RhinoMCP
+- **Windows 电脑：** Windows 10（Windows 11 尚未测试），安装 OpenSSH Server；Rhino 8 并安装 RhinoMCP
   插件（**Tools → Package Manager → `rhinomcp`**）。
 - **MCP 客户端：** 例如 Codex CLI 或 Claude Code。
 
 实测环境：macOS 26（arm64）、Windows 10 22H2、Rhino 8.35、rhinomcp 0.4.1.1、
-Codex CLI 0.155.1 至 0.159.3。其他版本大概率可用，但没有验证过。
+Codex CLI 0.155.1 至 0.160.0。其他版本大概率可用，但没有验证过。
 
 ## 使用隧道脚本（方式二）
 

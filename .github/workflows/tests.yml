@@ -16,7 +16,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # The scripts promise macOS's own bash 3.2; put it first on PATH so that
       # `#!/usr/bin/env bash` cannot pick up a newer one the runner may have.
@@ -53,7 +53,7 @@ jobs:
 
       # The projects target net8.0 (D-21); the maintainer builds with a newer
       # SDK, so install both and let the newest build, as on the Mac.
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
