@@ -4,15 +4,15 @@
 
 ## Handoff
 
-Updated: 2026-10-09 11:17
-- Task: 无，上一个工作单元：简化安装（D-32、D-33）并原地更新 `v0.3.0-dev`（D-34）
-- Stopped at: 全部已推送；标签 `v0.3.0-dev` 指向 `99e5f1f`，附件与发布说明已换新；真实的 `get.sh` 一行命令已验证
+Updated: 2026-10-09 11:28
+- Task: 无，上一个工作单元：简化安装（D-32、D-33），原地更新 `v0.3.0-dev`（D-34），两端装上更新后的版本
+- Stopped at: Mac 用 `get.sh` 更新、PC 重装 `.yak`，doctor 正常；本条与 log 已提交，未推送
 - Decisions: D-32、D-33、D-34
-- Waiting on user: 是否用 `get.sh` 更新本机 Mac 的 meshlink（现为更新前的 0.3.0-dev）、PC 上是否重装新 `.yak`
-  （同版本需先卸载）；PC 上试 `ms-settings:optionalfeatures`；博客（第 1 节口述）
-- Next: 1. 按用户意见更新两端安装并跑 `meshlink doctor`；2. 全新 Windows 验收（UAC 开启、OpenSSH 一行命令、
-  W1 剩余、Windows 11）后发正式 `0.3.0`，正式版不再原地替换
-- Don't repeat: 不要自行推送或发布；推送 workflow 改动用 gh 令牌（坑 22）；不要再做装插件的 Windows 脚本
+- Waiting on user: 推送本次记录；PC 上试 `ms-settings:optionalfeatures`；博客（第 1 节口述）；准备全新 Windows
+- Next: 1. 全新 Windows 验收（UAC 开启、README 的 OpenSSH 一行命令、W1 剩余、Windows 11）；2. 通过后发正式 `0.3.0`，
+  正式版不再原地替换；3. 博客：补第 1 节，加两条一行命令与下载链接
+- Don't repeat: 两端都已是更新后的 0.3.0-dev；不要自行推送或发布；推送 workflow 改动用 gh 令牌（坑 22）；
+  不要再做装插件的 Windows 脚本
 
 ## 项目概况
 
@@ -151,7 +151,7 @@ MCP 客户端 ──stdio──► rhinomcp ──127.0.0.1:1999──► ssh -L
 | Mac | 与 Windows 同一局域网，macOS 26（arm64） |
 | Windows | `<pc-address>`，用户 `<windows-user>`，Win10 22H2 build 19045.6466 |
 | SSH 登录账户 | 2026-10-01 起 Codex 用专用普通账户 `rhino-agent` 登录（方案 B，D-13）；15:53 起由 `setup.sh` 在 `~/.ssh/config` 新增 `Host rhino-agent`，Codex 参数不再带 `-l`，uv 与 rhinomcp 0.4.1.1 装在该账户目录下；另有一个 Host 条目供维护和诊断 |
-| meshlink | 2026-10-09 从 GitHub 预发布 `v0.3.0-dev` 的压缩包升级（原为 2026-10-01 安装的 0.1.0-dev）：文件在 `~/.local/share/meshlink`，命令 `~/.local/bin/meshlink` |
+| meshlink | 2026-10-09 升级到 `v0.3.0-dev`（原为 2026-10-01 安装的 0.1.0-dev），同日用 `get.sh` 换成原地更新后的内容：文件在 `~/.local/share/meshlink`，命令 `~/.local/bin/meshlink` |
 | Rhino | 8（插件仅支持 8，7 装不上）；2026-09-25 观察到 8.35.26237.11001 |
 | rhinomcp | 0.4.1.1（PyPI）；Mac 上用 `uv tool install` 安装，Windows 上 2026-09-26 同版本安装在用户目录 |
 | Codex | 2026-09-25/26 会话为 CLI 0.155.1（npm 安装，经 nvm 的 Node）；2026-10-01 上午 0.159.2，15:09 已自动升到 0.159.3（坑 14） |
