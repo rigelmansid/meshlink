@@ -13,6 +13,7 @@
 #   S2b rerun without --key                       -> the Host entry's key is used
 #   S3  alias exists with another account        -> WARN, config untouched
 #   S4  config with Include and "Host *"         -> entry after Include, before Host *
+#   S4b config starting with a Host line         -> entry first, no error from head
 #   S5  --fingerprint does not match             -> FAIL, known_hosts untouched
 #   S6  known_hosts has another key for the PC   -> FAIL
 #   S7  fingerprint asked: "yes" / "no"          -> trusted / FAIL
@@ -303,6 +304,18 @@ order=$(grep -nE '^(Include|Host)' "$H/.ssh/config" | tr '\n' ' ')
 [[ $(/usr/bin/ssh -F "$H/.ssh/config" -G rhino-pc | awk '$1=="user"{print $2}') == agent ]] &&
   ok "Host * does not override the user" || bad "Host * does not override the user"
 ls "$H/.ssh" | grep -q '^config.bak-' && ok "backup of the old config" || bad "backup of the old config"
+
+echo "S4b config starting with a Host line"
+fresh_home s4b
+mkdir -p "$H/.ssh"
+printf 'Host other\n    User someone\n' >"$H/.ssh/config"
+run s4b '\n' "$SETUP" --address 192.0.2.9 --user agent --fingerprint "$FP"
+exit_is "$rc" 0 "exit 0"
+hasnt "$out" "illegal line count" "no error from head"
+order=$(grep -nE '^Host' "$H/.ssh/config" | tr '\n' ' ')
+[[ $order == "2:Host rhino-pc 11:Host other " ]] &&
+  ok "entry before the existing Host" || bad "entry before the existing Host ($order)"
+has "$H/.ssh/config" "    User someone" "existing entry kept"
 
 echo "S5 wrong --fingerprint"
 fresh_home s5

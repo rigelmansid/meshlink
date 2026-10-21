@@ -3,6 +3,13 @@
 What changed in each version of meshlink, newest first. Versions follow
 [SemVer](https://semver.org/); dates are YYYY-MM-DD.
 
+## Unreleased
+
+### Fixed
+
+- `meshlink pair` and `meshlink setup` no longer print `head: illegal line count -- 0`
+  when `~/.ssh/config` starts with a `Host` line. The entry was added correctly anyway.
+
 ## 0.3.0-dev - 2026-10-09
 
 Demo prerelease: the Mac package and the Rhino plug-in's package, with the same

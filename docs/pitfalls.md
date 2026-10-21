@@ -282,3 +282,12 @@
 
     → 安装脚本找最新版改读 `https://github.com/<repo>/releases.atom`（含预发布，最新在前，
     条目 id 以标签结尾），不走 REST API（D-32）。`/releases/latest` 不含预发布，也不能用。
+
+24. **macOS 的 `head` 不接受 `-n 0`**（2026-10-12 发现）—— 重新配对时 `meshlink pair` 多打印了一行
+    `head: illegal line count -- 0`。`scripts/lib/sshcfg.sh` 把新 Host 条目插到第一个 `Host`/`Match`
+    之前，前面的部分用 `head -n $((first - 1))` 取；`~/.ssh/config` 第一行就是 `Host` 时 first 为 1，
+    macOS 自带的 `head` 对 0 报错（GNU head 只是输出为空）。插入结果仍然正确，只多一行报错。原有测试的
+    配置都以注释或 `Include` 开头，没覆盖到这种情况。
+
+    → first 大于 1 时才调用 `head`；`test-setup.sh` 新增 S4b（配置第一行就是 Host）。bash 里行数可能
+    为 0 的 `head -n` 要单独判断。

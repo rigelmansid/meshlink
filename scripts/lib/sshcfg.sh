@@ -69,7 +69,9 @@ Host $HOST_ALIAS
     first=$(grep -niE '^[[:space:]]*(Host|Match)[[:space:]]' "$CONFIG" | head -1 | cut -d: -f1)
     tmp="$CONFIG.tmp-$STAMP"
     if [[ -n $first ]]; then
-      { head -n $((first - 1)) "$CONFIG"; printf '%s\n' "$block"; tail -n +"$first" "$CONFIG"; } >"$tmp"
+      # macOS head rejects -n 0, so skip it when the file starts with Host.
+      { ((first > 1)) && head -n $((first - 1)) "$CONFIG"
+        printf '%s\n' "$block"; tail -n +"$first" "$CONFIG"; } >"$tmp"
     else
       { cat "$CONFIG"; [[ -s $CONFIG ]] && echo; printf '%s' "$block"; } >"$tmp"
     fi

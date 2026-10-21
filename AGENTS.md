@@ -44,7 +44,7 @@ Do not copy project content into this file.
 for f in bin/meshlink $(git ls-files '*.sh'); do bash -n "$f"; done   # syntax
 tests/test-rhino-tunnel.sh           # ~40 s, expects "passed: 38  failed: 0"
 tests/test-doctor.sh                 # ~6 s, expects "passed: 48  failed: 0"
-tests/test-setup.sh                  # ~5 s, expects "passed: 85  failed: 0"
+tests/test-setup.sh                  # ~5 s, expects "passed: 89  failed: 0"
 tests/test-install.sh                # ~10 s, expects "passed: 45  failed: 0"
 tests/test-get.sh                    # ~8 s, expects "passed: 33  failed: 0"
 tests/test-pair.sh                   # ~25 s, expects "passed: 118  failed: 0"

@@ -73,7 +73,7 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 脚本 `scripts/package.sh`；Windows 准备脚本 `scripts/prepare-windows.ps1` 及其手动测试清单；
 配对：Mac 端 `meshlink pair` 与 Windows 端 Rhino 插件（`rhino-plugin/`），已在原环境
 真实配对（2026-10-06）。安装：Mac 端一行命令 `get.sh`（D-32），Windows 端下载 `.yak` 拖进
-Rhino、OpenSSH Server 用一行命令（D-33）；demo 预发布 `v0.3.0-dev`（D-31、D-34）。自动化测试：六组 bash 测试（install 45、get 33、setup 85、doctor 48、
+Rhino、OpenSSH Server 用一行命令（D-33）；demo 预发布 `v0.3.0-dev`（D-31、D-34）。自动化测试：六组 bash 测试（install 45、get 33、setup 89、doctor 48、
 tunnel 38、pair 118 项）与 .NET 测试 62 项。CI 见 `.github/workflows/tests.yml`（D-29，
 2026-10-08 首次运行通过）；尚无依赖清单。
 
