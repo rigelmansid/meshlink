@@ -173,7 +173,7 @@ comments and in the pitfalls cited. Do not "simplify" them away.
   results into `docs/log.md`.
 - `docs/` (except `remote-setup.md`) and the experiment notes are in Chinese;
   user-facing docs are English, with `README.zh-CN.md` kept in sync with `README.md`.
-- Write plain, factual prose. Commit subjects are short imperative English.
+- Write plain, factual prose.
 
 ## Privacy and publishing
 
