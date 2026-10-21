@@ -1,19 +1,19 @@
 # meshlink 开发与维护记录
 
-最后更新：2026-10-09。
+最后更新：2026-10-13。
 
 ## Handoff
 
-Updated: 2026-10-09 12:20
-- Task: 无，上一个工作单元：简化两端安装（D-32、D-33），demo 预发布 `v0.3.0-dev` 两次原地更新（D-31、D-34）
-- Stopped at: 全部已推送（`fad045c`），标签 `v0.3.0-dev` 指向 `ed86ad4`，CI 通过；两端都装着最新内容；收尾的文档改动已在本地提交，未推送
-- Decisions: D-29–D-34
-- Waiting on user: 推送本地提交；准备全新 Windows（虚拟机即可）；PC 上试 `ms-settings:optionalfeatures`；
-  博客第 1 节口述（草稿 `../materials/scratch/post-draft/`，数字与安装方式要按现状更新）
-- Next: 1. 有全新 Windows 后，按 `tests/prepare-windows-checklist.md` 与 `tests/rhino-plugin-checklist.md`
-  的未覆盖项（含 R11、README 的 OpenSSH 一行命令、Windows 11）整理分步验收说明；2. 通过后发正式 `0.3.0`，不再原地替换
-- Don't repeat: 不要自行推送、发布或改用户电脑上的安装；不要再做装插件的 Windows 脚本；查最新版用 releases.atom（坑 23）；
-  推送 workflow 改动用 gh 的令牌（坑 22）；`gh release create --target` 用完整哈希
+Updated: 2026-10-13 01:52
+- Task: 无，上一个工作单元：博客成稿 v5（含 GIF、架构图、配对截图）与 Mac 端多次重新配对测试；顺带修坑 24
+- Stopped at: 坑 24 的修复未提交（`scripts/lib/sshcfg.sh`、`tests/test-setup.sh` S4b、AGENTS.md、CHANGELOG、docs）；
+  已推送到 `9f1d11e`；Mac 最后一次配对是 2026-10-12 20:12
+- Decisions: 无新决策（D-29–D-36 仍有效）
+- Waiting on user: 是否提交并推送这次修复；博客发布平台；准备全新 Windows（虚拟机即可）；
+  `~/.ssh/meshlink-reset-backup-*`（121747 是原始配置）是否删除
+- Next: 1. 用户同意后提交（Why: 坑 24）、推送并看 CI；2. 全新 Windows 验收后发正式 `0.3.0`，再按当时的数字更新博客 v5 并发文
+- Don't repeat: 不要自行推送、发布或改用户电脑上的安装；清理 Mac 端配置前先备份；博客里不写用户没确认的第一人称经历；
+  查最新版用 releases.atom（坑 23）；推送 workflow 改动用 gh 的令牌（坑 22）
 
 ## 项目概况
 
@@ -412,9 +412,10 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
       断网。目前只测了断开 Windows Wi-Fi；断线后 Codex 的恢复方式已测（坑 17）。
 - [ ] **Mac 端双击安装的 `.pkg`**（D-32 记为完整形态）：需要 Apple 开发者账号（年费）签名与公证，
       否则 macOS 拦截；还要定证书怎么保存、CI 里怎么公证。现在用一行命令 `get.sh`。
-- [ ] **写踩坑总结文章**：英文博客草稿在 `../materials/scratch/post-draft/`（2026-10-08，大纲已定，标题
-      “Driving Rhino on a Windows PC from an AI agent on my Mac”）；用户决定等 `v0.3.0-dev` 验证没问题再写，第 1 节
-      由用户口述。文中链接本仓库的连接指南（PR #63 已关闭，D-30）。
+- [ ] **发布踩坑总结文章**：成稿 `../materials/scratch/post-draft/driving-rhino-from-mac-v5.md`（2026-10-13），
+      图片与视频在同目录 `assets/`（演示 GIF 与 MP4、架构图 SVG、打码后的配对截图）。用户决定等全新 Windows
+      验收、发正式 `0.3.0` 后再发，发前更新日期和文中数字；发布平台未定（决定用 GIF 还是 MP4、SVG 要不要转 PNG）。
+      文中链接本仓库的连接指南（PR #63 已关闭，D-30）。
 
 ### 原环境遗留问题
 
