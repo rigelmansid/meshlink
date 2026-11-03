@@ -1,19 +1,18 @@
 # meshlink 开发与维护记录
 
-最后更新：2026-10-13。
+最后更新：2026-11-04。
 
 ## Handoff
 
-Updated: 2026-10-13 01:52
-- Task: 无，上一个工作单元：博客成稿 v5（含 GIF、架构图、配对截图）与 Mac 端多次重新配对测试；顺带修坑 24
-- Stopped at: 坑 24 的修复未提交（`scripts/lib/sshcfg.sh`、`tests/test-setup.sh` S4b、AGENTS.md、CHANGELOG、docs）；
-  已推送到 `9f1d11e`；Mac 最后一次配对是 2026-10-12 20:12
-- Decisions: 无新决策（D-29–D-36 仍有效）
-- Waiting on user: 是否提交并推送这次修复；博客发布平台；准备全新 Windows（虚拟机即可）；
-  `~/.ssh/meshlink-reset-backup-*`（121747 是原始配置）是否删除
-- Next: 1. 用户同意后提交（Why: 坑 24）、推送并看 CI；2. 全新 Windows 验收后发正式 `0.3.0`，再按当时的数字更新博客 v5 并发文
-- Don't repeat: 不要自行推送、发布或改用户电脑上的安装；清理 Mac 端配置前先备份；博客里不写用户没确认的第一人称经历；
-  查最新版用 releases.atom（坑 23）；推送 workflow 改动用 gh 的令牌（坑 22）
+Updated: 2026-11-04 00:05
+- Task: 无，上一个工作单元：`/adopt` 检查，AGENTS.md 与 project-notes 中的 `../materials/` 改为 `temp/`（D-37）
+- Stopped at: 已提交 `f6a5f0e`，未推送；`origin/main` 停在 2026-10-21 的提交
+- Decisions: D-37（替代 D-15）
+- Waiting on user: 是否推送 `f6a5f0e`；博客发布平台；准备全新 Windows（虚拟机即可）；
+  `~/.ssh/meshlink-reset-backup-*`（还剩 2 个）是否删除
+- Next: 1. 用户同意后推送 `public` 并看 CI；2. 全新 Windows 验收后发正式 `0.3.0`，再按当时的数字更新博客 v5（`temp/scratch/post-draft/`）并发文
+- Don't repeat: 不要自行推送、发布或改用户电脑上的安装；临时文件、草稿放 `temp/`，不再用 `../materials/`；
+  博客里不写用户没确认的第一人称经历；查最新版用 releases.atom（坑 23）；推送 workflow 改动用 gh 的令牌（坑 22）
 
 ## 项目概况
 
