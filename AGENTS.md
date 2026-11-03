@@ -57,8 +57,8 @@ dotnet build rhino-plugin/Meshlink.Rhino -c Release   # the plug-in, for Rhino o
 YAK=<path to yak> scripts/package-yak.sh               # dist/meshlink-<version>-rh8_17-win.yak
 ```
 
-`yak` is McNeel's standalone tool, on the maintainer's Mac at `../materials/scratch/tools/yak`
-(D-24). Pushing a package to the public Yak server needs the user's explicit go.
+`yak` is McNeel's standalone tool, on the maintainer's Mac at `temp/scratch/tools/yak`
+(D-24, D-37). Pushing a package to the public Yak server needs the user's explicit go.
 
 The tests need `python3`, `lsof`, `pgrep`, `ps` and free local ports
 29931–29937 (tunnel), 29941–29942 (doctor) and 29951–29952 (pair); check the
@@ -137,10 +137,10 @@ comments and in the pitfalls cited. Do not "simplify" them away.
     named `MCP: <command>`. Do not open another inside a script; it would not
     start (D-28). Check this again after a rhinomcp upgrade (pitfall 14).
   - Never overwrite an existing `.3dm` file; save under a new name.
-- Never write modeling scripts, generated models or scratch files into the
-  repository; use the maintainer's `../materials/scratch/` next to it (it may
-  not exist elsewhere). `../materials/refs/` and `inbox/` hold reference and
-  unsorted material; read them only when the task needs them (D-15).
+- Never write modeling scripts, generated models or scratch files into tracked
+  files; use `temp/scratch/` (git-ignored as a whole by `temp/.gitignore`; it
+  may not exist elsewhere). `temp/refs/` and `temp/inbox/` hold reference and
+  unsorted material; read them only when the task needs them (D-37).
 
 ## Verification
 

@@ -265,7 +265,7 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
   保留原章节号，§5、§6、§9 留指向新文件的占位，所以历史记录里的 “§n” 仍然有效。AGENTS.md
   的文档维护规则相应改写，仍可独立使用。
 
-### D-15 项目资料放在仓库旁的 materials/（2026-10-03，用户决定）
+### D-15 项目资料放在仓库旁的 materials/（2026-10-03，用户决定）（已被 D-37 替代）
 
 - 背景：参考资料、待整理资料不想放进仓库；规则只说“临时文件不写进项目目录”，没有
   固定位置，建模脚本等临时产出每次要另选目录。仓库旁有空的 `meshlink bak`，仓库里有
@@ -526,3 +526,15 @@ uv 和 rhinomcp 装在它名下；Rhino 照常在用户自己的桌面账户下�
 - 选择：B。开场不再自动读状态，要看现状时用户输入 /pickup；收尾用 /wrap，另外更新当前状态、验证现状，并在 `docs/log.md` 追加阶段记录和验证记录。
 - 理由：用户决定。
 - 影响：AGENTS.md Getting started 第 1 条、Keeping docs current 第 2 条。
+
+### D-37 项目资料改放仓库内的 temp/（2026-11-03，用户决定）
+
+- 背景：agent-system 改为每个项目用仓库内的 `temp/` 放临时文件（agent-system D-75），`/adopt` 已建好 `temp/`，
+  原 `../materials/` 的 `refs/`、`inbox/`、`scratch/` 已移进 `temp/`，仓库旁的 `materials/` 不再存在；AGENTS.md 和
+  project-notes 仍指向 `../materials/`。
+- 选项：A 改回 `../materials/` / B 改为 `temp/`
+- 选择：B，替代 D-15。
+- 理由：用户决定；和 agent-system 的约定一致，文件已经在 `temp/` 里。
+- 影响：AGENTS.md 的 yak 路径和建模临时文件规则、project-notes 文件表与待办里的路径改为 `temp/`。`temp/.gitignore`
+  只有 `*`，整个文件夹不入库；`scripts/package.sh` 只打包 `install.sh --list` 列出的文件，碰不到 `temp/`。`docs/log.md` 和旧决策里的 `../materials/` 是当时的
+  记录，不改。

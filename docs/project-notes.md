@@ -61,12 +61,12 @@ Rhino 8 建模。建模能力来自上游 [rhinomcp](https://github.com/jingchen
 | [tests/test-doctor.sh](../tests/test-doctor.sh) | 用 fake codex 与 fake ssh 验证 doctor 的 12 组场景（48 项断言）。 |
 | [tests/test-rhino-tunnel.sh](../tests/test-rhino-tunnel.sh) | 用 fake SSH 验证隧道脚本的退出清理、断线分类、重连、沙箱错误退出与选项处理的 6 组场景（38 项断言）。 |
 | [rhino-plugin/](../rhino-plugin) | Windows 端（2026-10-05，随 `v0.3.0-dev` 预发布，D-19–D-23）：`Meshlink.Pairing` 协议库（四步会话、配对码、校验、Windows mDNS 发现）、`Meshlink.Pairing.Tests`（含 `prepare-windows.ps1` 语法检查）、`Meshlink.Pairing.Driver`（供 `PAIR_CLIENT=dotnet tests/test-pair.sh`）、`Meshlink.Rhino`（插件 `Meshlink.rhp`：配对弹窗、提权运行 `prepare-windows.ps1`、启动时 `mcpstart`、`MeshlinkUnpair`）。在 Mac 上用 .NET SDK 编译；2026-10-06 在原环境 PC 上按清单 R1–R10 测试通过（UAC 关闭）。 |
-| [scripts/package-yak.sh](../scripts/package-yak.sh) | 用官方 `yak`（D-24，维护者机器上在 `../materials/scratch/tools/yak`）把插件打成 `dist/meshlink-<版本>-rh8_17-win.yak`（2026-10-07）。2026-10-07 在原环境 PC 上验证了从包安装、撤销配对与卸载（清单 R12–R14）。 |
+| [scripts/package-yak.sh](../scripts/package-yak.sh) | 用官方 `yak`（D-24，维护者机器上在 `temp/scratch/tools/yak`）把插件打成 `dist/meshlink-<版本>-rh8_17-win.yak`（2026-10-07）。2026-10-07 在原环境 PC 上验证了从包安装、撤销配对与卸载（清单 R12–R14）。 |
 | [tests/rhino-plugin-checklist.md](../tests/rhino-plugin-checklist.md) | 插件的手动测试清单（PC 上执行）。 |
 | [tests/test-pair.sh](../tests/test-pair.sh) | 配对：对照 [测试向量](../tests/pairing-vectors.txt) 检查承诺值与配对码；用 Python 假 Rhino 端、fake dns-sd / ssh / ssh-keyscan 和真实 `nc` 验证 `pair.sh` 的 15 组场景（共 118 项断言）。 |
 | [experiments/](../experiments/) | MCP stdio 探测脚本：Python 版 `mcp_stdio_probe.py`（`--hold` 可在调用后保持会话，用于断网实验）；纯 bash 3.2 版 `mcp_stdio_probe.sh`（一次工具调用并给出判定，验证 doctor 不依赖 Python 的可行性）。另有选项 1 的实验步骤 `ssh-stdio-test.md`。 |
 | `private-notes.md`（不入库） | 真实主机地址、用户名、个人配置和个人环境问题；在 `.gitignore` 中。 |
-| `../materials/`（仓库外） | 参考资料 `refs/`、待整理 `inbox/`、agent 临时产出 `scratch/`（建模脚本、生成的模型、实验输出）。见 D-15。 |
+| `temp/`（不入库） | 参考资料 `refs/`、待整理 `inbox/`、agent 临时产出 `scratch/`（建模脚本、生成的模型、实验输出）；里面的 `.gitignore` 让整个文件夹不入库。见 D-37。 |
 
 现有内容：实测过的连接指南；Mac 端统一命令 `meshlink`（`bin/meshlink`，子命令 `setup`、
 `pair`、`client codex`、`doctor` 等，实现都在 `scripts/`）、`install.sh` / `uninstall.sh` 与打包
@@ -412,7 +412,7 @@ CI 较慢时可能偶发失败；整理测试时应放宽窗口或改为事件�
       断网。目前只测了断开 Windows Wi-Fi；断线后 Codex 的恢复方式已测（坑 17）。
 - [ ] **Mac 端双击安装的 `.pkg`**（D-32 记为完整形态）：需要 Apple 开发者账号（年费）签名与公证，
       否则 macOS 拦截；还要定证书怎么保存、CI 里怎么公证。现在用一行命令 `get.sh`。
-- [ ] **发布踩坑总结文章**：成稿 `../materials/scratch/post-draft/driving-rhino-from-mac-v5.md`（2026-10-13），
+- [ ] **发布踩坑总结文章**：成稿 `temp/scratch/post-draft/driving-rhino-from-mac-v5.md`（2026-10-13），
       图片与视频在同目录 `assets/`（演示 GIF 与 MP4、架构图 SVG、打码后的配对截图）。用户决定等全新 Windows
       验收、发正式 `0.3.0` 后再发，发前更新日期和文中数字；发布平台未定（决定用 GIF 还是 MP4、SVG 要不要转 PNG）。
       文中链接本仓库的连接指南（PR #63 已关闭，D-30）。
